@@ -25,13 +25,13 @@ const DAY_NAMES = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
 
 export function CalendarGrid({ days, onDayClick, selectedDate }: CalendarGridProps) {
   return (
-    <div className="bg-surface-container-low rounded-xl overflow-hidden border border-outline-variant/10">
+    <div className="bg-surface-container-low rounded-xl overflow-hidden border border-outline-variant/10 flex flex-col h-full">
       {/* Day headers */}
-      <div className="grid grid-cols-7 bg-surface-container-high/50 border-b border-outline-variant/10">
+      <div className="grid grid-cols-7 bg-surface-container-high/50 border-b border-outline-variant/10 shrink-0">
         {DAY_NAMES.map((name) => (
           <div
             key={name}
-            className="py-3 text-center text-[10px] uppercase tracking-widest font-bold text-on-surface-variant"
+            className="py-2 text-center text-[10px] uppercase tracking-widest font-bold text-on-surface-variant"
           >
             {name}
           </div>
@@ -39,13 +39,13 @@ export function CalendarGrid({ days, onDayClick, selectedDate }: CalendarGridPro
       </div>
 
       {/* Day cells */}
-      <div className="grid grid-cols-7">
+      <div className="grid grid-cols-7 flex-1">
         {days.map((day, i) => (
           <div
             key={i}
             onClick={() => day.isCurrentMonth && onDayClick?.(day.date)}
             className={cn(
-              'h-32 border-r border-b border-outline-variant/5 p-2 transition-colors',
+              'border-r border-b border-outline-variant/5 p-1.5 transition-colors',
               day.isCurrentMonth
                 ? 'hover:bg-surface-bright/20 cursor-pointer'
                 : 'bg-surface-container-lowest/30 opacity-40',

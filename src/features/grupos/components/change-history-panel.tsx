@@ -26,21 +26,22 @@ export function ChangeHistoryPanel({ entries, taskTitle }: ChangeHistoryPanelPro
 
   return (
     <div className="xl:col-span-4">
-      <div className="bg-surface-container-low rounded-2xl overflow-hidden flex flex-col h-[600px] border border-outline-variant/10">
+      <div className="bg-surface-container-low rounded-xl overflow-hidden flex flex-col h-full border border-outline-variant/10">
         {/* Header */}
-        <div className="p-6 bg-surface-container-high border-b border-outline-variant/10">
-          <h3 className="text-lg font-bold text-on-surface tracking-tight flex items-center gap-2">
-            <span className="material-symbols-outlined text-primary">history</span>
-            Historial de Cambios
-          </h3>
-          <p className="text-xs text-on-surface-variant mt-2">
-            Actividad reciente para:{' '}
-            <span className="text-primary font-medium italic">{taskTitle}</span>
+        <div className="px-4 py-2.5 bg-surface-container-high border-b border-outline-variant/10 shrink-0">
+          <div className="flex items-center gap-2">
+            <span className="material-symbols-outlined text-sm text-primary">history</span>
+            <span className="text-xs font-bold uppercase tracking-widest text-on-surface-variant">
+              Historial
+            </span>
+          </div>
+          <p className="text-[11px] text-on-surface-variant/60 mt-0.5 truncate">
+            <span className="text-primary font-medium">{taskTitle}</span>
           </p>
         </div>
 
         {/* Timeline */}
-        <div className="flex-1 overflow-y-auto p-6 space-y-8 relative hide-scrollbar">
+        <div className="flex-1 overflow-y-auto p-4 space-y-5 relative hide-scrollbar">
           <div className="absolute left-9 top-10 bottom-10 w-0.5 bg-outline-variant/20" />
 
           {entries.map((entry) => (

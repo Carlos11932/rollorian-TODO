@@ -1,7 +1,6 @@
 import { RequiresAttentionCard } from '../components/requires-attention-card';
 import { TodaySection } from '../components/today-section';
 import { ThisWeekSection } from '../components/this-week-section';
-import { StatsSection } from '../components/stats-section';
 import {
   ATTENTION_ITEMS,
   TODAY_ITEMS,
@@ -10,53 +9,41 @@ import {
 } from '@/lib/mock/data';
 
 const WEEK_CARDS = [
-  { item: THIS_WEEK_ITEMS[0]!, dayLabel: 'Martes 13' },
-  { item: THIS_WEEK_ITEMS[1]!, dayLabel: 'Jueves 15' },
-  { item: THIS_WEEK_ITEMS[2]!, dayLabel: 'Sábado 17' },
+  { item: THIS_WEEK_ITEMS[0]!, dayLabel: 'Mar 13' },
+  { item: THIS_WEEK_ITEMS[1]!, dayLabel: 'Jue 15' },
+  { item: THIS_WEEK_ITEMS[2]!, dayLabel: 'Sáb 17' },
 ];
 
 export function MiVistaPage() {
   return (
-    <div className="px-8 lg:px-12 pt-8 pb-16 space-y-12">
-      {/* Hero header */}
-      <div className="flex justify-between items-end">
-        <div className="space-y-1">
-          <h2 className="text-4xl font-extrabold tracking-tight text-on-surface font-headline">
-            Mi Vista
+    <div className="flex flex-col h-[calc(100vh-4rem)] px-5 pt-4 pb-4 gap-4 overflow-hidden">
+      {/* Compact page header */}
+      <div className="flex items-center justify-between shrink-0">
+        <div className="flex items-center gap-3">
+          <h2 className="text-xs font-bold uppercase tracking-widest text-on-surface-variant">
+            Lunes, 12 de Octubre
           </h2>
-          <p className="text-tertiary font-medium opacity-80">
-            Bienvenidos de nuevo al Archivo, Curador.
-          </p>
         </div>
-
-        <div className="flex items-center gap-4 bg-surface-container-low p-2 px-4 rounded-xl border border-outline-variant/10">
-          <div className="flex flex-col items-end">
-            <span className="text-[10px] uppercase tracking-widest text-on-surface-variant">
-              Sin Fecha
-            </span>
-            <span className="text-xl font-bold text-secondary">
-              {MOCK_STATS.undatedPending} Pendientes
-            </span>
-          </div>
-          <span className="material-symbols-outlined text-secondary text-3xl">inventory_2</span>
+        <div className="flex items-center gap-1.5 text-xs text-on-surface-variant">
+          <span className="material-symbols-outlined text-sm text-secondary">inventory_2</span>
+          <span className="font-bold text-secondary">{MOCK_STATS.undatedPending}</span>
+          <span className="text-on-surface-variant/60">pendientes sin fecha</span>
         </div>
       </div>
 
-      {/* Bento: Attention + Today */}
-      <div className="grid grid-cols-12 gap-8">
-        <RequiresAttentionCard items={ATTENTION_ITEMS} />
-        <TodaySection items={TODAY_ITEMS} dateLabel="Lunes, 12 de Octubre" />
+      {/* Two-column content — fills remaining height */}
+      <div className="flex-1 grid grid-cols-1 lg:grid-cols-3 gap-4 min-h-0">
+        {/* Left: Today tasks */}
+        <div className="lg:col-span-2 flex flex-col min-h-0">
+          <TodaySection items={TODAY_ITEMS} />
+        </div>
+
+        {/* Right: Attention + This Week */}
+        <div className="flex flex-col gap-4 min-h-0">
+          <RequiresAttentionCard items={ATTENTION_ITEMS} />
+          <ThisWeekSection cards={WEEK_CARDS} />
+        </div>
       </div>
-
-      {/* Esta Semana */}
-      <ThisWeekSection cards={WEEK_CARDS} />
-
-      {/* Stats */}
-      <StatsSection
-        monthlyProgressPercent={MOCK_STATS.monthlyProgressPercent}
-        totalEntries={MOCK_STATS.totalEntries}
-        activeUsers={MOCK_STATS.activeUsers}
-      />
     </div>
   );
 }

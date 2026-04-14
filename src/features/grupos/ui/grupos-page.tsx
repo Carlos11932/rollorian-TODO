@@ -11,71 +11,65 @@ export function GruposPage() {
   const selectedItem = GROUP_ITEMS.find((i) => i.id === selectedId) ?? defaultItem;
 
   return (
-    <div className="px-8 lg:px-12 pt-8 pb-16 space-y-8">
-      {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-        <div className="max-w-2xl">
-          <div className="flex items-center gap-2 text-secondary mb-2">
-            <span
-              className="material-symbols-outlined text-sm"
-              style={{ fontVariationSettings: "'FILL' 1" }}
-            >
-              auto_awesome
-            </span>
-            <span className="text-xs font-bold tracking-widest uppercase">Project Curator</span>
-          </div>
-          <h2 className="text-4xl font-extrabold text-on-background tracking-tighter mb-4 font-headline">
-            Vista de Grupo
+    <div className="flex flex-col h-[calc(100vh-4rem)] px-5 pt-4 pb-4 gap-4 overflow-hidden">
+      {/* Compact header */}
+      <div className="flex items-center justify-between shrink-0">
+        <div className="flex items-center gap-3">
+          <h2 className="text-xs font-bold uppercase tracking-widest text-on-surface-variant">
+            Archivo Histórico
           </h2>
+          <span className="text-[10px] text-on-surface-variant/40 uppercase tracking-widest">
+            · Grupo activo
+          </span>
+        </div>
 
-          {/* Filters + members */}
-          <div className="flex flex-wrap gap-3">
-            <button
-              type="button"
-              className="bg-surface-container-high text-on-surface-variant px-4 py-2 rounded-full text-xs font-medium border border-transparent hover:border-primary/30 transition-all flex items-center gap-2"
-            >
-              <span className="material-symbols-outlined text-sm">filter_list</span>
-              Filtrar por responsable
-            </button>
-            <button
-              type="button"
-              className="bg-surface-container-high text-on-surface-variant px-4 py-2 rounded-full text-xs font-medium border border-transparent hover:border-primary/30 transition-all flex items-center gap-2"
-            >
-              <span className="material-symbols-outlined text-sm">sort</span>
-              Prioridad: Alta
-            </button>
-
-            <div className="flex -space-x-2 ml-2">
-              {MOCK_USERS.slice(0, 3).map((user) => (
-                <div
-                  key={user.id}
-                  className="w-8 h-8 rounded-full border-2 border-background flex items-center justify-center text-[10px] font-bold text-on-surface"
-                  style={{ backgroundColor: user.avatarColor ?? '#004f34' }}
-                  title={user.name}
-                >
-                  {user.initials}
-                </div>
-              ))}
-              <div className="w-8 h-8 rounded-full border-2 border-background bg-surface-container-highest flex items-center justify-center text-[10px] font-bold text-primary">
-                +{Math.max(0, MOCK_USERS.length - 3)}
+        <div className="flex items-center gap-3">
+          {/* Member avatars */}
+          <div className="flex -space-x-1.5">
+            {MOCK_USERS.slice(0, 3).map((user) => (
+              <div
+                key={user.id}
+                className="w-6 h-6 rounded-full border border-surface flex items-center justify-center text-[9px] font-bold text-on-surface"
+                style={{ backgroundColor: user.avatarColor ?? '#004f34' }}
+                title={user.name}
+              >
+                {user.initials}
               </div>
-            </div>
+            ))}
+            {MOCK_USERS.length > 3 && (
+              <div className="w-6 h-6 rounded-full border border-surface bg-surface-container-highest flex items-center justify-center text-[9px] font-bold text-primary">
+                +{MOCK_USERS.length - 3}
+              </div>
+            )}
           </div>
+
+          {/* Filters */}
+          <button
+            type="button"
+            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-surface-container-high text-on-surface-variant text-xs font-medium hover:bg-surface-container-highest transition-colors"
+          >
+            <span className="material-symbols-outlined text-sm">filter_list</span>
+            Filtrar
+          </button>
         </div>
       </div>
 
-      {/* Content grid */}
-      <div className="grid grid-cols-1 xl:grid-cols-12 gap-8">
-        <GroupTaskList
-          items={GROUP_ITEMS}
-          selectedId={selectedId}
-          onSelect={setSelectedId}
-        />
-        {selectedItem && (
-          <ChangeHistoryPanel
-            entries={MOCK_HISTORY}
-            taskTitle={selectedItem.title}
+      {/* Master-detail grid */}
+      <div className="flex-1 grid grid-cols-1 xl:grid-cols-3 gap-4 min-h-0">
+        <div className="xl:col-span-2 min-h-0">
+          <GroupTaskList
+            items={GROUP_ITEMS}
+            selectedId={selectedId}
+            onSelect={setSelectedId}
           />
+        </div>
+        {selectedItem && (
+          <div className="xl:col-span-1 min-h-0">
+            <ChangeHistoryPanel
+              entries={MOCK_HISTORY}
+              taskTitle={selectedItem.title}
+            />
+          </div>
         )}
       </div>
     </div>

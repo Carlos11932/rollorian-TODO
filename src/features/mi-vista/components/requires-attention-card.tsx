@@ -1,3 +1,4 @@
+import { cn } from '@/lib/cn';
 import type { MockItem } from '@/lib/mock/types';
 
 interface RequiresAttentionCardProps {
@@ -6,46 +7,45 @@ interface RequiresAttentionCardProps {
 
 export function RequiresAttentionCard({ items }: RequiresAttentionCardProps) {
   return (
-    <section className="col-span-12 lg:col-span-4 flex flex-col">
-      <div className="flex items-center gap-2 mb-4">
-        <span className="material-symbols-outlined text-error">priority_high</span>
-        <h3 className="text-lg font-bold tracking-tight text-on-surface">Requieren Atención</h3>
+    <div className="flex flex-col bg-surface-container-low rounded-xl overflow-hidden border-l-2 border-error shrink-0">
+      {/* Header */}
+      <div className="flex items-center gap-2 px-4 py-2.5 border-b border-outline-variant/10">
+        <span className="material-symbols-outlined text-sm text-error">priority_high</span>
+        <span className="text-xs font-bold uppercase tracking-widest text-on-surface-variant">
+          Requieren Atención
+        </span>
+        <span className="ml-auto text-[10px] font-bold text-error bg-error/10 px-1.5 py-0.5 rounded">
+          {items.length}
+        </span>
       </div>
 
-      <div className="flex-1 bg-surface-container-high rounded-xl p-6 border-l-4 border-error shadow-lg shadow-black/20 flex flex-col justify-between">
-        <div className="space-y-4">
-          {items.map((item, index) => (
-            <div key={item.id}>
-              {index > 0 && <div className="h-px bg-outline-variant/10 mb-4" />}
-              <div className="group cursor-pointer">
-                {item.overdueByDays ? (
-                  <span className="text-[10px] text-error font-bold uppercase tracking-widest block mb-1">
-                    Vencido hace {item.overdueByDays} {item.overdueByDays === 1 ? 'día' : 'días'}
-                  </span>
-                ) : item.status === 'blocked' ? (
-                  <span className="text-[10px] text-secondary font-bold uppercase tracking-widest block mb-1">
-                    Bloqueado
-                  </span>
-                ) : null}
-                <h4 className="text-on-surface font-semibold leading-tight group-hover:text-primary transition-colors">
-                  {item.title}
-                </h4>
+      {/* Items */}
+      <div className="divide-y divide-outline-variant/10">
+        {items.map((item) => (
+          <div key={item.id} className="px-4 py-2.5 hover:bg-surface-container-highest/40 transition-colors cursor-pointer">
+            <div className="flex items-start gap-2">
+              <span
+                className={cn(
+                  'text-[10px] font-bold uppercase tracking-widest shrink-0 mt-0.5',
+                  item.overdueByDays ? 'text-error' : 'text-secondary'
+                )}
+              >
+                {item.overdueByDays
+                  ? `+${item.overdueByDays}d`
+                  : 'Bloq.'}
+              </span>
+              <div className="min-w-0">
+                <p className="text-sm font-medium text-on-surface truncate">{item.title}</p>
                 {item.notes && (
-                  <p className="text-on-surface-variant text-sm mt-2 line-clamp-2">{item.notes}</p>
+                  <p className="text-[11px] text-on-surface-variant/60 truncate mt-0.5">
+                    {item.notes}
+                  </p>
                 )}
               </div>
             </div>
-          ))}
-        </div>
-
-        <button
-          type="button"
-          className="mt-8 flex items-center justify-center gap-2 text-sm text-tertiary-fixed font-bold hover:text-secondary transition-colors duration-300"
-        >
-          Ver todos los bloqueos
-          <span className="material-symbols-outlined text-sm">arrow_forward</span>
-        </button>
+          </div>
+        ))}
       </div>
-    </section>
+    </div>
   );
 }

@@ -19,35 +19,36 @@ interface TaskHistorySectionProps {
 
 export function TaskHistorySection({ entries }: TaskHistorySectionProps) {
   return (
-    <section className="bg-surface-container-low rounded-xl p-6">
-      <h2 className="text-on-surface-variant text-xs font-bold uppercase tracking-widest mb-6">
-        Historial de Cambios
+    <section className="bg-surface-container-low rounded-xl p-4 shrink-0">
+      <h2 className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant mb-3">
+        Historial
       </h2>
 
-      <div className="space-y-6 relative before:absolute before:left-[11px] before:top-2 before:bottom-2 before:w-px before:bg-outline-variant/20">
+      <div className="space-y-3 relative before:absolute before:left-[11px] before:top-2 before:bottom-2 before:w-px before:bg-outline-variant/20">
         {entries.map((entry) => (
-          <div key={entry.id} className="flex gap-4 relative">
+          <div key={entry.id} className="flex gap-3 relative">
             <div
               className={cn(
-                'w-6 h-6 rounded-full flex items-center justify-center z-10 border border-background shrink-0',
+                'w-5 h-5 rounded-full flex items-center justify-center z-10 border border-background shrink-0',
                 ICON_BG[entry.iconColor]
               )}
             >
               <span
-                className={cn('material-symbols-outlined text-[12px]', ICON_COLOR[entry.iconColor])}
+                className={cn('material-symbols-outlined text-[10px]', ICON_COLOR[entry.iconColor])}
               >
                 {entry.icon}
               </span>
             </div>
             <div>
-              <p className="text-sm text-on-surface">
-                <span className="font-bold">{entry.actor.name}</span> {entry.action}{' '}
+              <p className="text-xs text-on-surface leading-relaxed">
+                <span className="font-bold">{entry.actor.name}</span>{' '}
+                {entry.action}{' '}
                 {entry.detail && (
                   <span
                     className={cn(
                       'font-medium',
                       entry.iconColor === 'primary'
-                        ? 'text-error'
+                        ? 'text-primary'
                         : entry.iconColor === 'secondary'
                           ? 'text-secondary'
                           : ''
@@ -57,7 +58,7 @@ export function TaskHistorySection({ entries }: TaskHistorySectionProps) {
                   </span>
                 )}
               </p>
-              <p className="text-xs text-on-surface-variant mt-1">{entry.timestamp}</p>
+              <p className="text-[10px] text-on-surface-variant/60 mt-0.5">{entry.timestamp}</p>
             </div>
           </div>
         ))}

@@ -10,7 +10,6 @@ interface TareaDetailPageProps {
   id: string;
 }
 
-// Mock: find item by id, fallback to a detailed example
 function getMockItem(id: string): MockItem {
   const found = GROUP_ITEMS.find((i) => i.id === id);
   if (found) return found;
@@ -24,7 +23,8 @@ function getMockItem(id: string): MockItem {
     status: 'blocked',
     priority: 'high',
     spaceType: 'personal',
-    blockedReason: 'Esperando aprobación final del departamento de diseño visual sobre el gradiente de placeholder.',
+    blockedReason:
+      'Esperando aprobación final del departamento de diseño visual sobre el gradiente de placeholder.',
     assignee: { id: 'user-2', name: 'Elena R.', initials: 'ER', avatarColor: '#004f34' },
     dueDate: '24 Oct, 2023',
     createdAt: '2023-10-08T08:00:00Z',
@@ -37,124 +37,112 @@ export function TareaDetailPage({ id }: TareaDetailPageProps) {
   const [description, setDescription] = useState(item.notes ?? '');
 
   return (
-    <div className="max-w-6xl mx-auto px-6 pt-8 pb-16">
-      {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
-        <div>
-          <div className="flex items-center gap-2 text-on-surface-variant text-sm mb-2">
+    <div className="flex flex-col h-[calc(100vh-4rem)] px-5 pt-4 pb-4 gap-4 overflow-hidden">
+      {/* Compact header */}
+      <div className="flex items-center justify-between shrink-0">
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center gap-2 text-[11px] text-on-surface-variant mb-1">
             <span>Tareas</span>
             <span className="material-symbols-outlined text-xs">chevron_right</span>
-            <span className="text-secondary font-medium">{id.toUpperCase().replace('-', '-')}</span>
+            <span className="text-secondary font-medium uppercase">{id}</span>
           </div>
-          <h1 className="text-3xl font-extrabold tracking-tight text-on-surface font-headline">
+          <h1 className="text-base font-bold text-on-surface font-headline truncate">
             {item.title}
           </h1>
         </div>
-        <div className="flex items-center gap-3 shrink-0">
+        <div className="flex items-center gap-2 shrink-0 ml-4">
           <button
             type="button"
-            className="px-4 py-2 rounded-lg bg-surface-container-highest text-on-surface-variant hover:bg-surface-bright transition-colors text-sm font-semibold flex items-center gap-2"
+            className="px-3 py-1.5 rounded-lg bg-surface-container-high text-on-surface-variant hover:bg-surface-bright transition-colors text-xs font-semibold flex items-center gap-1.5"
           >
             <span className="material-symbols-outlined text-sm">share</span>
             Compartir
           </button>
           <button
             type="button"
-            className="px-6 py-2 rounded-lg bg-gradient-to-br from-primary to-primary-container text-on-primary font-bold text-sm flex items-center gap-2 shadow-lg shadow-primary-container/20"
+            className="px-4 py-1.5 rounded-lg bg-primary text-on-primary font-bold text-xs flex items-center gap-1.5"
           >
-            <span
-              className="material-symbols-outlined text-sm"
-              style={{ fontVariationSettings: "'FILL' 1" }}
-            >
-              save
-            </span>
-            Guardar cambios
+            <span className="material-symbols-outlined text-sm">save</span>
+            Guardar
           </button>
         </div>
       </div>
 
-      {/* Bento grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* Left column */}
-        <div className="lg:col-span-8 space-y-6">
+      {/* Content grid */}
+      <div className="flex-1 grid grid-cols-1 lg:grid-cols-3 gap-4 min-h-0">
+        {/* Left: description + dependencies + history */}
+        <div className="lg:col-span-2 flex flex-col gap-4 min-h-0 overflow-y-auto hide-scrollbar">
           {/* Description */}
-          <section className="bg-surface-container-low rounded-xl p-6">
-            <h2 className="text-on-surface-variant text-xs font-bold uppercase tracking-widest mb-4">
-              Descripción General
+          <section className="bg-surface-container-low rounded-xl p-4 shrink-0">
+            <h2 className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant mb-3">
+              Descripción
             </h2>
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Añade una descripción detallada..."
-              className="w-full bg-surface-container-lowest border border-outline-variant/20 focus:ring-1 focus:ring-primary rounded-lg text-tertiary p-4 min-h-[160px] leading-relaxed resize-none text-sm outline-none"
+              className="w-full bg-surface-container-lowest border border-outline-variant/20 focus:ring-1 focus:ring-primary rounded-lg text-sm text-tertiary p-3 min-h-[100px] leading-relaxed resize-none outline-none"
             />
 
-            {/* Blocking warning */}
             {item.status === 'blocked' && item.blockedReason && (
-              <div className="mt-6 p-4 rounded-lg bg-error-container/10 border border-error/20 flex gap-4">
-                <span
-                  className="material-symbols-outlined text-error shrink-0"
-                  style={{ fontVariationSettings: "'FILL' 1" }}
-                >
-                  warning
-                </span>
+              <div className="mt-3 p-3 rounded-lg bg-error-container/10 border border-error/20 flex gap-3">
+                <span className="material-symbols-outlined text-error text-sm shrink-0">warning</span>
                 <div>
-                  <p className="text-error text-sm font-bold">Motivo de bloqueo</p>
-                  <p className="text-on-surface-variant text-sm">{item.blockedReason}</p>
+                  <p className="text-error text-xs font-bold">Motivo de bloqueo</p>
+                  <p className="text-on-surface-variant text-xs mt-0.5">{item.blockedReason}</p>
                 </div>
               </div>
             )}
           </section>
 
-          {/* Dependencies + Tags */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="bg-surface-container-low rounded-xl p-6">
-              <h2 className="text-on-surface-variant text-xs font-bold uppercase tracking-widest mb-4 flex items-center gap-2">
+          {/* Dependencies + Tags row */}
+          <div className="grid grid-cols-2 gap-4 shrink-0">
+            <section className="bg-surface-container-low rounded-xl p-4">
+              <h2 className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant mb-3 flex items-center gap-1.5">
                 <span className="material-symbols-outlined text-sm">link</span>
                 Dependencia
               </h2>
-              <div className="flex items-center gap-3 p-3 bg-surface-container-highest/50 rounded-lg hover:bg-surface-container-highest transition-colors cursor-pointer group">
-                <div className="w-1.5 h-10 bg-secondary rounded-full shrink-0" />
-                <div>
-                  <p className="text-on-surface text-sm font-medium">ARC-045: Sistema de Assets</p>
-                  <p className="text-on-surface-variant text-xs">Finalización de API de texturas</p>
+              <div className="flex items-center gap-2 p-2.5 bg-surface-container-highest/50 rounded-lg cursor-pointer hover:bg-surface-container-highest transition-colors group">
+                <div className="w-1 h-8 bg-secondary rounded-full shrink-0" />
+                <div className="min-w-0">
+                  <p className="text-xs font-medium text-on-surface truncate">ARC-045: Sistema de Assets</p>
+                  <p className="text-[10px] text-on-surface-variant/60 truncate">Finalización de API de texturas</p>
                 </div>
-                <span className="material-symbols-outlined ml-auto text-on-surface-variant opacity-0 group-hover:opacity-100 transition-opacity">
-                  open_in_new
-                </span>
               </div>
-            </div>
+            </section>
 
-            <div className="bg-surface-container-low rounded-xl p-6">
-              <h2 className="text-on-surface-variant text-xs font-bold uppercase tracking-widest mb-4 flex items-center gap-2">
+            <section className="bg-surface-container-low rounded-xl p-4">
+              <h2 className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant mb-3 flex items-center gap-1.5">
                 <span className="material-symbols-outlined text-sm">label</span>
                 Etiquetas
               </h2>
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap gap-1.5">
                 {item.tags?.map((tag) => (
                   <span
                     key={tag}
-                    className="px-3 py-1 rounded-full bg-surface-container-high text-on-surface-variant text-xs font-medium border border-outline-variant/15"
+                    className="px-2 py-0.5 rounded-full bg-surface-container-high text-on-surface-variant text-[10px] font-medium border border-outline-variant/15"
                   >
                     {tag}
                   </span>
                 ))}
                 <button
                   type="button"
-                  className="w-8 h-8 rounded-full border border-dashed border-outline-variant/40 text-on-surface-variant flex items-center justify-center hover:bg-surface-container-highest transition-colors"
+                  className="w-6 h-6 rounded-full border border-dashed border-outline-variant/40 text-on-surface-variant flex items-center justify-center hover:bg-surface-container-highest transition-colors"
                 >
                   <span className="material-symbols-outlined text-sm">add</span>
                 </button>
               </div>
-            </div>
+            </section>
           </div>
 
           {/* History */}
           <TaskHistorySection entries={MOCK_HISTORY} />
         </div>
 
-        {/* Right column */}
-        <MetadataPanel item={item} />
+        {/* Right: metadata */}
+        <div className="min-h-0">
+          <MetadataPanel item={item} />
+        </div>
       </div>
     </div>
   );
