@@ -21,7 +21,7 @@
 
 - [x] 3.1 Add unit tests in `tests/unit/item/` for undated task validity, date-less event rejection, lifecycle rules, priority enum, and assignee/member validation.
 - [x] 3.2 Add unit tests in `tests/unit/queries/` for My View inclusion/exclusion, calendar overlap, completed-event visibility, undated exclusion, and deterministic attention thresholds.
-- [ ] 3.3 Add integration tests in `tests/integration/commands/` for membership-based edit authority, assignment not changing access, audit append on group edits, and optimistic concurrency conflicts.
+- [x] 3.3 Add integration tests in `tests/integration/commands/` for membership-based edit authority, assignment not changing access, audit append on group edits, and optimistic concurrency conflicts.
 - [ ] 3.4 Add API/integration tests in `tests/integration/api/` covering CRUD validation, stable item shape for task/event, view endpoints, filters, and history retrieval parity for agents.
 
 ## Phase 4: Later / Non-MVP
