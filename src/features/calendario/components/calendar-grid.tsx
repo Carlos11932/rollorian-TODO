@@ -15,15 +15,18 @@ interface CalendarDay {
   events: CalendarEvent[];
 }
 
+type SpaceFilter = 'both' | 'personal' | 'group';
+
 interface CalendarGridProps {
   days: CalendarDay[];
   onDayClick?: (date: number) => void;
   selectedDate?: number;
+  filter?: SpaceFilter;
 }
 
 const DAY_NAMES = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
 
-export function CalendarGrid({ days, onDayClick, selectedDate }: CalendarGridProps) {
+export function CalendarGrid({ days, onDayClick, selectedDate, filter = 'both' }: CalendarGridProps) {
   return (
     <div className="bg-surface-container-low rounded-xl overflow-hidden border border-outline-variant/10 flex flex-col h-full">
       {/* Day headers */}

@@ -36,20 +36,6 @@ export function TopAppBar() {
           Nueva entrada
         </button>
 
-        <button
-          type="button"
-          className="p-2 text-on-surface/60 hover:text-on-surface transition-colors rounded-lg hover:bg-surface-container-high/50"
-          aria-label="Notificaciones"
-        >
-          <span className="material-symbols-outlined">notifications</span>
-        </button>
-        <button
-          type="button"
-          className="p-2 text-on-surface/60 hover:text-on-surface transition-colors rounded-lg hover:bg-surface-container-high/50"
-          aria-label="Configuración"
-        >
-          <span className="material-symbols-outlined">settings</span>
-        </button>
       </div>
     </header>
   );

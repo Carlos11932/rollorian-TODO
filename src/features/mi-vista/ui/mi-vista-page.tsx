@@ -15,13 +15,16 @@ const WEEK_CARDS = [
 ];
 
 export function MiVistaPage() {
+  const today = new Date();
+  const dateLabel = today.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' });
+
   return (
     <div className="flex flex-col h-[calc(100vh-4rem)] px-5 pt-4 pb-4 gap-4 overflow-hidden">
       {/* Compact page header */}
       <div className="flex items-center justify-between shrink-0">
         <div className="flex items-center gap-3">
           <h2 className="text-xs font-bold uppercase tracking-widest text-on-surface-variant">
-            Lunes, 12 de Octubre
+            {dateLabel}
           </h2>
         </div>
         <div className="flex items-center gap-1.5 text-xs text-on-surface-variant">

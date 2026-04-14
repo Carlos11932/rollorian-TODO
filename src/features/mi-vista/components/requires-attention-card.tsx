@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { cn } from '@/lib/cn';
 import type { MockItem } from '@/lib/mock/types';
 
@@ -22,7 +23,7 @@ export function RequiresAttentionCard({ items }: RequiresAttentionCardProps) {
       {/* Items */}
       <div className="divide-y divide-outline-variant/10">
         {items.map((item) => (
-          <div key={item.id} className="px-4 py-2.5 hover:bg-surface-container-highest/40 transition-colors cursor-pointer">
+          <Link key={item.id} href={'/tareas/' + item.id} className="block px-4 py-2.5 hover:bg-surface-container-highest/40 transition-colors cursor-pointer">
             <div className="flex items-start gap-2">
               <span
                 className={cn(
@@ -43,7 +44,7 @@ export function RequiresAttentionCard({ items }: RequiresAttentionCardProps) {
                 )}
               </div>
             </div>
-          </div>
+          </Link>
         ))}
       </div>
     </div>

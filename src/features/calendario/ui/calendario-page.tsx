@@ -76,6 +76,7 @@ export function CalendarioPage() {
             days={CALENDAR_DAYS}
             selectedDate={selectedDate}
             onDayClick={setSelectedDate}
+            filter={filter}
           />
         </div>
 

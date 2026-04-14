@@ -1,4 +1,7 @@
+'use client';
+
 import { cn } from '@/lib/cn';
+import { useQuickCapture } from '@/features/shared/ui/quick-capture-context';
 import type { MockItem } from '@/lib/mock/types';
 
 interface DayAgendaProps {
@@ -7,6 +10,8 @@ interface DayAgendaProps {
 }
 
 export function DayAgenda({ dateLabel, items }: DayAgendaProps) {
+  const { open } = useQuickCapture();
+
   return (
     <div className="bg-surface-container-low rounded-xl overflow-hidden flex flex-col h-full border border-outline-variant/10">
       {/* Header */}
@@ -56,6 +61,7 @@ export function DayAgenda({ dateLabel, items }: DayAgendaProps) {
       <div className="px-4 py-2.5 border-t border-outline-variant/10 shrink-0">
         <button
           type="button"
+          onClick={open}
           className="flex items-center gap-2 text-xs text-on-surface-variant/50 hover:text-primary transition-colors"
         >
           <span className="material-symbols-outlined text-sm">add</span>

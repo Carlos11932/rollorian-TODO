@@ -22,7 +22,23 @@ interface ChangeHistoryPanelProps {
 }
 
 export function ChangeHistoryPanel({ entries, taskTitle }: ChangeHistoryPanelProps) {
+  const [localEntries, setLocalEntries] = useState<MockHistoryEntry[]>(entries);
   const [comment, setComment] = useState('');
+
+  function submitComment() {
+    const trimmed = comment.trim();
+    if (!trimmed) return;
+    const newEntry: MockHistoryEntry = {
+      id: `local-${Date.now()}`,
+      actor: { id: 'me', name: 'Tú', initials: 'YO' },
+      action: trimmed,
+      timestamp: 'Ahora',
+      icon: 'chat',
+      iconColor: 'primary',
+    };
+    setLocalEntries((prev) => [newEntry, ...prev]);
+    setComment('');
+  }
 
   return (
     <div className="xl:col-span-4">
@@ -44,7 +60,7 @@ export function ChangeHistoryPanel({ entries, taskTitle }: ChangeHistoryPanelPro
         <div className="flex-1 overflow-y-auto p-4 space-y-5 relative hide-scrollbar">
           <div className="absolute left-9 top-10 bottom-10 w-0.5 bg-outline-variant/20" />
 
-          {entries.map((entry) => (
+          {localEntries.map((entry) => (
             <div key={entry.id} className="relative flex gap-4">
               <div
                 className={cn(
@@ -104,11 +120,13 @@ export function ChangeHistoryPanel({ entries, taskTitle }: ChangeHistoryPanelPro
               type="text"
               value={comment}
               onChange={(e) => setComment(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && submitComment()}
               placeholder="Añadir comentario al historial..."
               className="flex-1 bg-surface-container-lowest border border-outline-variant/20 rounded-lg text-xs py-2 px-3 focus:ring-1 focus:ring-primary outline-none text-on-surface placeholder:text-on-surface-variant/60"
             />
             <button
               type="button"
+              onClick={submitComment}
               className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center text-on-primary hover:bg-primary-fixed transition-colors shrink-0"
               aria-label="Enviar comentario"
             >

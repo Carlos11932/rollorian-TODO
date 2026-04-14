@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { cn } from '@/lib/cn';
 import { EmptyState } from '@/features/shared/components/empty-state';
+import { useQuickCapture } from '@/features/shared/ui/quick-capture-context';
 import type { MockItem } from '@/lib/mock/types';
 
 interface TodaySectionProps {
@@ -20,6 +21,7 @@ const PRIORITY_DOT: Record<string, string> = {
 export function TodaySection({ items }: TodaySectionProps) {
   const [checked, setChecked] = useState<Set<string>>(new Set());
   const [filter, setFilter] = useState('');
+  const { open } = useQuickCapture();
 
   const visible = filter.trim()
     ? items.filter((i) => i.title.toLowerCase().includes(filter.toLowerCase()))
@@ -144,6 +146,7 @@ export function TodaySection({ items }: TodaySectionProps) {
       <div className="px-4 py-2.5 border-t border-outline-variant/10 shrink-0">
         <button
           type="button"
+          onClick={open}
           className="flex items-center gap-2 text-xs text-on-surface-variant/50 hover:text-primary transition-colors"
         >
           <span className="material-symbols-outlined text-sm">add</span>

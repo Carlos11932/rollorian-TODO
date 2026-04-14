@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { cn } from '@/lib/cn';
 import type { MockItem } from '@/lib/mock/types';
 
@@ -33,8 +34,9 @@ export function ThisWeekSection({ cards }: ThisWeekSectionProps) {
       {/* Compact list */}
       <div className="divide-y divide-outline-variant/10 overflow-y-auto hide-scrollbar flex-1">
         {cards.map(({ item, dayLabel }) => (
-          <div
+          <Link
             key={item.id}
+            href={'/tareas/' + item.id}
             className="flex items-center gap-3 px-4 py-2.5 hover:bg-surface-container-highest/40 transition-colors cursor-pointer group"
           >
             {/* Day label */}
@@ -63,7 +65,7 @@ export function ThisWeekSection({ cards }: ThisWeekSectionProps) {
                 {item.tags[0]}
               </span>
             )}
-          </div>
+          </Link>
         ))}
       </div>
     </div>

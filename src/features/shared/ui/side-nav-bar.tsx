@@ -79,23 +79,6 @@ export function SideNavBar() {
         Nueva entrada
       </button>
 
-      {/* Footer */}
-      <div className="flex flex-col gap-1 pt-4 border-t border-outline-variant/10">
-        <Link
-          href="/settings"
-          className="flex items-center gap-3 px-3 py-2 text-sm font-medium text-on-surface/70 hover:bg-surface-container-high/50 hover:text-on-surface transition-all duration-200 rounded-lg"
-        >
-          <span className="material-symbols-outlined">settings</span>
-          Configuración
-        </Link>
-        <Link
-          href="/help"
-          className="flex items-center gap-3 px-3 py-2 text-sm font-medium text-on-surface/70 hover:bg-surface-container-high/50 hover:text-on-surface transition-all duration-200 rounded-lg"
-        >
-          <span className="material-symbols-outlined">help_outline</span>
-          Ayuda
-        </Link>
-      </div>
     </aside>
   );
 }
