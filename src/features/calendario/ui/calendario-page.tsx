@@ -7,14 +7,11 @@ import { TODAY_ITEMS, THIS_WEEK_ITEMS } from '@/lib/mock/data';
 
 type SpaceFilter = 'both' | 'personal' | 'group';
 
-// Mock calendar days for October 2023
 const CALENDAR_DAYS = [
-  // Previous month overflow
   { date: 27, isCurrentMonth: false, events: [] },
   { date: 28, isCurrentMonth: false, events: [] },
   { date: 29, isCurrentMonth: false, events: [] },
   { date: 30, isCurrentMonth: false, events: [] },
-  // October days
   { date: 1, isCurrentMonth: true, events: [] },
   { date: 2, isCurrentMonth: true, events: [{ id: 'e1', label: 'Review Design', type: 'task' as const }] },
   { date: 3, isCurrentMonth: true, events: [] },
@@ -34,33 +31,27 @@ const CALENDAR_DAYS = [
   { date: 17, isCurrentMonth: true, events: [{ id: 'e9', label: 'Nueva Colección', type: 'task' as const }] },
 ];
 
-const TODAY_AGENDA_ITEMS = [TODAY_ITEMS[1]!, TODAY_ITEMS[0]!]; // Event first, then task
+const TODAY_AGENDA_ITEMS = [TODAY_ITEMS[1]!, TODAY_ITEMS[0]!];
 
 export function CalendarioPage() {
   const [filter, setFilter] = useState<SpaceFilter>('both');
   const [selectedDate, setSelectedDate] = useState<number>(9);
 
   const FILTER_OPTIONS: { value: SpaceFilter; label: string }[] = [
-    { value: 'both', label: 'Ambos' },
+    { value: 'both', label: 'Todos' },
     { value: 'personal', label: 'Personal' },
     { value: 'group', label: 'Grupo' },
   ];
 
   return (
-    <div className="px-8 lg:px-12 pt-8 pb-16 max-w-7xl mx-auto space-y-8">
-      {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-        <div>
-          <h1 className="text-4xl font-extrabold tracking-tighter text-on-surface font-headline">
-            Octubre 2023
-          </h1>
-          <p className="text-on-surface-variant font-body mt-1 text-sm">
-            Organiza tu biblioteca de tareas y eventos privados.
-          </p>
-        </div>
+    <div className="flex flex-col h-[calc(100vh-4rem)] px-5 pt-4 pb-4 gap-4 overflow-hidden">
+      {/* Compact header */}
+      <div className="flex items-center justify-between shrink-0">
+        <h2 className="text-xs font-bold uppercase tracking-widest text-on-surface-variant">
+          Octubre 2023
+        </h2>
 
-        {/* Space filter */}
-        <div className="flex items-center bg-surface-container-low p-1 rounded-full border border-outline-variant/10">
+        <div className="flex items-center bg-surface-container-low p-0.5 rounded-lg border border-outline-variant/10">
           {FILTER_OPTIONS.map(({ value, label }) => (
             <button
               key={value}
@@ -68,8 +59,8 @@ export function CalendarioPage() {
               onClick={() => setFilter(value)}
               className={
                 filter === value
-                  ? 'px-6 py-2 text-sm font-bold rounded-full bg-surface-container-highest text-primary transition-all'
-                  : 'px-6 py-2 text-sm font-medium text-on-surface-variant hover:text-on-surface transition-all'
+                  ? 'px-3 py-1 text-xs font-bold rounded-md bg-surface-container-highest text-primary transition-all'
+                  : 'px-3 py-1 text-xs font-medium text-on-surface-variant hover:text-on-surface transition-all'
               }
             >
               {label}
@@ -78,17 +69,18 @@ export function CalendarioPage() {
         </div>
       </div>
 
-      {/* Grid layout */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-        <div className="lg:col-span-8">
+      {/* Calendar grid + agenda */}
+      <div className="flex-1 grid grid-cols-1 lg:grid-cols-3 gap-4 min-h-0">
+        <div className="lg:col-span-2 min-h-0">
           <CalendarGrid
             days={CALENDAR_DAYS}
             selectedDate={selectedDate}
             onDayClick={setSelectedDate}
+            filter={filter}
           />
         </div>
 
-        <div className="lg:col-span-4">
+        <div className="min-h-0">
           <DayAgenda
             dateLabel={`Hoy, ${selectedDate} Oct`}
             items={TODAY_AGENDA_ITEMS}

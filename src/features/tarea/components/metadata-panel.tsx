@@ -1,39 +1,36 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { cn } from '@/lib/cn';
-import type { MockItem } from '@/lib/mock/types';
+import type { MockItem, ItemStatus } from '@/lib/mock/types';
 
 type PriorityOption = 'low' | 'medium' | 'high' | 'urgent';
 
 const PRIORITY_OPTIONS: { value: PriorityOption; label: string }[] = [
   { value: 'low', label: 'Baja' },
+  { value: 'medium', label: 'Media' },
   { value: 'high', label: 'Alta' },
   { value: 'urgent', label: 'Crítica' },
 ];
 
 const STATUS_COLORS: Record<string, string> = {
-  // task statuses
   pending: 'bg-on-surface-variant',
   in_progress: 'bg-primary',
   blocked: 'bg-error animate-pulse',
   postponed: 'bg-secondary',
   done: 'bg-primary',
   canceled: 'bg-on-surface-variant',
-  // event statuses
   scheduled: 'bg-primary',
   completed: 'bg-primary',
 };
 
 const STATUS_LABELS: Record<string, string> = {
-  // task statuses
   pending: 'Pendiente',
   in_progress: 'En Progreso',
   blocked: 'Bloqueado',
   postponed: 'Pospuesto',
   done: 'Completado',
   canceled: 'Cancelado',
-  // event statuses
   scheduled: 'Programado',
   completed: 'Completado',
 };
@@ -42,58 +39,115 @@ interface MetadataPanelProps {
   item: MockItem;
 }
 
+const TASK_STATUS_OPTIONS: { value: ItemStatus; label: string }[] = [
+  { value: 'pending', label: 'Pendiente' },
+  { value: 'in_progress', label: 'En Progreso' },
+  { value: 'blocked', label: 'Bloqueado' },
+  { value: 'postponed', label: 'Pospuesto' },
+  { value: 'done', label: 'Completado' },
+  { value: 'canceled', label: 'Cancelado' },
+];
+
+const EVENT_STATUS_OPTIONS: { value: ItemStatus; label: string }[] = [
+  { value: 'scheduled', label: 'Programado' },
+  { value: 'completed', label: 'Completado' },
+  { value: 'canceled', label: 'Cancelado' },
+];
+
 export function MetadataPanel({ item }: MetadataPanelProps) {
-  const [priority, setPriority] = useState<PriorityOption>(
-    item.priority as PriorityOption
-  );
+  const [priority, setPriority] = useState<PriorityOption>(item.priority as PriorityOption);
+  const [status, setStatus] = useState<ItemStatus>(item.status);
+  const [statusOpen, setStatusOpen] = useState(false);
+  const statusRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!statusOpen) return;
+    function onClickOutside(e: MouseEvent) {
+      if (statusRef.current && !statusRef.current.contains(e.target as Node)) {
+        setStatusOpen(false);
+      }
+    }
+    const t = setTimeout(() => document.addEventListener('mousedown', onClickOutside), 0);
+    return () => { clearTimeout(t); document.removeEventListener('mousedown', onClickOutside); };
+  }, [statusOpen]);
+
+  const statusOptions = item.itemType === 'event' ? EVENT_STATUS_OPTIONS : TASK_STATUS_OPTIONS;
 
   return (
-    <div className="lg:col-span-4 space-y-6">
+    <div className="flex flex-col h-full gap-3 overflow-y-auto hide-scrollbar">
       {/* Metadata */}
-      <section className="bg-surface-container-low rounded-xl p-6 space-y-6">
+      <section className="bg-surface-container-low rounded-xl p-4 space-y-4 shrink-0">
         {/* Status */}
         <div>
-          <label className="text-on-surface-variant text-[10px] font-bold uppercase tracking-widest block mb-3">
+          <label className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant block mb-2">
             Estado
           </label>
-          <button
-            type="button"
-            className="w-full flex items-center justify-between px-4 py-3 bg-surface-container-highest rounded-lg text-sm group"
-          >
-            <div className="flex items-center gap-3">
-              <div
-                className={cn('w-2.5 h-2.5 rounded-full', STATUS_COLORS[item.status])}
-              />
-              <span className="text-on-surface font-semibold">
-                {STATUS_LABELS[item.status]}
+          <div ref={statusRef} className="relative">
+            <button
+              type="button"
+              onClick={() => setStatusOpen((o) => !o)}
+              className="w-full flex items-center justify-between px-3 py-2 bg-surface-container-high rounded-lg hover:bg-surface-container-highest transition-colors"
+            >
+              <div className="flex items-center gap-2.5">
+                <div className={cn('w-2 h-2 rounded-full', STATUS_COLORS[status])} />
+                <span className="text-on-surface font-medium text-sm">
+                  {STATUS_LABELS[status] ?? status}
+                </span>
+              </div>
+              <span className={cn(
+                'material-symbols-outlined text-sm text-on-surface-variant transition-transform',
+                statusOpen && 'rotate-180'
+              )}>
+                expand_more
               </span>
-            </div>
-            <span className="material-symbols-outlined text-on-surface-variant group-hover:translate-y-0.5 transition-transform">
-              expand_more
-            </span>
-          </button>
+            </button>
+
+            {statusOpen && (
+              <div className="absolute top-full left-0 right-0 mt-1 bg-surface-container-highest rounded-xl border border-outline-variant/20 shadow-xl shadow-black/30 z-10 overflow-hidden">
+                {statusOptions.map((opt) => (
+                  <button
+                    key={opt.value}
+                    type="button"
+                    onClick={() => { setStatus(opt.value); setStatusOpen(false); }}
+                    className={cn(
+                      'w-full flex items-center gap-2.5 px-3 py-2 text-sm hover:bg-surface-bright/20 transition-colors',
+                      status === opt.value && 'text-primary font-medium'
+                    )}
+                  >
+                    <div className={cn('w-2 h-2 rounded-full shrink-0', STATUS_COLORS[opt.value])} />
+                    {opt.label}
+                    {status === opt.value && (
+                      <span className="material-symbols-outlined text-sm text-primary ml-auto">check</span>
+                    )}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Priority */}
         <div>
-          <label className="text-on-surface-variant text-[10px] font-bold uppercase tracking-widest block mb-3">
+          <label className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant block mb-2">
             Prioridad
           </label>
-          <div className="flex gap-2">
+          <div className="grid grid-cols-4 gap-1.5">
             {PRIORITY_OPTIONS.map((opt) => (
               <button
                 key={opt.value}
                 type="button"
                 onClick={() => setPriority(opt.value)}
                 className={cn(
-                  'flex-1 py-2 rounded-lg text-xs border transition-all',
+                  'py-1.5 rounded-lg text-[10px] font-bold border transition-all',
                   priority === opt.value
                     ? opt.value === 'urgent'
-                      ? 'bg-error/10 text-error border-error/30 font-bold'
+                      ? 'bg-error/10 text-error border-error/30'
                       : opt.value === 'high'
-                        ? 'bg-secondary/10 text-secondary border-secondary/30 font-bold'
-                        : 'bg-primary/10 text-primary border-primary/30 font-bold'
-                    : 'bg-surface-container-highest text-on-surface-variant border-transparent hover:border-outline-variant/40'
+                        ? 'bg-secondary/10 text-secondary border-secondary/30'
+                        : opt.value === 'medium'
+                          ? 'bg-primary/10 text-primary border-primary/30'
+                          : 'bg-surface-container-highest text-on-surface-variant border-outline-variant/40'
+                    : 'bg-surface-container-high text-on-surface-variant border-transparent hover:border-outline-variant/30'
                 )}
               >
                 {opt.label}
@@ -104,24 +158,23 @@ export function MetadataPanel({ item }: MetadataPanelProps) {
 
         {/* Assignee */}
         <div>
-          <label className="text-on-surface-variant text-[10px] font-bold uppercase tracking-widest block mb-3">
-            Asignado a
+          <label className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant block mb-2">
+            Asignado
           </label>
           {item.assignee ? (
-            <div className="flex items-center gap-3 p-3 rounded-lg bg-surface-container-highest/30 border border-outline-variant/10">
+            <div className="flex items-center gap-2.5 p-2.5 rounded-lg bg-surface-container-high/50 border border-outline-variant/10">
               <div
-                className="h-8 w-8 rounded-full flex items-center justify-center text-xs font-bold text-on-surface shrink-0"
+                className="h-7 w-7 rounded-full flex items-center justify-center text-[10px] font-bold text-on-surface shrink-0"
                 style={{ backgroundColor: item.assignee.avatarColor ?? '#004f34' }}
               >
                 {item.assignee.initials}
               </div>
-              <div className="flex-1">
-                <p className="text-sm font-bold text-on-surface">{item.assignee.name}</p>
-                <p className="text-xs text-on-surface-variant">Lead Developer</p>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-bold text-on-surface truncate">{item.assignee.name}</p>
               </div>
               <button
                 type="button"
-                className="material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors"
+                className="material-symbols-outlined text-sm text-on-surface-variant hover:text-primary transition-colors"
               >
                 edit_square
               </button>
@@ -129,7 +182,7 @@ export function MetadataPanel({ item }: MetadataPanelProps) {
           ) : (
             <button
               type="button"
-              className="w-full p-3 rounded-lg border border-dashed border-outline-variant/40 text-on-surface-variant text-sm hover:border-primary/40 hover:text-primary transition-all flex items-center justify-center gap-2"
+              className="w-full p-2.5 rounded-lg border border-dashed border-outline-variant/40 text-on-surface-variant text-xs hover:border-primary/40 hover:text-primary transition-all flex items-center justify-center gap-2"
             >
               <span className="material-symbols-outlined text-sm">person_add</span>
               Asignar responsable
@@ -138,64 +191,62 @@ export function MetadataPanel({ item }: MetadataPanelProps) {
         </div>
 
         {/* Dates */}
-        <div className="space-y-4">
+        <div className="space-y-2.5">
           {item.dueDate && (
             <div>
-              <label className="text-on-surface-variant text-[10px] font-bold uppercase tracking-widest block mb-2">
+              <label className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant block mb-1.5">
                 Fecha de entrega
               </label>
-              <div className="flex items-center gap-3 text-sm text-on-surface bg-surface-container-highest/30 px-3 py-2 rounded-lg">
-                <span className="material-symbols-outlined text-sm text-secondary">
-                  calendar_today
-                </span>
-                <span>{item.dueDate}</span>
+              <div className="flex items-center gap-2 bg-surface-container-high/30 px-3 py-2 rounded-lg">
+                <span className="material-symbols-outlined text-sm text-secondary">calendar_today</span>
+                <span className="text-sm text-on-surface">{item.dueDate}</span>
               </div>
             </div>
           )}
           <div>
-            <label className="text-on-surface-variant text-[10px] font-bold uppercase tracking-widest block mb-2">
+            <label className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant block mb-1.5">
               Creado el
             </label>
-            <div className="flex items-center gap-3 text-sm text-on-surface-variant px-3 py-2">
+            <div className="flex items-center gap-2 px-3 py-1.5 text-xs text-on-surface-variant">
               <span className="material-symbols-outlined text-sm">schedule</span>
-              <span>{new Date(item.createdAt).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' })}</span>
+              <span>
+                {new Date(item.createdAt).toLocaleDateString('es-ES', {
+                  day: '2-digit',
+                  month: 'short',
+                  year: 'numeric',
+                })}
+              </span>
             </div>
           </div>
         </div>
       </section>
 
       {/* Quick actions */}
-      <section className="bg-surface-container-low rounded-xl p-6">
-        <h2 className="text-on-surface-variant text-xs font-bold uppercase tracking-widest mb-4">
-          Acciones Rápidas
+      <section className="bg-surface-container-low rounded-xl p-4 shrink-0">
+        <h2 className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant mb-3">
+          Acciones
         </h2>
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-2 gap-2">
           <button
             type="button"
-            className="flex flex-col items-center justify-center p-4 rounded-xl bg-surface-container-highest hover:bg-surface-bright transition-all text-on-surface-variant group"
+            className="flex items-center justify-center gap-1.5 p-3 rounded-lg bg-surface-container-high hover:bg-surface-bright transition-all text-on-surface-variant text-xs font-medium"
           >
-            <span className="material-symbols-outlined mb-2 group-hover:scale-110 transition-transform">
-              content_copy
-            </span>
-            <span className="text-[10px] font-bold uppercase tracking-tight">Duplicar</span>
+            <span className="material-symbols-outlined text-sm">content_copy</span>
+            Duplicar
           </button>
           <button
             type="button"
-            className="flex flex-col items-center justify-center p-4 rounded-xl bg-surface-container-highest hover:bg-surface-bright transition-all text-on-surface-variant group"
+            className="flex items-center justify-center gap-1.5 p-3 rounded-lg bg-surface-container-high hover:bg-surface-bright transition-all text-on-surface-variant text-xs font-medium"
           >
-            <span className="material-symbols-outlined mb-2 group-hover:scale-110 transition-transform">
-              archive
-            </span>
-            <span className="text-[10px] font-bold uppercase tracking-tight">Archivar</span>
+            <span className="material-symbols-outlined text-sm">archive</span>
+            Archivar
           </button>
           <button
             type="button"
-            className="col-span-2 flex flex-col items-center justify-center p-4 rounded-xl bg-error/5 hover:bg-error/10 transition-all text-error group"
+            className="col-span-2 flex items-center justify-center gap-1.5 p-3 rounded-lg bg-error/5 hover:bg-error/10 transition-all text-error text-xs font-medium"
           >
-            <span className="material-symbols-outlined mb-2 group-hover:scale-110 transition-transform">
-              delete_sweep
-            </span>
-            <span className="text-[10px] font-bold uppercase tracking-tight">Eliminar Tarea</span>
+            <span className="material-symbols-outlined text-sm">delete_sweep</span>
+            Eliminar
           </button>
         </div>
       </section>
