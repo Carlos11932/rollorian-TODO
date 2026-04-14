@@ -29,6 +29,18 @@ export type SpaceAccessContext =
   | PersonalSpaceAccessContext
   | GroupSpaceAccessContext;
 
+export function isPersonalSpaceAccessContext(
+  context: SpaceAccessContext,
+): context is PersonalSpaceAccessContext {
+  return context.spaceType === SPACE_TYPE.PERSONAL;
+}
+
+export function isGroupSpaceAccessContext(
+  context: SpaceAccessContext,
+): context is GroupSpaceAccessContext {
+  return context.spaceType === SPACE_TYPE.GROUP;
+}
+
 export function createPersonalSpaceAccessContext(
   input: PersonalSpaceAccessContextInput,
 ): PersonalSpaceAccessContext {
