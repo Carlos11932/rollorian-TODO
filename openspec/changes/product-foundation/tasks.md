@@ -12,7 +12,7 @@
 - [x] 2.1 Add `src/domain/item/` entity + invariant policy enforcing task/event temporal rules, lifecycle states, and completion/cancel semantics.
 - [x] 2.2 Add `src/domain/item/assignment-policy` and `src/domain/item/label-policy` to validate zero/one/many assignees, owner-or-member constraints, and scope-reusable labels.
 - [x] 2.3 Add write-side command handlers in `src/application/commands/` for create, update, and read-by-id with optimistic version checks on shared items.
-- [ ] 2.4 Add append-only audit recording in `src/domain/history/` and `src/application/history/` for group-item changes to status, assignees, priority, labels, dates, title, completion, and cancellation.
+- [x] 2.4 Add append-only audit recording in `src/domain/history/` and `src/application/history/` for group-item changes to status, assignees, priority, labels, dates, title, completion, and cancellation.
 - [ ] 2.5 Add synchronous projectors in `src/application/queries/projectors/` that derive persisted/queryable facts for visibility, dated span, undated state, assignee summary, and attention reasons.
 - [ ] 2.6 Add query handlers in `src/application/queries/views/` for My View, Group View, Calendar, Undated, and Requires Attention using the shared eligibility rules from spec.
 - [ ] 2.7 Add API contracts in `src/interfaces/api/items/` and `src/interfaces/api/views/` for `POST/GET/PATCH /items`, `/views/*`, filters, conflict errors, and `/items/{id}/history`.
