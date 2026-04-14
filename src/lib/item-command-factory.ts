@@ -6,16 +6,30 @@
  * That swap happens ONLY here — command handlers, actions, and routes stay untouched.
  */
 import {
+  AppendOnlyGroupItemAuditRecorder,
   CreateItemCommandHandler,
   ReadItemByIdCommandHandler,
   UpdateItemCommandHandler,
 } from '@/application/commands';
-import { InMemoryItemRepository } from '@/interfaces/persistence/in-memory-item-repository';
+import {
+  GetCalendarViewQueryHandler,
+  GetGroupViewQueryHandler,
+  GetMyViewQueryHandler,
+  GetRequiresAttentionViewQueryHandler,
+  GetUndatedViewQueryHandler,
+} from '@/application/queries/views';
+import { runtimeStore } from '@/lib/runtime-store';
 
-// Module-level singleton: survives across requests within the same Node.js process.
-// In serverless (Vercel), each cold start gets a fresh instance — expected for a dev stub.
-const repository = new InMemoryItemRepository();
+const groupItemAuditRecorder = new AppendOnlyGroupItemAuditRecorder(runtimeStore);
 
-export const createItemHandler = new CreateItemCommandHandler(repository);
-export const readItemByIdHandler = new ReadItemByIdCommandHandler(repository);
-export const updateItemHandler = new UpdateItemCommandHandler(repository);
+export const createItemHandler = new CreateItemCommandHandler(runtimeStore);
+export const readItemByIdHandler = new ReadItemByIdCommandHandler(runtimeStore);
+export const updateItemHandler = new UpdateItemCommandHandler(runtimeStore, groupItemAuditRecorder);
+
+export const getMyViewHandler = new GetMyViewQueryHandler(runtimeStore);
+export const getGroupViewHandler = new GetGroupViewQueryHandler(runtimeStore);
+export const getCalendarViewHandler = new GetCalendarViewQueryHandler(runtimeStore);
+export const getUndatedViewHandler = new GetUndatedViewQueryHandler(runtimeStore);
+export const getAttentionViewHandler = new GetRequiresAttentionViewQueryHandler(runtimeStore);
+
+export { runtimeStore };
