@@ -10,11 +10,16 @@ type StatusConfig = {
 };
 
 const STATUS_CONFIG: Record<string, StatusConfig> = {
-  in_progress: { label: 'En Progreso', icon: 'sync', color: 'text-primary' },
+  // task statuses
   pending: { label: 'Pendiente', icon: 'schedule', color: 'text-on-surface-variant' },
+  in_progress: { label: 'En Progreso', icon: 'sync', color: 'text-primary' },
   blocked: { label: 'Bloqueado', icon: 'block', color: 'text-error' },
+  postponed: { label: 'Pospuesto', icon: 'snooze', color: 'text-secondary' },
   done: { label: 'Completado', icon: 'check_circle', color: 'text-primary' },
-  cancelled: { label: 'Cancelado', icon: 'cancel', color: 'text-on-surface-variant' },
+  canceled: { label: 'Cancelado', icon: 'cancel', color: 'text-on-surface-variant' },
+  // event statuses
+  scheduled: { label: 'Programado', icon: 'event', color: 'text-primary' },
+  completed: { label: 'Completado', icon: 'event_available', color: 'text-primary' },
 };
 
 type PriorityConfig = {

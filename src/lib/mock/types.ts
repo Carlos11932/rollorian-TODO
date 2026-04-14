@@ -1,7 +1,15 @@
 import type { ItemType } from '@/domain/shared/item-type';
 import type { Priority } from '@/domain/shared/priority';
 
-export type ItemStatus = 'pending' | 'in_progress' | 'blocked' | 'done' | 'cancelled';
+export type ItemStatus =
+  | 'pending'
+  | 'in_progress'
+  | 'blocked'
+  | 'postponed'
+  | 'done'
+  | 'canceled'
+  | 'scheduled'
+  | 'completed';
 export type SpaceType = 'personal' | 'group';
 
 export interface MockUser {
