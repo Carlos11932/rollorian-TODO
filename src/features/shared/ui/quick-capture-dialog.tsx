@@ -1,8 +1,9 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useTransition } from 'react';
 import { cn } from '@/lib/cn';
 import { useQuickCapture } from './quick-capture-context';
+import { createItemAction } from '../actions/item-actions';
 import type { ItemType } from '@/domain/shared/item-type';
 import type { Priority } from '@/domain/shared/priority';
 
@@ -24,6 +25,7 @@ export function QuickCaptureDialog() {
   const [itemType, setItemType] = useState<ItemType>('task');
   const [priority, setPriority] = useState<Priority>('medium');
   const [date, setDate] = useState('');
+  const [isPending, startTransition] = useTransition();
 
   const dialogRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -64,10 +66,16 @@ export function QuickCaptureDialog() {
   }, [isOpen, close]);
 
   function handleSubmit() {
-    if (!title.trim()) return;
-    // TODO: connect to POST /items when backend is ready
-    console.log('New item:', { title: title.trim(), itemType, priority, date: date || undefined });
-    close();
+    if (!title.trim() || isPending) return;
+    startTransition(async () => {
+      await createItemAction({
+        title: title.trim(),
+        itemType,
+        priority,
+        date: date || undefined,
+      });
+      close();
+    });
   }
 
   if (!isOpen) return null;
@@ -187,11 +195,13 @@ export function QuickCaptureDialog() {
             <button
               type="button"
               onClick={handleSubmit}
-              disabled={!title.trim()}
+              disabled={!title.trim() || isPending}
               className="flex items-center gap-2 bg-primary text-on-primary px-4 py-2 rounded-xl text-sm font-bold hover:bg-primary-fixed transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
             >
-              <span className="material-symbols-outlined text-sm">add</span>
-              Guardar
+              <span className="material-symbols-outlined text-sm">
+                {isPending ? 'sync' : 'add'}
+              </span>
+              {isPending ? 'Guardando…' : 'Guardar'}
             </button>
           </div>
         </div>

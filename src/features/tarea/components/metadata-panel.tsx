@@ -13,19 +13,29 @@ const PRIORITY_OPTIONS: { value: PriorityOption; label: string }[] = [
 ];
 
 const STATUS_COLORS: Record<string, string> = {
+  // task statuses
   pending: 'bg-on-surface-variant',
   in_progress: 'bg-primary',
   blocked: 'bg-error animate-pulse',
+  postponed: 'bg-secondary',
   done: 'bg-primary',
-  cancelled: 'bg-on-surface-variant',
+  canceled: 'bg-on-surface-variant',
+  // event statuses
+  scheduled: 'bg-primary',
+  completed: 'bg-primary',
 };
 
 const STATUS_LABELS: Record<string, string> = {
+  // task statuses
   pending: 'Pendiente',
   in_progress: 'En Progreso',
   blocked: 'Bloqueado',
+  postponed: 'Pospuesto',
   done: 'Completado',
-  cancelled: 'Cancelado',
+  canceled: 'Cancelado',
+  // event statuses
+  scheduled: 'Programado',
+  completed: 'Completado',
 };
 
 interface MetadataPanelProps {
