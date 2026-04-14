@@ -1,8 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { cn } from '@/lib/cn';
-import type { MockItem } from '@/lib/mock/types';
+import type { MockItem, ItemStatus } from '@/lib/mock/types';
 
 type PriorityOption = 'low' | 'medium' | 'high' | 'urgent';
 
@@ -39,8 +39,39 @@ interface MetadataPanelProps {
   item: MockItem;
 }
 
+const TASK_STATUS_OPTIONS: { value: ItemStatus; label: string }[] = [
+  { value: 'pending', label: 'Pendiente' },
+  { value: 'in_progress', label: 'En Progreso' },
+  { value: 'blocked', label: 'Bloqueado' },
+  { value: 'postponed', label: 'Pospuesto' },
+  { value: 'done', label: 'Completado' },
+  { value: 'canceled', label: 'Cancelado' },
+];
+
+const EVENT_STATUS_OPTIONS: { value: ItemStatus; label: string }[] = [
+  { value: 'scheduled', label: 'Programado' },
+  { value: 'completed', label: 'Completado' },
+  { value: 'canceled', label: 'Cancelado' },
+];
+
 export function MetadataPanel({ item }: MetadataPanelProps) {
   const [priority, setPriority] = useState<PriorityOption>(item.priority as PriorityOption);
+  const [status, setStatus] = useState<ItemStatus>(item.status);
+  const [statusOpen, setStatusOpen] = useState(false);
+  const statusRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!statusOpen) return;
+    function onClickOutside(e: MouseEvent) {
+      if (statusRef.current && !statusRef.current.contains(e.target as Node)) {
+        setStatusOpen(false);
+      }
+    }
+    const t = setTimeout(() => document.addEventListener('mousedown', onClickOutside), 0);
+    return () => { clearTimeout(t); document.removeEventListener('mousedown', onClickOutside); };
+  }, [statusOpen]);
+
+  const statusOptions = item.itemType === 'event' ? EVENT_STATUS_OPTIONS : TASK_STATUS_OPTIONS;
 
   return (
     <div className="flex flex-col h-full gap-3 overflow-y-auto hide-scrollbar">
@@ -51,20 +82,48 @@ export function MetadataPanel({ item }: MetadataPanelProps) {
           <label className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant block mb-2">
             Estado
           </label>
-          <button
-            type="button"
-            className="w-full flex items-center justify-between px-3 py-2 bg-surface-container-high rounded-lg group"
-          >
-            <div className="flex items-center gap-2.5">
-              <div className={cn('w-2 h-2 rounded-full', STATUS_COLORS[item.status])} />
-              <span className="text-on-surface font-medium text-sm">
-                {STATUS_LABELS[item.status] ?? item.status}
+          <div ref={statusRef} className="relative">
+            <button
+              type="button"
+              onClick={() => setStatusOpen((o) => !o)}
+              className="w-full flex items-center justify-between px-3 py-2 bg-surface-container-high rounded-lg hover:bg-surface-container-highest transition-colors"
+            >
+              <div className="flex items-center gap-2.5">
+                <div className={cn('w-2 h-2 rounded-full', STATUS_COLORS[status])} />
+                <span className="text-on-surface font-medium text-sm">
+                  {STATUS_LABELS[status] ?? status}
+                </span>
+              </div>
+              <span className={cn(
+                'material-symbols-outlined text-sm text-on-surface-variant transition-transform',
+                statusOpen && 'rotate-180'
+              )}>
+                expand_more
               </span>
-            </div>
-            <span className="material-symbols-outlined text-sm text-on-surface-variant group-hover:translate-y-0.5 transition-transform">
-              expand_more
-            </span>
-          </button>
+            </button>
+
+            {statusOpen && (
+              <div className="absolute top-full left-0 right-0 mt-1 bg-surface-container-highest rounded-xl border border-outline-variant/20 shadow-xl shadow-black/30 z-10 overflow-hidden">
+                {statusOptions.map((opt) => (
+                  <button
+                    key={opt.value}
+                    type="button"
+                    onClick={() => { setStatus(opt.value); setStatusOpen(false); }}
+                    className={cn(
+                      'w-full flex items-center gap-2.5 px-3 py-2 text-sm hover:bg-surface-bright/20 transition-colors',
+                      status === opt.value && 'text-primary font-medium'
+                    )}
+                  >
+                    <div className={cn('w-2 h-2 rounded-full shrink-0', STATUS_COLORS[opt.value])} />
+                    {opt.label}
+                    {status === opt.value && (
+                      <span className="material-symbols-outlined text-sm text-primary ml-auto">check</span>
+                    )}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Priority */}

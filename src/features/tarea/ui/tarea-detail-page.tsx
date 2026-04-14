@@ -1,10 +1,11 @@
 'use client';
 
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { MetadataPanel } from '../components/metadata-panel';
 import { TaskHistorySection } from '../components/task-history-section';
 import { GROUP_ITEMS, MOCK_HISTORY } from '@/lib/mock/data';
 import type { MockItem } from '@/lib/mock/types';
+import { cn } from '@/lib/cn';
 
 interface TareaDetailPageProps {
   id: string;
@@ -35,6 +36,34 @@ function getMockItem(id: string): MockItem {
 export function TareaDetailPage({ id }: TareaDetailPageProps) {
   const item = getMockItem(id);
   const [description, setDescription] = useState(item.notes ?? '');
+  const [tags, setTags] = useState<string[]>(item.tags ?? []);
+  const [addingTag, setAddingTag] = useState(false);
+  const [newTag, setNewTag] = useState('');
+  const [saved, setSaved] = useState(false);
+  const tagInputRef = useRef<HTMLInputElement>(null);
+
+  function handleSave() {
+    setSaved(true);
+    setTimeout(() => setSaved(false), 2000);
+  }
+
+  function commitTag() {
+    const trimmed = newTag.trim();
+    if (trimmed && !tags.includes(trimmed)) {
+      setTags((prev) => [...prev, trimmed]);
+    }
+    setNewTag('');
+    setAddingTag(false);
+  }
+
+  function removeTag(tag: string) {
+    setTags((prev) => prev.filter((t) => t !== tag));
+  }
+
+  function startAddingTag() {
+    setAddingTag(true);
+    setTimeout(() => tagInputRef.current?.focus(), 0);
+  }
 
   return (
     <div className="flex flex-col h-[calc(100vh-4rem)] px-5 pt-4 pb-4 gap-4 overflow-hidden">
@@ -60,17 +89,25 @@ export function TareaDetailPage({ id }: TareaDetailPageProps) {
           </button>
           <button
             type="button"
-            className="px-4 py-1.5 rounded-lg bg-primary text-on-primary font-bold text-xs flex items-center gap-1.5"
+            onClick={handleSave}
+            className={cn(
+              'px-4 py-1.5 rounded-lg font-bold text-xs flex items-center gap-1.5 transition-colors',
+              saved
+                ? 'bg-surface-container-high text-primary'
+                : 'bg-primary text-on-primary hover:bg-primary-fixed'
+            )}
           >
-            <span className="material-symbols-outlined text-sm">save</span>
-            Guardar
+            <span className="material-symbols-outlined text-sm">
+              {saved ? 'check' : 'save'}
+            </span>
+            {saved ? 'Guardado' : 'Guardar'}
           </button>
         </div>
       </div>
 
       {/* Content grid */}
       <div className="flex-1 grid grid-cols-1 lg:grid-cols-3 gap-4 min-h-0">
-        {/* Left: description + dependencies + history */}
+        {/* Left: description + dependencies + tags + history */}
         <div className="lg:col-span-2 flex flex-col gap-4 min-h-0 overflow-y-auto hide-scrollbar">
           {/* Description */}
           <section className="bg-surface-container-low rounded-xl p-4 shrink-0">
@@ -102,7 +139,7 @@ export function TareaDetailPage({ id }: TareaDetailPageProps) {
                 <span className="material-symbols-outlined text-sm">link</span>
                 Dependencia
               </h2>
-              <div className="flex items-center gap-2 p-2.5 bg-surface-container-highest/50 rounded-lg cursor-pointer hover:bg-surface-container-highest transition-colors group">
+              <div className="flex items-center gap-2 p-2.5 bg-surface-container-highest/50 rounded-lg cursor-pointer hover:bg-surface-container-highest transition-colors">
                 <div className="w-1 h-8 bg-secondary rounded-full shrink-0" />
                 <div className="min-w-0">
                   <p className="text-xs font-medium text-on-surface truncate">ARC-045: Sistema de Assets</p>
@@ -111,26 +148,54 @@ export function TareaDetailPage({ id }: TareaDetailPageProps) {
               </div>
             </section>
 
+            {/* Tags — fully functional */}
             <section className="bg-surface-container-low rounded-xl p-4">
               <h2 className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant mb-3 flex items-center gap-1.5">
                 <span className="material-symbols-outlined text-sm">label</span>
                 Etiquetas
               </h2>
-              <div className="flex flex-wrap gap-1.5">
-                {item.tags?.map((tag) => (
+              <div className="flex flex-wrap gap-1.5 items-center">
+                {tags.map((tag) => (
                   <span
                     key={tag}
-                    className="px-2 py-0.5 rounded-full bg-surface-container-high text-on-surface-variant text-[10px] font-medium border border-outline-variant/15"
+                    className="group flex items-center gap-1 px-2 py-0.5 rounded-full bg-surface-container-high text-on-surface-variant text-[10px] font-medium border border-outline-variant/15"
                   >
                     {tag}
+                    <button
+                      type="button"
+                      onClick={() => removeTag(tag)}
+                      className="opacity-0 group-hover:opacity-100 transition-opacity text-on-surface-variant/60 hover:text-error"
+                      aria-label={`Eliminar etiqueta ${tag}`}
+                    >
+                      <span className="material-symbols-outlined text-[10px]">close</span>
+                    </button>
                   </span>
                 ))}
-                <button
-                  type="button"
-                  className="w-6 h-6 rounded-full border border-dashed border-outline-variant/40 text-on-surface-variant flex items-center justify-center hover:bg-surface-container-highest transition-colors"
-                >
-                  <span className="material-symbols-outlined text-sm">add</span>
-                </button>
+
+                {addingTag ? (
+                  <input
+                    ref={tagInputRef}
+                    type="text"
+                    value={newTag}
+                    onChange={(e) => setNewTag(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') commitTag();
+                      if (e.key === 'Escape') { setAddingTag(false); setNewTag(''); }
+                    }}
+                    onBlur={commitTag}
+                    placeholder="Etiqueta..."
+                    className="px-2 py-0.5 rounded-full bg-surface-container-highest border border-primary/40 text-[10px] text-on-surface outline-none w-24"
+                  />
+                ) : (
+                  <button
+                    type="button"
+                    onClick={startAddingTag}
+                    className="w-6 h-6 rounded-full border border-dashed border-outline-variant/40 text-on-surface-variant flex items-center justify-center hover:border-primary/50 hover:text-primary transition-colors"
+                    aria-label="Añadir etiqueta"
+                  >
+                    <span className="material-symbols-outlined text-sm">add</span>
+                  </button>
+                )}
               </div>
             </section>
           </div>
