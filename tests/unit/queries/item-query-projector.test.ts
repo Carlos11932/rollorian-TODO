@@ -216,9 +216,7 @@ describe("item query projector", () => {
           createdAt: new Date("2026-04-10T00:00:00.000Z"),
           id: createItemId("item-postponed-future-1"),
           itemType: "task",
-          lifecycle: createTaskPostponedLifecycle(
-            new Date("2026-04-20T12:00:00.000Z"),
-          ),
+          lifecycle: createTaskPostponedLifecycle(new Date("2026-04-20T12:00:00.000Z")),
           postponeCount: 1,
           spaceId: createSpaceId("space-group-1"),
           spaceType: SPACE_TYPE.GROUP,
@@ -262,21 +260,22 @@ describe("item query projector", () => {
     });
   });
 
-  it("applies the same global attention thresholds across personal and group spaces", () => {
+  it("applies exact threshold boundaries consistently across personal and group spaces", () => {
     const referenceDate = new Date("2026-04-14T12:00:00.000Z");
     const personalProjection = projectItemQueryFacts({
       record: {
         ...createPersonalTaskRecord(),
         item: createTaskItem({
-          createdAt: new Date("2026-04-01T00:00:00.000Z"),
+          createdAt: new Date("2026-04-07T12:00:00.000Z"),
           id: createItemId("item-personal-threshold-1"),
           itemType: "task",
           lifecycle: createTaskPendingLifecycle(),
+          postponeCount: 2,
           spaceId: createSpaceId("space-personal-1"),
           spaceType: SPACE_TYPE.PERSONAL,
           temporal: createTaskUndatedTemporal(),
           title: "Personal threshold item",
-          updatedAt: new Date("2026-04-01T00:00:00.000Z"),
+          updatedAt: new Date("2026-04-07T12:00:00.000Z"),
         }),
       },
       referenceDate,
@@ -286,15 +285,63 @@ describe("item query projector", () => {
       record: {
         ...createGroupTaskRecord(),
         item: createTaskItem({
-          createdAt: new Date("2026-04-01T00:00:00.000Z"),
+          createdAt: new Date("2026-04-08T12:00:00.000Z"),
           id: createItemId("item-group-threshold-1"),
+          itemType: "task",
+          lifecycle: createTaskPendingLifecycle(),
+          postponeCount: 3,
+          spaceId: createSpaceId("space-group-1"),
+          spaceType: SPACE_TYPE.GROUP,
+          temporal: createTaskUndatedTemporal(),
+          title: "Group threshold item",
+          updatedAt: new Date("2026-04-08T12:00:00.000Z"),
+        }),
+      },
+      referenceDate,
+      thresholds: createThresholds(),
+    });
+
+    expect(personalProjection.attention.reasons).toEqual([
+      ATTENTION_REASON.OPEN_TOO_LONG,
+    ]);
+    expect(groupProjection.attention.reasons).toEqual([
+      ATTENTION_REASON.POSTPONED_TOO_OFTEN,
+    ]);
+  });
+
+  it("applies the same global open-item threshold across personal and group spaces", () => {
+    const referenceDate = new Date("2026-04-14T12:00:00.000Z");
+    const personalProjection = projectItemQueryFacts({
+      record: {
+        ...createPersonalTaskRecord(),
+        item: createTaskItem({
+          createdAt: new Date("2026-04-07T12:00:00.000Z"),
+          id: createItemId("item-personal-global-threshold-1"),
+          itemType: "task",
+          lifecycle: createTaskPendingLifecycle(),
+          spaceId: createSpaceId("space-personal-1"),
+          spaceType: SPACE_TYPE.PERSONAL,
+          temporal: createTaskUndatedTemporal(),
+          title: "Personal global threshold item",
+          updatedAt: new Date("2026-04-07T12:00:00.000Z"),
+        }),
+      },
+      referenceDate,
+      thresholds: createThresholds(),
+    });
+    const groupProjection = projectItemQueryFacts({
+      record: {
+        ...createGroupTaskRecord(),
+        item: createTaskItem({
+          createdAt: new Date("2026-04-07T12:00:00.000Z"),
+          id: createItemId("item-group-global-threshold-1"),
           itemType: "task",
           lifecycle: createTaskPendingLifecycle(),
           spaceId: createSpaceId("space-group-1"),
           spaceType: SPACE_TYPE.GROUP,
           temporal: createTaskUndatedTemporal(),
-          title: "Group threshold item",
-          updatedAt: new Date("2026-04-01T00:00:00.000Z"),
+          title: "Group global threshold item",
+          updatedAt: new Date("2026-04-07T12:00:00.000Z"),
         }),
       },
       referenceDate,

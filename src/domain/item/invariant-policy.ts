@@ -35,11 +35,15 @@ export type ItemInvariantCheckInput =
   | TaskInvariantCheckInput
   | EventInvariantCheckInput;
 
-function isValidDate(value: Date): boolean {
-  return !Number.isNaN(value.getTime());
+function isValidDate(value: unknown): value is Date {
+  return value instanceof Date && !Number.isNaN(value.getTime());
 }
 
-function assertValidDate(value: Date, fieldName: string, violations: string[]): void {
+function assertValidDate(
+  value: unknown,
+  fieldName: string,
+  violations: string[],
+): void {
   if (!isValidDate(value)) {
     violations.push(`${fieldName} must be a valid date.`);
   }
@@ -107,6 +111,14 @@ function validateEventTemporal(
   temporal: EventTemporal,
   violations: string[],
 ): void {
+  if (
+    temporal.kind !== EVENT_TEMPORAL_KIND.START &&
+    temporal.kind !== EVENT_TEMPORAL_KIND.START_AND_END
+  ) {
+    violations.push("Event startAt must be a valid date.");
+    return;
+  }
+
   switch (temporal.kind) {
     case EVENT_TEMPORAL_KIND.START:
       assertValidDate(temporal.startAt, "Event startAt", violations);
