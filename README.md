@@ -12,7 +12,9 @@ This repository currently provides:
 - shared domain primitives for IDs, space type, item type, priority, and version token
 - Prisma-ready configuration without product models yet
 
-Auth, memberships, item commands, projections, and API routes are intentionally deferred to later OpenSpec batches.
+Domain primitives now include identity, membership, actor metadata, and personal/group space authorization policies.
+
+Full auth infrastructure, item commands, projections, and API routes are intentionally deferred to later OpenSpec batches.
 
 ## Getting started
 

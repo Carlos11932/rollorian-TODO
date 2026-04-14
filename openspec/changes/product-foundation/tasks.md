@@ -5,7 +5,7 @@
 - [x] 1.1 Create `docs/adr/0001-stack-and-skeleton.md` selecting runtime, persistence, API style, test runner, and command set for the six design boundaries.
 - [x] 1.2 Create root bootstrap files from the ADR and baseline folders: `README.md`, `.gitignore`, `.editorconfig`, `src/domain/`, `src/application/`, `src/interfaces/`, `tests/`.
 - [x] 1.3 Add `src/domain/shared/` value objects for ids, `space_type`, `item_type`, priority, and version token primitives used across commands and queries.
-- [ ] 1.4 Add `src/domain/identity/` and `src/domain/access/` models for users, groups, memberships, and personal/group authorization policies.
+- [x] 1.4 Add `src/domain/identity/` and `src/domain/access/` models for users, groups, memberships, and personal/group authorization policies.
 
 ## Phase 2: Implementation
 
