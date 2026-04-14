@@ -1,5 +1,9 @@
 import { authorizeSpaceAccess } from "@/domain/access";
 import {
+  noopGroupItemAuditRecorder,
+  type GroupItemAuditRecorder,
+} from "@/application/history";
+import {
   createEventItem,
   createTaskItem,
   updateEventItem,
@@ -20,6 +24,7 @@ import {
   validateRecordSpaceMatch,
   type CommandResult,
   type EventUpdateFields,
+  type GroupItemRecord,
   type ItemCommandRepository,
   type ItemMutationInputBase,
   type ItemOutput,
@@ -125,8 +130,20 @@ function getNextLabels(
   return command.labels ?? record.labels.map((label) => label.value);
 }
 
+function toGroupItemAuditSnapshot(record: GroupItemRecord) {
+  return {
+    assigneeIds: record.assigneeIds,
+    groupId: record.groupId,
+    item: record.item,
+    labels: record.labels,
+  };
+}
+
 export class UpdateItemCommandHandler {
-  public constructor(private readonly itemRepository: ItemCommandRepository) {}
+  public constructor(
+    private readonly itemRepository: ItemCommandRepository,
+    private readonly groupItemAuditRecorder: GroupItemAuditRecorder = noopGroupItemAuditRecorder,
+  ) {}
 
   public async execute(
     command: UpdateItemCommand,
@@ -205,6 +222,14 @@ export class UpdateItemCommandHandler {
       } as ItemRecord;
 
       await this.itemRepository.save(nextRecord);
+
+      if (record.spaceType === SPACE_TYPE.GROUP && nextRecord.groupId !== null) {
+        await this.groupItemAuditRecorder.record({
+          actor: command.actor.metadata,
+          after: toGroupItemAuditSnapshot(nextRecord),
+          before: toGroupItemAuditSnapshot(record),
+        });
+      }
 
       return commandSuccess(toItemOutput(nextRecord));
     } catch (error) {

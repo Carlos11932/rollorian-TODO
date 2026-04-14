@@ -7,6 +7,11 @@ import {
   type ItemRecord,
 } from "@/application/commands";
 import {
+  AppendOnlyGroupItemAuditRecorder,
+  type AppendGroupItemAuditEntryRepository,
+} from "@/application/history";
+import { GROUP_ITEM_AUDIT_CHANGE_KIND, type GroupItemAuditEntry } from "@/domain/history";
+import {
   createGroupSpaceAccessContext,
   createPersonalSpaceAccessContext,
   type GroupSpaceAccessContext,
@@ -19,6 +24,7 @@ import {
 } from "@/domain/identity";
 import {
   createEventStartTemporal,
+  createTaskDoneLifecycle,
   createGroupItemScope,
   createTaskPendingLifecycle,
   createTaskUndatedTemporal,
@@ -51,6 +57,16 @@ class InMemoryItemCommandRepository implements ItemCommandRepository {
 
   public async save(record: ItemRecord): Promise<void> {
     this.records.set(record.item.id, record);
+  }
+}
+
+class InMemoryGroupItemAuditRepository
+  implements AppendGroupItemAuditEntryRepository
+{
+  public readonly entries: GroupItemAuditEntry[] = [];
+
+  public async append(entry: GroupItemAuditEntry): Promise<void> {
+    this.entries.push(entry);
   }
 }
 
@@ -190,6 +206,7 @@ describe("item command handlers", () => {
   it("updates a shared item when the expected version matches", async () => {
     const fixture = createGroupFixture();
     const seedRepository = new InMemoryItemCommandRepository();
+    const auditRepository = new InMemoryGroupItemAuditRepository();
     const createHandler = new CreateItemCommandHandler(seedRepository);
 
     const created = await createHandler.execute({
@@ -208,7 +225,10 @@ describe("item command handlers", () => {
 
     expect(created.ok).toBe(true);
 
-    const handler = new UpdateItemCommandHandler(seedRepository);
+    const handler = new UpdateItemCommandHandler(
+      seedRepository,
+      new AppendOnlyGroupItemAuditRecorder(auditRepository),
+    );
     const result = await handler.execute({
       actor: fixture.actor,
       assigneeIds: [fixture.memberId, fixture.teammateId],
@@ -237,6 +257,165 @@ describe("item command handlers", () => {
     ]);
     expect(result.value.labels).toEqual([{ value: "ops" }, { value: "q2" }]);
     expect(result.value.title).toBe("Updated title");
+    expect(auditRepository.entries).toHaveLength(1);
+    expect(auditRepository.entries[0]?.versionToken).toBe(1);
+    expect(auditRepository.entries[0]?.actor.actorId).toBe(fixture.memberId);
+    expect(auditRepository.entries[0]?.changes).toEqual([
+      {
+        after: "Updated title",
+        before: "Initial title",
+        kind: GROUP_ITEM_AUDIT_CHANGE_KIND.TITLE,
+      },
+      {
+        after: [fixture.memberId, fixture.teammateId],
+        before: [fixture.memberId],
+        kind: GROUP_ITEM_AUDIT_CHANGE_KIND.ASSIGNEES,
+      },
+      {
+        after: ["ops", "q2"],
+        before: ["ops"],
+        kind: GROUP_ITEM_AUDIT_CHANGE_KIND.LABELS,
+      },
+    ]);
+  });
+
+  it("appends a new audit entry for each tracked shared mutation", async () => {
+    const fixture = createGroupFixture();
+    const repository = new InMemoryItemCommandRepository();
+    const auditRepository = new InMemoryGroupItemAuditRepository();
+    const createHandler = new CreateItemCommandHandler(repository);
+
+    const created = await createHandler.execute({
+      actor: fixture.actor,
+      assigneeIds: [fixture.memberId],
+      itemId: createItemId("item-group-history-1"),
+      itemType: ITEM_TYPE.TASK,
+      space: {
+        accessContext: fixture.accessContext,
+        scope: fixture.scope,
+      },
+      temporal: createTaskUndatedTemporal(),
+      title: "Prepare launch",
+    });
+
+    expect(created.ok).toBe(true);
+
+    if (!created.ok) {
+      return;
+    }
+
+    const handler = new UpdateItemCommandHandler(
+      repository,
+      new AppendOnlyGroupItemAuditRecorder(auditRepository),
+    );
+
+    const firstUpdate = await handler.execute({
+      actor: fixture.actor,
+      expectedVersionToken: created.value.versionToken,
+      itemId: created.value.id,
+      lifecycle: createTaskPendingLifecycle(),
+      priority: "high",
+      space: {
+        accessContext: fixture.accessContext,
+        scope: fixture.scope,
+      },
+      temporal: createTaskUndatedTemporal(),
+      title: created.value.title,
+    });
+
+    expect(firstUpdate.ok).toBe(true);
+
+    if (!firstUpdate.ok) {
+      return;
+    }
+
+    const secondUpdate = await handler.execute({
+      actor: fixture.actor,
+      expectedVersionToken: firstUpdate.value.versionToken,
+      itemId: firstUpdate.value.id,
+      lifecycle: createTaskDoneLifecycle(new Date("2026-04-14T12:00:00.000Z")),
+      space: {
+        accessContext: fixture.accessContext,
+        scope: fixture.scope,
+      },
+      temporal: createTaskUndatedTemporal(),
+      title: firstUpdate.value.title,
+    });
+
+    expect(secondUpdate.ok).toBe(true);
+    expect(auditRepository.entries).toHaveLength(2);
+    expect(auditRepository.entries[0]?.changes).toEqual([
+      {
+        after: "high",
+        before: "medium",
+        kind: GROUP_ITEM_AUDIT_CHANGE_KIND.PRIORITY,
+      },
+    ]);
+    expect(auditRepository.entries[1]?.changes).toEqual([
+      {
+        after: "done",
+        before: "pending",
+        kind: GROUP_ITEM_AUDIT_CHANGE_KIND.STATUS,
+      },
+      {
+        after: {
+          completedAt: new Date("2026-04-14T12:00:00.000Z"),
+          isCompleted: true,
+        },
+        before: {
+          completedAt: null,
+          isCompleted: false,
+        },
+        kind: GROUP_ITEM_AUDIT_CHANGE_KIND.COMPLETION,
+      },
+    ]);
+  });
+
+  it("does not emit group audit entries for personal item mutations", async () => {
+    const repository = new InMemoryItemCommandRepository();
+    const auditRepository = new InMemoryGroupItemAuditRepository();
+    const fixture = createPersonalFixture();
+    const createHandler = new CreateItemCommandHandler(repository);
+
+    const created = await createHandler.execute({
+      actor: fixture.actor,
+      assigneeIds: [fixture.ownerId],
+      itemId: createItemId("item-personal-audit-1"),
+      itemType: ITEM_TYPE.TASK,
+      space: {
+        accessContext: fixture.accessContext,
+        scope: fixture.scope,
+      },
+      temporal: createTaskUndatedTemporal(),
+      title: "Personal work",
+    });
+
+    expect(created.ok).toBe(true);
+
+    if (!created.ok) {
+      return;
+    }
+
+    const handler = new UpdateItemCommandHandler(
+      repository,
+      new AppendOnlyGroupItemAuditRecorder(auditRepository),
+    );
+
+    const result = await handler.execute({
+      actor: fixture.actor,
+      itemId: created.value.id,
+      lifecycle: createTaskPendingLifecycle(),
+      priority: "urgent",
+      space: {
+        accessContext: fixture.accessContext,
+        scope: fixture.scope,
+      },
+      temporal: createTaskUndatedTemporal(),
+      title: "Personal work updated",
+    });
+
+    expect(result.ok).toBe(true);
+    expect(auditRepository.entries).toEqual([]);
   });
 
   it("rejects shared updates when the optimistic version is stale", async () => {
