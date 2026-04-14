@@ -1,52 +1,29 @@
 'use client';
 
-import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { cn } from '@/lib/cn';
 import { useQuickCapture } from './quick-capture-context';
 
-interface TopNavItem {
-  href: string;
-  label: string;
-}
+const SECTION_TITLES: Record<string, string> = {
+  '/': 'Mi Vista',
+  '/grupos': 'Grupos',
+  '/calendario': 'Calendario',
+};
 
-const TOP_NAV_ITEMS: TopNavItem[] = [
-  { href: '/', label: 'Mi Vista' },
-  { href: '/proyectos', label: 'Proyectos' },
-  { href: '/archivo', label: 'Archivo' },
-];
+function getSectionTitle(pathname: string): string {
+  if (pathname.startsWith('/tareas/')) return 'Detalle de tarea';
+  return SECTION_TITLES[pathname] ?? 'rollorian';
+}
 
 export function TopAppBar() {
   const pathname = usePathname();
   const { open } = useQuickCapture();
 
   return (
-    <header className="fixed top-0 right-0 left-64 z-50 bg-surface-container-lowest/80 backdrop-blur-xl shadow-2xl shadow-surface-container-lowest/40 flex justify-between items-center px-8 h-16">
-      {/* Left: brand + sub-nav */}
-      <div className="flex items-center gap-8">
-        <h1 className="text-2xl font-bold tracking-tighter text-primary font-headline">
-          rollorian
-        </h1>
-        <nav className="hidden md:flex gap-6">
-          {TOP_NAV_ITEMS.map(({ href, label }) => {
-            const isActive = pathname === href;
-            return (
-              <Link
-                key={href}
-                href={href}
-                className={cn(
-                  'text-sm py-1 transition-colors duration-300',
-                  isActive
-                    ? 'text-primary font-bold border-b-2 border-primary'
-                    : 'text-on-surface/60 hover:text-on-surface font-medium'
-                )}
-              >
-                {label}
-              </Link>
-            );
-          })}
-        </nav>
-      </div>
+    <header className="fixed top-0 right-0 left-64 z-50 bg-surface-container-lowest/80 backdrop-blur-xl shadow-2xl shadow-surface-container-lowest/40 flex items-center justify-between px-8 h-16">
+      {/* Left: current section title */}
+      <h1 className="text-sm font-semibold text-on-surface-variant tracking-wide">
+        {getSectionTitle(pathname)}
+      </h1>
 
       {/* Right: search + actions */}
       <div className="flex items-center gap-4">

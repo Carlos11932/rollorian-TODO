@@ -23,18 +23,18 @@ export function SideNavBar() {
 
   return (
     <aside className="fixed left-0 top-0 h-full w-64 hidden lg:flex flex-col py-6 px-4 gap-4 z-40 bg-surface-container-lowest shadow-[40px_0_40px_rgba(0,17,12,0.4)]">
-      {/* User profile */}
-      <div className="flex items-center gap-3 px-2 mb-4">
-        <div className="w-10 h-10 rounded-lg bg-surface-container-high flex items-center justify-center border border-primary/20">
-          <span className="material-symbols-outlined text-primary text-[20px]">person</span>
+      {/* App branding */}
+      <div className="flex items-center gap-3 px-2 mb-6">
+        <div className="w-10 h-10 bg-primary-container rounded-lg flex items-center justify-center shrink-0">
+          <span className="material-symbols-outlined text-primary">checklist</span>
         </div>
-        <div className="flex flex-col">
-          <span className="text-primary font-bold font-headline tracking-tight text-sm leading-tight">
-            The Curator
-          </span>
-          <span className="text-[10px] uppercase tracking-widest text-on-surface-variant opacity-60">
-            Private Estate Library
-          </span>
+        <div>
+          <h2 className="text-lg font-black text-primary font-headline tracking-tighter leading-none">
+            rollorian
+          </h2>
+          <p className="text-[10px] uppercase tracking-widest text-on-surface-variant/60 mt-0.5">
+            TODO
+          </p>
         </div>
       </div>
 
@@ -76,7 +76,7 @@ export function SideNavBar() {
         className="bg-primary-container text-on-primary hover:bg-primary hover:text-on-primary transition-colors duration-300 py-3 rounded-xl flex items-center justify-center gap-2 font-bold text-sm"
       >
         <span className="material-symbols-outlined text-sm">add</span>
-        New Entry
+        Nueva entrada
       </button>
 
       {/* Footer */}
@@ -86,14 +86,14 @@ export function SideNavBar() {
           className="flex items-center gap-3 px-3 py-2 text-sm font-medium text-on-surface/70 hover:bg-surface-container-high/50 hover:text-on-surface transition-all duration-200 rounded-lg"
         >
           <span className="material-symbols-outlined">settings</span>
-          Settings
+          Configuración
         </Link>
         <Link
           href="/help"
           className="flex items-center gap-3 px-3 py-2 text-sm font-medium text-on-surface/70 hover:bg-surface-container-high/50 hover:text-on-surface transition-all duration-200 rounded-lg"
         >
           <span className="material-symbols-outlined">help_outline</span>
-          Help
+          Ayuda
         </Link>
       </div>
     </aside>
