@@ -1,4 +1,6 @@
+import Link from 'next/link';
 import { cn } from '@/lib/cn';
+import { EmptyState } from '@/features/shared/components/empty-state';
 import type { MockItem } from '@/lib/mock/types';
 
 type StatusConfig = {
@@ -43,6 +45,15 @@ interface GroupTaskListProps {
 export function GroupTaskList({ items, selectedId, onSelect }: GroupTaskListProps) {
   return (
     <div className="xl:col-span-8 space-y-4">
+      {items.length === 0 && (
+        <EmptyState
+          icon="group"
+          title="Sin tareas en este grupo"
+          description="Las tareas compartidas con tu grupo aparecerán aquí."
+          className="col-span-8"
+        />
+      )}
+
       {/* Table header */}
       <div className="grid grid-cols-12 px-6 py-3 text-[10px] font-bold uppercase tracking-[0.2em] text-on-surface-variant opacity-60">
         <div className="col-span-6">Tarea Compartida</div>
@@ -70,12 +81,14 @@ export function GroupTaskList({ items, selectedId, onSelect }: GroupTaskListProp
               {/* Title */}
               <div className="col-span-6 flex items-center gap-4">
                 <div className={cn('w-1.5 h-10 rounded-full shrink-0', barColor)} />
-                <div>
-                  <h4 className="text-on-surface font-semibold tracking-tight">{item.title}</h4>
+                <Link href={`/tareas/${item.id}`} className="group/link">
+                  <h4 className="text-on-surface font-semibold tracking-tight group-hover/link:text-primary transition-colors">
+                    {item.title}
+                  </h4>
                   {item.notes && (
                     <p className="text-xs text-on-surface-variant mt-1">{item.notes}</p>
                   )}
-                </div>
+                </Link>
               </div>
 
               {/* Assignee */}

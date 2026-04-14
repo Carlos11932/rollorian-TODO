@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/cn';
+import { useQuickCapture } from './quick-capture-context';
 
 interface NavItem {
   href: string;
@@ -18,6 +19,7 @@ const NAV_ITEMS: NavItem[] = [
 
 export function SideNavBar() {
   const pathname = usePathname();
+  const { open } = useQuickCapture();
 
   return (
     <aside className="fixed left-0 top-0 h-full w-64 hidden lg:flex flex-col py-6 px-4 gap-4 z-40 bg-surface-container-lowest shadow-[40px_0_40px_rgba(0,17,12,0.4)]">
@@ -70,6 +72,7 @@ export function SideNavBar() {
       {/* CTA */}
       <button
         type="button"
+        onClick={open}
         className="bg-primary-container text-on-primary hover:bg-primary hover:text-on-primary transition-colors duration-300 py-3 rounded-xl flex items-center justify-center gap-2 font-bold text-sm"
       >
         <span className="material-symbols-outlined text-sm">add</span>

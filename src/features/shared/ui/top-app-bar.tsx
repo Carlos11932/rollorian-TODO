@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/cn';
+import { useQuickCapture } from './quick-capture-context';
 
 interface TopNavItem {
   href: string;
@@ -17,6 +18,7 @@ const TOP_NAV_ITEMS: TopNavItem[] = [
 
 export function TopAppBar() {
   const pathname = usePathname();
+  const { open } = useQuickCapture();
 
   return (
     <header className="fixed top-0 right-0 left-64 z-50 bg-surface-container-lowest/80 backdrop-blur-xl shadow-2xl shadow-surface-container-lowest/40 flex justify-between items-center px-8 h-16">
@@ -48,16 +50,18 @@ export function TopAppBar() {
 
       {/* Right: search + actions */}
       <div className="flex items-center gap-4">
-        <div className="relative">
-          <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-sm">
-            search
-          </span>
-          <input
-            type="text"
-            placeholder="Buscar registros..."
-            className="bg-surface-container-lowest border border-outline-variant/20 rounded-full py-1.5 pl-10 pr-4 text-sm focus:ring-1 focus:ring-primary w-48 focus:w-64 transition-all duration-300 outline-none text-on-surface placeholder:text-on-surface-variant/60"
-          />
-        </div>
+        <button
+          type="button"
+          onClick={open}
+          className="relative flex items-center gap-2 bg-surface-container-lowest border border-outline-variant/20 rounded-full py-1.5 pl-3 pr-4 text-sm text-on-surface-variant/60 hover:border-outline-variant/50 hover:text-on-surface-variant transition-all duration-200 w-52"
+          aria-label="Buscar o crear entrada (⌘K)"
+        >
+          <span className="material-symbols-outlined text-sm">search</span>
+          <span className="flex-1 text-left text-sm">Buscar registros...</span>
+          <kbd className="hidden md:inline text-[10px] font-sans bg-surface-container-high px-1.5 py-0.5 rounded text-on-surface-variant/40 border border-outline-variant/20">
+            ⌘K
+          </kbd>
+        </button>
         <div className="flex gap-1">
           <button
             type="button"

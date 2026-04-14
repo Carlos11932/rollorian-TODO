@@ -1,7 +1,9 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 import { cn } from '@/lib/cn';
+import { EmptyState } from '@/features/shared/components/empty-state';
 import type { MockItem } from '@/lib/mock/types';
 
 interface TodaySectionProps {
@@ -31,6 +33,14 @@ export function TodaySection({ items, dateLabel }: TodaySectionProps) {
         <span className="text-sm font-medium text-on-surface-variant">{dateLabel}</span>
       </div>
 
+      {items.length === 0 && (
+        <EmptyState
+          icon="today"
+          title="Sin entradas para hoy"
+          description="Usa Nueva entrada para añadir tareas o eventos al día de hoy."
+        />
+      )}
+
       <div className="space-y-3">
         {items.map((item) => {
           const isDone = checked.has(item.id);
@@ -56,10 +66,10 @@ export function TodaySection({ items, dateLabel }: TodaySectionProps) {
                 />
               </button>
 
-              <div className="flex-1 min-w-0">
+              <Link href={`/tareas/${item.id}`} className="flex-1 min-w-0 group/link">
                 <h4
                   className={cn(
-                    'font-medium text-on-surface transition-colors',
+                    'font-medium text-on-surface transition-colors group-hover/link:text-primary',
                     isDone && 'line-through text-on-surface-variant'
                   )}
                 >
@@ -70,7 +80,7 @@ export function TodaySection({ items, dateLabel }: TodaySectionProps) {
                     {[item.location, item.time].filter(Boolean).join(' • ')}
                   </p>
                 )}
-              </div>
+              </Link>
 
               <div className="flex items-center gap-2 shrink-0">
                 {item.tags?.map((tag) => (

@@ -2,6 +2,9 @@ import type { ReactNode } from 'react';
 import { SideNavBar } from './side-nav-bar';
 import { TopAppBar } from './top-app-bar';
 import { MobileNav } from './mobile-nav';
+import { QuickCaptureProvider } from './quick-capture-context';
+import { QuickCaptureDialog } from './quick-capture-dialog';
+import { KeyboardShortcuts } from './keyboard-shortcuts';
 
 interface AppShellProps {
   children: ReactNode;
@@ -9,7 +12,7 @@ interface AppShellProps {
 
 export function AppShell({ children }: AppShellProps) {
   return (
-    <>
+    <QuickCaptureProvider>
       {/* Fixed left sidebar — desktop only */}
       <SideNavBar />
 
@@ -21,6 +24,12 @@ export function AppShell({ children }: AppShellProps) {
 
       {/* Bottom nav — mobile only */}
       <MobileNav />
-    </>
+
+      {/* Quick capture modal — rendered at root so it overlays everything */}
+      <QuickCaptureDialog />
+
+      {/* Global keyboard shortcuts (Cmd+K) */}
+      <KeyboardShortcuts />
+    </QuickCaptureProvider>
   );
 }
