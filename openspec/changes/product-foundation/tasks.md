@@ -15,7 +15,7 @@
 - [x] 2.4 Add append-only audit recording in `src/domain/history/` and `src/application/history/` for group-item changes to status, assignees, priority, labels, dates, title, completion, and cancellation.
 - [x] 2.5 Add synchronous projectors in `src/application/queries/projectors/` that derive persisted/queryable facts for visibility, dated span, undated state, assignee summary, and attention reasons.
 - [x] 2.6 Add query handlers in `src/application/queries/views/` for My View, Group View, Calendar, Undated, and Requires Attention using the shared eligibility rules from spec.
-- [ ] 2.7 Add API contracts in `src/interfaces/api/items/` and `src/interfaces/api/views/` for `POST/GET/PATCH /items`, `/views/*`, filters, conflict errors, and `/items/{id}/history`.
+- [x] 2.7 Add API contracts in `src/interfaces/api/items/` and `src/interfaces/api/views/` for `POST/GET/PATCH /items`, `/views/*`, filters, conflict errors, and `/items/{id}/history`.
 
 ## Phase 3: Testing
 
