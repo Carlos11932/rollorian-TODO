@@ -3,11 +3,9 @@ import { TodaySection } from '../components/today-section';
 import { ThisWeekSection } from '../components/this-week-section';
 import { StatPill } from '@/features/shared/components/stat-pill';
 import { DateUtils } from '@/lib/date-utils';
-import {
-  getTodayViewAction,
-  getRequiresAttentionAction,
-  getThisWeekAction,
-} from '@/features/shared/actions/view-actions';
+import { getTodayViewAction } from '../actions/today-view-action';
+import { getRequiresAttentionAction } from '../actions/requires-attention-action';
+import { getThisWeekAction } from '../actions/this-week-action';
 
 export async function MiVistaPage() {
   const dateLabel = DateUtils.formatLongDateLabel(new Date());

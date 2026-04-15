@@ -4,7 +4,7 @@ import { useMemo, useState } from 'react';
 import { CalendarGrid } from '../components/calendar-grid';
 import { DayAgenda } from '../components/day-agenda';
 import type { ItemCardDto } from '@/interfaces/ui/item-card-dto';
-import type { CalendarDayData } from '@/features/shared/actions/view-actions';
+import type { CalendarDayData } from '@/features/calendario/actions/calendar-month-action';
 
 type SpaceFilter = 'both' | 'personal' | 'group';
 
