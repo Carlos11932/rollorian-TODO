@@ -1,50 +1,71 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import { useRef, useState, useTransition } from 'react';
+import { useRouter } from 'next/navigation';
 import { MetadataPanel } from '../components/metadata-panel';
 import { TaskHistorySection } from '../components/task-history-section';
-import { GROUP_ITEMS, MOCK_HISTORY } from '@/lib/mock/data';
-import type { MockItem } from '@/lib/mock/types';
+import { MOCK_HISTORY, MOCK_USERS } from '@/lib/mock/data';
+import type { MockItem, ItemStatus } from '@/lib/mock/types';
+import type { ItemView, TaskItemView } from '@/interfaces/views/item-view';
 import { cn } from '@/lib/cn';
+import { deleteItemAction } from '@/features/shared/actions/item-actions';
 
 interface TareaDetailPageProps {
   id: string;
+  item: ItemView;
 }
 
-function getMockItem(id: string): MockItem {
-  const found = GROUP_ITEMS.find((i) => i.id === id);
-  if (found) return found;
+function itemViewToMockItem(view: ItemView): MockItem {
+  const assignee = view.assigneeIds[0]
+    ? MOCK_USERS.find((u) => u.id === view.assigneeIds[0])
+    : undefined;
+
+  let dueDate: string | undefined;
+  if (view.itemType === 'task') {
+    const temporal = (view as TaskItemView).temporal;
+    if (temporal.kind !== 'undated' && 'dueAt' in temporal && temporal.dueAt) {
+      dueDate = (temporal.dueAt as Date).toISOString().slice(0, 10);
+    }
+  }
 
   return {
-    id,
-    title: 'Actualizar motor de renderizado editorial',
-    notes:
-      'Optimizar la lógica de carga asíncrona para las portadas de libros de alta resolución. El objetivo es reducir el tiempo de bloqueo del hilo principal durante el scroll infinito en la vista de curaduría.',
-    itemType: 'task',
-    status: 'blocked',
-    priority: 'high',
-    spaceType: 'personal',
-    blockedReason:
-      'Esperando aprobación final del departamento de diseño visual sobre el gradiente de placeholder.',
-    assignee: { id: 'user-2', name: 'Elena R.', initials: 'ER', avatarColor: '#004f34' },
-    dueDate: '24 Oct, 2023',
-    createdAt: '2023-10-08T08:00:00Z',
-    tags: ['Performance', 'Editorial', 'V1.2'],
+    id: view.id,
+    title: view.title,
+    notes: view.notes ?? undefined,
+    itemType: view.itemType,
+    status: view.status as ItemStatus,
+    priority: view.priority,
+    spaceType: view.spaceType,
+    groupId: view.groupId ?? undefined,
+    assignee,
+    dueDate,
+    createdAt: view.createdAt,
+    tags: view.labels.map((l) => l.value),
   };
 }
 
-export function TareaDetailPage({ id }: TareaDetailPageProps) {
-  const item = getMockItem(id);
-  const [description, setDescription] = useState(item.notes ?? '');
-  const [tags, setTags] = useState<string[]>(item.tags ?? []);
+export function TareaDetailPage({ id, item: itemView }: TareaDetailPageProps) {
+  const router = useRouter();
+  const mockItem = itemViewToMockItem(itemView);
+
+  const [description, setDescription] = useState(mockItem.notes ?? '');
+  const [tags, setTags] = useState<string[]>(mockItem.tags ?? []);
   const [addingTag, setAddingTag] = useState(false);
   const [newTag, setNewTag] = useState('');
   const [saved, setSaved] = useState(false);
+  const [isDeleting, startDeleteTransition] = useTransition();
   const tagInputRef = useRef<HTMLInputElement>(null);
 
   function handleSave() {
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
+  }
+
+  function handleDelete() {
+    startDeleteTransition(async () => {
+      await deleteItemAction(id);
+      router.push('/');
+    });
   }
 
   function commitTag() {
@@ -76,16 +97,18 @@ export function TareaDetailPage({ id }: TareaDetailPageProps) {
             <span className="text-secondary font-medium uppercase">{id}</span>
           </div>
           <h1 className="text-base font-bold text-on-surface font-headline truncate">
-            {item.title}
+            {mockItem.title}
           </h1>
         </div>
         <div className="flex items-center gap-2 shrink-0 ml-4">
           <button
             type="button"
-            className="px-3 py-1.5 rounded-lg bg-surface-container-high text-on-surface-variant hover:bg-surface-bright transition-colors text-xs font-semibold flex items-center gap-1.5"
+            onClick={handleDelete}
+            disabled={isDeleting}
+            className="px-3 py-1.5 rounded-lg font-bold text-xs flex items-center gap-1.5 transition-colors text-error hover:bg-error/10 disabled:opacity-40 disabled:cursor-not-allowed"
           >
-            <span className="material-symbols-outlined text-sm">share</span>
-            Compartir
+            <span className="material-symbols-outlined text-sm">delete</span>
+            {isDeleting ? 'Eliminando…' : 'Eliminar'}
           </button>
           <button
             type="button"
@@ -107,7 +130,7 @@ export function TareaDetailPage({ id }: TareaDetailPageProps) {
 
       {/* Content grid */}
       <div className="flex-1 grid grid-cols-1 lg:grid-cols-3 gap-4 min-h-0">
-        {/* Left: description + dependencies + tags + history */}
+        {/* Left: description + tags + history */}
         <div className="lg:col-span-2 flex flex-col gap-4 min-h-0 overflow-y-auto hide-scrollbar">
           {/* Description */}
           <section className="bg-surface-container-low rounded-xl p-4 shrink-0">
@@ -121,34 +144,19 @@ export function TareaDetailPage({ id }: TareaDetailPageProps) {
               className="w-full bg-surface-container-lowest border border-outline-variant/20 focus:ring-1 focus:ring-primary rounded-lg text-sm text-tertiary p-3 min-h-[100px] leading-relaxed resize-none outline-none"
             />
 
-            {item.status === 'blocked' && item.blockedReason && (
+            {mockItem.status === 'blocked' && mockItem.blockedReason && (
               <div className="mt-3 p-3 rounded-lg bg-error-container/10 border border-error/20 flex gap-3">
                 <span className="material-symbols-outlined text-error text-sm shrink-0">warning</span>
                 <div>
                   <p className="text-error text-xs font-bold">Motivo de bloqueo</p>
-                  <p className="text-on-surface-variant text-xs mt-0.5">{item.blockedReason}</p>
+                  <p className="text-on-surface-variant text-xs mt-0.5">{mockItem.blockedReason}</p>
                 </div>
               </div>
             )}
           </section>
 
-          {/* Dependencies + Tags row */}
-          <div className="grid grid-cols-2 gap-4 shrink-0">
-            <section className="bg-surface-container-low rounded-xl p-4">
-              <h2 className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant mb-3 flex items-center gap-1.5">
-                <span className="material-symbols-outlined text-sm">link</span>
-                Dependencia
-              </h2>
-              <div className="flex items-center gap-2 p-2.5 bg-surface-container-highest/50 rounded-lg cursor-pointer hover:bg-surface-container-highest transition-colors">
-                <div className="w-1 h-8 bg-secondary rounded-full shrink-0" />
-                <div className="min-w-0">
-                  <p className="text-xs font-medium text-on-surface truncate">ARC-045: Sistema de Assets</p>
-                  <p className="text-[10px] text-on-surface-variant/60 truncate">Finalización de API de texturas</p>
-                </div>
-              </div>
-            </section>
-
-            {/* Tags — fully functional */}
+          {/* Tags */}
+          <div className="shrink-0">
             <section className="bg-surface-container-low rounded-xl p-4">
               <h2 className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant mb-3 flex items-center gap-1.5">
                 <span className="material-symbols-outlined text-sm">label</span>
@@ -206,7 +214,7 @@ export function TareaDetailPage({ id }: TareaDetailPageProps) {
 
         {/* Right: metadata */}
         <div className="min-h-0">
-          <MetadataPanel item={item} />
+          <MetadataPanel item={mockItem} />
         </div>
       </div>
     </div>

@@ -1,8 +1,8 @@
 /**
- * Command handler factory — single DI injection point.
+ * Command + Query handler factory — single DI injection point.
  *
- * Current: InMemoryItemRepository (dev stub, no cross-request persistence).
- * Next step: replace with PrismaItemRepository when the schema lands.
+ * Current: in-memory runtime store (dev stub, no cross-request persistence).
+ * Next step: replace with Prisma-backed repositories when the persistence slice lands.
  * That swap happens ONLY here — command handlers, actions, and routes stay untouched.
  */
 import {
@@ -10,6 +10,8 @@ import {
   CreateItemCommandHandler,
   ReadItemByIdCommandHandler,
   UpdateItemCommandHandler,
+  toItemOutput,
+  type ItemOutput,
 } from '@/application/commands';
 import {
   GetCalendarViewQueryHandler,
@@ -18,6 +20,8 @@ import {
   GetRequiresAttentionViewQueryHandler,
   GetUndatedViewQueryHandler,
 } from '@/application/queries/views';
+import { createItemId } from '@/domain/shared';
+import { seedDevItems } from '@/lib/mock/seed';
 import { runtimeStore } from '@/lib/runtime-store';
 
 const groupItemAuditRecorder = new AppendOnlyGroupItemAuditRecorder(runtimeStore);
@@ -31,5 +35,23 @@ export const getGroupViewHandler = new GetGroupViewQueryHandler(runtimeStore);
 export const getCalendarViewHandler = new GetCalendarViewQueryHandler(runtimeStore);
 export const getUndatedViewHandler = new GetUndatedViewQueryHandler(runtimeStore);
 export const getAttentionViewHandler = new GetRequiresAttentionViewQueryHandler(runtimeStore);
+export const getRequiresAttentionHandler = getAttentionViewHandler;
+
+let seeded = false;
+
+export async function ensureDevSeed(): Promise<void> {
+  if (seeded) return;
+  seeded = true;
+  await seedDevItems(createItemHandler);
+}
+
+export async function findItemById(id: string): Promise<ItemOutput | null> {
+  const record = await runtimeStore.findById(createItemId(id));
+  return record ? toItemOutput(record) : null;
+}
+
+export async function removeItem(id: string): Promise<void> {
+  await runtimeStore.remove(createItemId(id));
+}
 
 export { runtimeStore };

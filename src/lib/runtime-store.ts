@@ -46,6 +46,10 @@ export class InMemoryRuntimeStore
     }));
   }
 
+  public async listAll(): Promise<readonly ItemRecord[]> {
+    return [...this.records.values()];
+  }
+
   public listHistoryEntries(itemId: string): readonly GroupItemAuditEntry[] {
     return this.historyEntries.filter((entry) => entry.itemId === itemId);
   }
@@ -54,6 +58,10 @@ export class InMemoryRuntimeStore
     this.records.clear();
     this.historyEntries.length = 0;
     this.referenceDate = DEFAULT_REFERENCE_DATE;
+  }
+
+  public async remove(itemId: ItemId): Promise<void> {
+    this.records.delete(itemId);
   }
 
   public async save(record: ItemRecord): Promise<void> {
