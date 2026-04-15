@@ -17,4 +17,9 @@ export class InMemoryItemRepository implements ItemCommandRepository {
   async save(record: ItemRecord): Promise<void> {
     this.store.set(record.item.id, record);
   }
+
+  /** Exposes all stored records for read-side projections. */
+  async listAll(): Promise<readonly ItemRecord[]> {
+    return Array.from(this.store.values());
+  }
 }
