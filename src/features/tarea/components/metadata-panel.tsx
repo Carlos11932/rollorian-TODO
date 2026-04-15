@@ -2,7 +2,8 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { cn } from '@/lib/cn';
-import type { MockItem, ItemStatus } from '@/lib/mock/types';
+import type { MockItem, ItemStatus, MockUser } from '@/lib/mock/types';
+import { MOCK_USERS, MOCK_GROUPS } from '@/lib/mock/data';
 
 type PriorityOption = 'low' | 'medium' | 'high' | 'urgent';
 
@@ -57,8 +58,16 @@ const EVENT_STATUS_OPTIONS: { value: ItemStatus; label: string }[] = [
 export function MetadataPanel({ item }: MetadataPanelProps) {
   const [priority, setPriority] = useState<PriorityOption>(item.priority as PriorityOption);
   const [status, setStatus] = useState<ItemStatus>(item.status);
+  const [assignee, setAssignee] = useState<MockUser | undefined>(item.assignee);
   const [statusOpen, setStatusOpen] = useState(false);
+  const [assigneeOpen, setAssigneeOpen] = useState(false);
   const statusRef = useRef<HTMLDivElement>(null);
+  const assigneeRef = useRef<HTMLDivElement>(null);
+
+  // Build the candidate user list: group members if group item, all users otherwise
+  const candidateUsers: MockUser[] = item.groupId
+    ? (MOCK_GROUPS.find((g) => g.id === item.groupId)?.members ?? MOCK_USERS)
+    : MOCK_USERS;
 
   useEffect(() => {
     if (!statusOpen) return;
@@ -70,6 +79,17 @@ export function MetadataPanel({ item }: MetadataPanelProps) {
     const t = setTimeout(() => document.addEventListener('mousedown', onClickOutside), 0);
     return () => { clearTimeout(t); document.removeEventListener('mousedown', onClickOutside); };
   }, [statusOpen]);
+
+  useEffect(() => {
+    if (!assigneeOpen) return;
+    function onClickOutside(e: MouseEvent) {
+      if (assigneeRef.current && !assigneeRef.current.contains(e.target as Node)) {
+        setAssigneeOpen(false);
+      }
+    }
+    const t = setTimeout(() => document.addEventListener('mousedown', onClickOutside), 0);
+    return () => { clearTimeout(t); document.removeEventListener('mousedown', onClickOutside); };
+  }, [assigneeOpen]);
 
   const statusOptions = item.itemType === 'event' ? EVENT_STATUS_OPTIONS : TASK_STATUS_OPTIONS;
 
@@ -156,33 +176,85 @@ export function MetadataPanel({ item }: MetadataPanelProps) {
           </div>
         </div>
 
-        {/* Assignee */}
+        {/* Assignee — only for group items (personal items are implicitly self-assigned) */}
+        {item.spaceType === 'group' && (
         <div>
           <label className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant block mb-2">
             Asignado
           </label>
-          {item.assignee ? (
-            <div className="flex items-center gap-2.5 p-2.5 rounded-lg bg-surface-container-high/50 border border-outline-variant/10">
-              <div
-                className="h-7 w-7 rounded-full flex items-center justify-center text-[10px] font-bold text-on-surface shrink-0"
-                style={{ backgroundColor: item.assignee.avatarColor ?? '#004f34' }}
+          <div ref={assigneeRef} className="relative">
+            {assignee ? (
+              <button
+                type="button"
+                onClick={() => setAssigneeOpen((o) => !o)}
+                className="w-full flex items-center gap-2.5 p-2.5 rounded-lg bg-surface-container-high/50 border border-outline-variant/10 hover:border-outline-variant/30 transition-colors"
               >
-                {item.assignee.initials}
+                <div
+                  className="h-7 w-7 rounded-full flex items-center justify-center text-[10px] font-bold text-on-surface shrink-0"
+                  style={{ backgroundColor: assignee.avatarColor ?? '#004f34' }}
+                >
+                  {assignee.initials}
+                </div>
+                <div className="flex-1 min-w-0 text-left">
+                  <p className="text-sm font-bold text-on-surface truncate">{assignee.name}</p>
+                </div>
+                <span className={cn(
+                  'material-symbols-outlined text-sm text-on-surface-variant transition-transform',
+                  assigneeOpen && 'rotate-180'
+                )}>
+                  expand_more
+                </span>
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={() => setAssigneeOpen((o) => !o)}
+                className="w-full p-2.5 rounded-lg border border-dashed border-outline-variant/40 text-on-surface-variant text-xs hover:border-primary/40 hover:text-primary transition-all flex items-center justify-center gap-2"
+              >
+                <span className="material-symbols-outlined text-sm">person_add</span>
+                Asignar responsable
+              </button>
+            )}
+
+            {assigneeOpen && (
+              <div className="absolute top-full left-0 right-0 mt-1 bg-surface-container-highest rounded-xl border border-outline-variant/20 shadow-xl shadow-black/30 z-10 overflow-hidden">
+                {assignee && (
+                  <button
+                    type="button"
+                    onClick={() => { setAssignee(undefined); setAssigneeOpen(false); }}
+                    className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-on-surface-variant hover:bg-surface-bright/20 transition-colors border-b border-outline-variant/10"
+                  >
+                    <span className="material-symbols-outlined text-sm">person_off</span>
+                    Sin asignar
+                  </button>
+                )}
+                {candidateUsers.map((user) => (
+                  <button
+                    key={user.id}
+                    type="button"
+                    onClick={() => { setAssignee(user); setAssigneeOpen(false); }}
+                    className={cn(
+                      'w-full flex items-center gap-2.5 px-3 py-2 text-sm hover:bg-surface-bright/20 transition-colors',
+                      assignee?.id === user.id && 'text-primary font-medium'
+                    )}
+                  >
+                    <div
+                      className="h-6 w-6 rounded-full flex items-center justify-center text-[9px] font-bold text-on-surface shrink-0"
+                      style={{ backgroundColor: user.avatarColor ?? '#004f34' }}
+                    >
+                      {user.initials}
+                    </div>
+                    {user.name}
+                    {assignee?.id === user.id && (
+                      <span className="material-symbols-outlined text-sm text-primary ml-auto">check</span>
+                    )}
+                  </button>
+                ))}
               </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-bold text-on-surface truncate">{item.assignee.name}</p>
-              </div>
-            </div>
-          ) : (
-            <button
-              type="button"
-              className="w-full p-2.5 rounded-lg border border-dashed border-outline-variant/40 text-on-surface-variant text-xs hover:border-primary/40 hover:text-primary transition-all flex items-center justify-center gap-2"
-            >
-              <span className="material-symbols-outlined text-sm">person_add</span>
-              Asignar responsable
-            </button>
-          )}
+            )}
+          </div>
         </div>
+        )}
 
         {/* Dates */}
         <div className="space-y-2.5">

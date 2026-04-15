@@ -24,8 +24,8 @@ import {
   createEventCanceledLifecycle,
 } from '@/domain/item';
 import type { TaskStatus, EventStatus } from '@/domain/item';
-import { createItemHandler, readItemByIdHandler, updateItemHandler } from '@/lib/item-command-factory';
-import { MOCK_ACTOR, MOCK_PERSONAL_COMMAND_SPACE } from '@/lib/mock/actor';
+import { createItemHandler, readItemByIdHandler, updateItemHandler, findItemById, removeItem, ensureDevSeed } from '@/lib/item-command-factory';
+import { MOCK_ACTOR, MOCK_PERSONAL_COMMAND_SPACE, MOCK_USER_ID } from '@/lib/mock/actor';
 import { SEED_GROUP_IDS, SEED_SPACE_IDS, SEED_USER_IDS } from '@/lib/mock/seed';
 import { createGroupMembership, MEMBERSHIP_ROLE } from '@/domain/identity';
 import { createMembershipId } from '@/domain/shared';
@@ -85,6 +85,11 @@ export async function createItemAction(
 ): Promise<ActionResult<ItemView>> {
   const itemId = createItemId(crypto.randomUUID());
   const space = resolveCommandSpace(input.spaceTarget);
+  // Personal items are always owned by the current user — assign implicitly so
+  // the assignee info is available for filtering even though it's not shown in UI.
+  const assigneeIds = (!input.spaceTarget || input.spaceTarget === 'personal')
+    ? [MOCK_USER_ID]
+    : undefined;
 
   const result =
     input.itemType === ITEM_TYPE.TASK
@@ -98,6 +103,7 @@ export async function createItemAction(
           temporal: input.date
             ? createTaskDueDateTemporal(new Date(input.date))
             : createTaskUndatedTemporal(),
+          assigneeIds,
         })
       : await createItemHandler.execute({
           actor: MOCK_ACTOR,
@@ -109,6 +115,7 @@ export async function createItemAction(
           temporal: createEventStartTemporal(
             input.date ? new Date(input.date) : new Date(),
           ),
+          assigneeIds,
         });
 
   if (!result.ok) {
@@ -220,6 +227,23 @@ export async function updateItemPriorityAction(
   }
 
   return { ok: true, value: toItemView(updateResult.value) };
+}
+
+export async function getItemByIdAction(
+  id: string,
+): Promise<ActionResult<ItemView>> {
+  await ensureDevSeed();
+  const output = await findItemById(id);
+  if (!output) return { ok: false, error: `Item not found: ${id}` };
+  return { ok: true, value: toItemView(output) };
+}
+
+export async function deleteItemAction(
+  id: string,
+): Promise<ActionResult<void>> {
+  await ensureDevSeed();
+  await removeItem(id);
+  return { ok: true, value: undefined };
 }
 
 function buildTaskLifecycle(status: TaskStatus, now: Date) {

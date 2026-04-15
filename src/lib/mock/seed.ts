@@ -109,6 +109,7 @@ export async function seedDevItems(handler: CreateItemCommandHandler): Promise<v
       space: personalSpace,
       itemType: ITEM_TYPE.TASK,
       temporal: createTaskDueDateTemporal(today()),
+      assigneeIds: [SEED_USER_IDS.carlos],
     },
     {
       actor: carlosActor,
@@ -118,6 +119,7 @@ export async function seedDevItems(handler: CreateItemCommandHandler): Promise<v
       space: personalSpace,
       itemType: ITEM_TYPE.EVENT,
       temporal: createEventStartTemporal(today()),
+      assigneeIds: [SEED_USER_IDS.carlos],
     },
     {
       actor: carlosActor,
@@ -127,6 +129,7 @@ export async function seedDevItems(handler: CreateItemCommandHandler): Promise<v
       space: personalSpace,
       itemType: ITEM_TYPE.TASK,
       temporal: createTaskDueDateTemporal(today()),
+      assigneeIds: [SEED_USER_IDS.carlos],
     },
 
     // ── This Week ──────────────────────────────────────────────────────────
@@ -171,6 +174,7 @@ export async function seedDevItems(handler: CreateItemCommandHandler): Promise<v
       itemType: ITEM_TYPE.TASK,
       temporal: createTaskDueDateTemporal(today(-2)), // 2 days overdue
       notes: 'Los usuarios no pueden hacer login con email que contiene mayúsculas.',
+      assigneeIds: [SEED_USER_IDS.carlos],
     },
 
     // ── Group items ────────────────────────────────────────────────────────
@@ -216,6 +220,7 @@ export async function seedDevItems(handler: CreateItemCommandHandler): Promise<v
       itemType: ITEM_TYPE.TASK,
       temporal: createTaskDueDateTemporal(today(-1)), // 1 day overdue → attention
       notes: 'Esperando credenciales del equipo de pagos.',
+      assigneeIds: [SEED_USER_IDS.carlos],
     },
     {
       actor: anaActor,
@@ -251,6 +256,7 @@ export async function seedDevItems(handler: CreateItemCommandHandler): Promise<v
       space: personalSpace,
       itemType: ITEM_TYPE.TASK,
       temporal: createTaskUndatedTemporal(),
+      assigneeIds: [SEED_USER_IDS.carlos],
     } satisfies Parameters<typeof handler.execute>[0])),
   ];
 
