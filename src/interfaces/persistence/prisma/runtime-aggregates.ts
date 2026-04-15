@@ -21,6 +21,12 @@ export const PRISMA_GROUP_AUDIT_ENTRY_ORDER_BY: Prisma.GroupAuditEntryOrderByWit
   { id: Prisma.SortOrder.asc },
 ] as const;
 
+export const PRISMA_MEMBERSHIP_ORDER_BY: Prisma.MembershipOrderByWithRelationInput[] = [
+  { createdAt: Prisma.SortOrder.asc },
+  { userId: Prisma.SortOrder.asc },
+  { id: Prisma.SortOrder.asc },
+] as const;
+
 export const prismaUserIdentitySelect = {
   id: true,
   displayName: true,
@@ -44,6 +50,13 @@ export const prismaGroupIdentityWithSpaceSelect = {
     select: prismaSpaceRowSelect,
   },
 } as const satisfies Prisma.GroupSelect;
+
+export const prismaUserIdentityWithPersonalSpaceSelect = {
+  ...prismaUserIdentitySelect,
+  personalSpace: {
+    select: prismaSpaceRowSelect,
+  },
+} as const satisfies Prisma.UserSelect;
 
 export const prismaMembershipRowSelect = {
   id: true,
@@ -207,6 +220,10 @@ export type PrismaSpaceRow = Prisma.SpaceGetPayload<{
 
 export type PrismaGroupIdentityWithSpaceRow = Prisma.GroupGetPayload<{
   select: typeof prismaGroupIdentityWithSpaceSelect;
+}>;
+
+export type PrismaUserIdentityWithPersonalSpaceRow = Prisma.UserGetPayload<{
+  select: typeof prismaUserIdentityWithPersonalSpaceSelect;
 }>;
 
 export type PrismaMembershipRow = Prisma.MembershipGetPayload<{
