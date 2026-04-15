@@ -8,7 +8,7 @@
 
 ## Phase 2: Bootstrap and Repository Foundations
 
-- [ ] 2.1 Extract shared mock identity/bootstrap constants from `src/lib/mock/actor.ts` into a reusable source consumed by both `src/lib/mock/actor.ts` and new `prisma/seed.ts`.
+- [x] 2.1 Extract shared mock identity/bootstrap constants from `src/lib/mock/actor.ts` into a reusable source consumed by both `src/lib/mock/actor.ts` and new `prisma/seed.ts`.
 - [ ] 2.2 Create `prisma/seed.ts` to seed users, groups, memberships, spaces, scoped labels, and minimal sample items so runtime membership truth lives in Postgres.
 - [ ] 2.3 Add mapper modules in `src/interfaces/persistence/prisma/` that translate Prisma aggregates to `ItemRecord`, `ItemViewRecord`, and `GroupItemAuditEntry` without changing DTO contracts.
 - [ ] 2.4 Implement `PrismaItemCommandRepository` in `src/interfaces/persistence/prisma/` with `findById`, `save`, item version checks, member-only group assignees, and scoped label reuse.
