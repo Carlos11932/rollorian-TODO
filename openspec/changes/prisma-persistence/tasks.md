@@ -3,7 +3,7 @@
 ## Phase 1: Infrastructure
 
 - [x] 1.1 Expand `prisma/schema.prisma` with `User`, `Group`, `Membership`, `Space`, `Item`, `ItemAssignee`, `Label`, `ItemLabel`, `GroupAuditEntry`, and `GroupAuditChange`, including scope uniqueness and item/version constraints.
-- [ ] 1.2 Create the first migration in `prisma/migrations/*` and verify it encodes membership FKs, scoped label reuse, append-only audit tables, and item-to-space ownership rules.
+- [x] 1.2 Create the first migration in `prisma/migrations/*` and verify it encodes membership FKs, scoped label reuse, append-only audit tables, and item-to-space ownership rules.
 - [ ] 1.3 Create shared Prisma runtime types and aggregate queries under `src/interfaces/persistence/prisma/` for item rows, joined assignees/labels, memberships, and audit change rows.
 
 ## Phase 2: Bootstrap and Repository Foundations
