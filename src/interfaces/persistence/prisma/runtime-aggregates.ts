@@ -14,6 +14,13 @@ export const PRISMA_GROUP_AUDIT_CHANGE_ORDER_BY: Prisma.GroupAuditChangeOrderByW
   { position: Prisma.SortOrder.asc },
 ] as const;
 
+export const PRISMA_GROUP_AUDIT_ENTRY_ORDER_BY: Prisma.GroupAuditEntryOrderByWithRelationInput[] = [
+  { versionToken: Prisma.SortOrder.asc },
+  { changedAt: Prisma.SortOrder.asc },
+  { createdAt: Prisma.SortOrder.asc },
+  { id: Prisma.SortOrder.asc },
+] as const;
+
 export const prismaUserIdentitySelect = {
   id: true,
   displayName: true,
