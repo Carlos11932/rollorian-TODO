@@ -20,107 +20,70 @@ import {
   type SpaceId,
   type UserId,
 } from "@/domain/shared";
+import {
+  MOCK_BOOTSTRAP_GROUP_IDS,
+  MOCK_BOOTSTRAP_GROUPS,
+  MOCK_BOOTSTRAP_SPACE_IDS,
+  MOCK_BOOTSTRAP_USER_IDS,
+  MOCK_BOOTSTRAP_USERS,
+} from "./bootstrap";
 
 export const MOCK_ACTOR_HEADER = "x-rollorian-actor-id";
 
-export const MOCK_USER_ID = createUserId("user-1");
-export const MOCK_TEAMMATE_USER_ID = createUserId("user-2");
-export const MOCK_GROUP_B_ONLY_USER_ID = createUserId("user-3");
-export const MOCK_OUTSIDER_USER_ID = createUserId("user-4");
+export const MOCK_USER_ID = createUserId(MOCK_BOOTSTRAP_USER_IDS.DEFAULT);
+export const MOCK_TEAMMATE_USER_ID = createUserId(MOCK_BOOTSTRAP_USER_IDS.TEAMMATE);
+export const MOCK_GROUP_B_ONLY_USER_ID = createUserId(MOCK_BOOTSTRAP_USER_IDS.GROUP_B_ONLY);
+export const MOCK_OUTSIDER_USER_ID = createUserId(MOCK_BOOTSTRAP_USER_IDS.OUTSIDER);
 
-export const MOCK_GROUP_ALPHA_ID = createGroupId("group-alpha");
-export const MOCK_GROUP_BETA_ID = createGroupId("group-beta");
+export const MOCK_GROUP_ALPHA_ID = createGroupId(MOCK_BOOTSTRAP_GROUP_IDS.ALPHA);
+export const MOCK_GROUP_BETA_ID = createGroupId(MOCK_BOOTSTRAP_GROUP_IDS.BETA);
 
-export const MOCK_PERSONAL_SPACE_ID = createSpaceId("space-personal-user-1");
-export const MOCK_TEAMMATE_PERSONAL_SPACE_ID = createSpaceId("space-personal-user-2");
-export const MOCK_GROUP_B_ONLY_PERSONAL_SPACE_ID = createSpaceId("space-personal-user-3");
-export const MOCK_OUTSIDER_PERSONAL_SPACE_ID = createSpaceId("space-personal-user-4");
+export const MOCK_PERSONAL_SPACE_ID = createSpaceId(MOCK_BOOTSTRAP_SPACE_IDS.DEFAULT_PERSONAL);
+export const MOCK_TEAMMATE_PERSONAL_SPACE_ID = createSpaceId(MOCK_BOOTSTRAP_SPACE_IDS.TEAMMATE_PERSONAL);
+export const MOCK_GROUP_B_ONLY_PERSONAL_SPACE_ID = createSpaceId(MOCK_BOOTSTRAP_SPACE_IDS.GROUP_B_ONLY_PERSONAL);
+export const MOCK_OUTSIDER_PERSONAL_SPACE_ID = createSpaceId(MOCK_BOOTSTRAP_SPACE_IDS.OUTSIDER_PERSONAL);
 
-export const MOCK_GROUP_ALPHA_SPACE_ID = createSpaceId("space-group-alpha");
-export const MOCK_GROUP_BETA_SPACE_ID = createSpaceId("space-group-beta");
+export const MOCK_GROUP_ALPHA_SPACE_ID = createSpaceId(MOCK_BOOTSTRAP_SPACE_IDS.GROUP_ALPHA);
+export const MOCK_GROUP_BETA_SPACE_ID = createSpaceId(MOCK_BOOTSTRAP_SPACE_IDS.GROUP_BETA);
 
-const mockUsers = new Map<UserId, AuthorizationActor>([
-  [
-    MOCK_USER_ID,
-    createAuthorizationActor(
-      createUserIdentity({
-        displayName: "The Curator",
-        email: "curator@rollorian.dev",
-        id: MOCK_USER_ID,
-      }),
-    ),
-  ],
-  [
-    MOCK_TEAMMATE_USER_ID,
-    createAuthorizationActor(
-      createUserIdentity({
-        displayName: "Archive Partner",
-        email: "partner@rollorian.dev",
-        id: MOCK_TEAMMATE_USER_ID,
-      }),
-    ),
-  ],
-  [
-    MOCK_GROUP_B_ONLY_USER_ID,
-    createAuthorizationActor(
-      createUserIdentity({
-        displayName: "Patrimony Steward",
-        email: "steward@rollorian.dev",
-        id: MOCK_GROUP_B_ONLY_USER_ID,
-      }),
-    ),
-  ],
-  [
-    MOCK_OUTSIDER_USER_ID,
-    createAuthorizationActor(
-      createUserIdentity({
-        displayName: "Outsider",
-        email: "outsider@rollorian.dev",
-        id: MOCK_OUTSIDER_USER_ID,
-      }),
-    ),
-  ],
-]);
+const mockUsers = new Map<UserId, AuthorizationActor>(
+  MOCK_BOOTSTRAP_USERS.map((user) => {
+    const userId = createUserId(user.id);
 
-const membershipsByGroupId = new Map<GroupId, readonly GroupMembership[]>([
-  [
-    MOCK_GROUP_ALPHA_ID,
-    [
-      createGroupMembership({
-        groupId: MOCK_GROUP_ALPHA_ID,
-        id: createMembershipId("membership-alpha-user-1"),
-        userId: MOCK_USER_ID,
-      }),
-      createGroupMembership({
-        groupId: MOCK_GROUP_ALPHA_ID,
-        id: createMembershipId("membership-alpha-user-2"),
-        userId: MOCK_TEAMMATE_USER_ID,
-      }),
-    ],
-  ],
-  [
-    MOCK_GROUP_BETA_ID,
-    [
-      createGroupMembership({
-        groupId: MOCK_GROUP_BETA_ID,
-        id: createMembershipId("membership-beta-user-1"),
-        userId: MOCK_USER_ID,
-      }),
-      createGroupMembership({
-        groupId: MOCK_GROUP_BETA_ID,
-        id: createMembershipId("membership-beta-user-3"),
-        userId: MOCK_GROUP_B_ONLY_USER_ID,
-      }),
-    ],
-  ],
-]);
+    return [
+      userId,
+      createAuthorizationActor(
+        createUserIdentity({
+          displayName: user.displayName,
+          email: user.email,
+          id: userId,
+        }),
+      ),
+    ];
+  }),
+);
 
-const personalSpaceIdByUserId = new Map<UserId, SpaceId>([
-  [MOCK_USER_ID, MOCK_PERSONAL_SPACE_ID],
-  [MOCK_TEAMMATE_USER_ID, MOCK_TEAMMATE_PERSONAL_SPACE_ID],
-  [MOCK_GROUP_B_ONLY_USER_ID, MOCK_GROUP_B_ONLY_PERSONAL_SPACE_ID],
-  [MOCK_OUTSIDER_USER_ID, MOCK_OUTSIDER_PERSONAL_SPACE_ID],
-]);
+const membershipsByGroupId = new Map<GroupId, readonly GroupMembership[]>(
+  MOCK_BOOTSTRAP_GROUPS.map((group) => {
+    const groupId = createGroupId(group.id);
+
+    return [
+      groupId,
+      group.memberships.map((membership) =>
+        createGroupMembership({
+          groupId,
+          id: createMembershipId(membership.id),
+          role: membership.role,
+          userId: createUserId(membership.userId),
+        }),
+      ),
+    ];
+  }),
+);
+
+const personalSpaceIdByUserId = new Map<UserId, SpaceId>(
+  MOCK_BOOTSTRAP_USERS.map((user) => [createUserId(user.id), createSpaceId(user.personalSpaceId)]),
+);
 
 export const MOCK_ACTOR = mockUsers.get(MOCK_USER_ID)!;
 
