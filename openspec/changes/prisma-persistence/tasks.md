@@ -18,7 +18,7 @@
 
 ## Phase 3: Runtime Wiring
 
-- [ ] 3.1 Update `src/lib/item-command-factory.ts` to compose Prisma command, view, audit, and membership adapters as the default production runtime.
+- [x] 3.1 Update `src/lib/item-command-factory.ts` to compose Prisma command, view, audit, and membership adapters as the default production runtime.
 - [ ] 3.2 Refactor `src/lib/api-runtime.ts` to stop reading `runtimeStore` for `findById`, list/view queries, and history; resolve actor access through the Prisma membership resolver.
 - [ ] 3.3 Update `src/lib/mock/actor.ts` to keep header-based actor selection but defer visible groups, memberships, and command-space truth to Prisma-backed lookups.
 
