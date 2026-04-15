@@ -4,6 +4,7 @@ import { useEffect, useRef, useState, useTransition } from 'react';
 import { cn } from '@/lib/cn';
 import { useQuickCapture } from './quick-capture-context';
 import { createItemAction } from '../actions/item-actions';
+import type { SpaceTarget } from '../actions/item-actions';
 import type { ItemType } from '@/domain/shared/item-type';
 import type { Priority } from '@/domain/shared/priority';
 
@@ -19,18 +20,24 @@ const PRIORITY_OPTIONS: { value: Priority; label: string; color: string }[] = [
   { value: 'urgent', label: 'Crítica', color: 'text-error' },
 ];
 
+const SPACE_OPTIONS: { value: SpaceTarget; label: string; icon: string }[] = [
+  { value: 'personal', label: 'Mi Vista', icon: 'person' },
+  { value: 'group-1', label: 'Equipo Alpha', icon: 'group' },
+  { value: 'group-2', label: 'Producto', icon: 'group' },
+];
+
 export function QuickCaptureDialog() {
   const { isOpen, close } = useQuickCapture();
   const [title, setTitle] = useState('');
   const [itemType, setItemType] = useState<ItemType>('task');
   const [priority, setPriority] = useState<Priority>('medium');
   const [date, setDate] = useState('');
+  const [spaceTarget, setSpaceTarget] = useState<SpaceTarget>('personal');
   const [isPending, startTransition] = useTransition();
 
   const dialogRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Focus input when opened
   useEffect(() => {
     if (isOpen) {
       setTimeout(() => inputRef.current?.focus(), 50);
@@ -39,10 +46,10 @@ export function QuickCaptureDialog() {
       setItemType('task');
       setPriority('medium');
       setDate('');
+      setSpaceTarget('personal');
     }
   }, [isOpen]);
 
-  // Escape to close
   useEffect(() => {
     if (!isOpen) return;
     function onKey(e: KeyboardEvent) {
@@ -52,7 +59,6 @@ export function QuickCaptureDialog() {
     return () => document.removeEventListener('keydown', onKey);
   }, [isOpen, close]);
 
-  // Outside click to close
   useEffect(() => {
     if (!isOpen) return;
     function onClick(e: MouseEvent) {
@@ -73,6 +79,7 @@ export function QuickCaptureDialog() {
         itemType,
         priority,
         date: date || undefined,
+        spaceTarget,
       });
       close();
     });
@@ -93,7 +100,7 @@ export function QuickCaptureDialog() {
         <div className="flex items-center justify-between px-6 pt-5 pb-4 border-b border-outline-variant/10">
           <div className="flex items-center gap-2">
             <span className="material-symbols-outlined text-primary">bolt</span>
-            <h2 className="text-base font-bold text-on-surface font-headline">Nueva entrada</h2>
+            <h2 className="text-base font-bold text-on-surface">Nueva entrada</h2>
           </div>
           <button
             type="button"
@@ -106,19 +113,42 @@ export function QuickCaptureDialog() {
         </div>
 
         {/* Body */}
-        <div className="px-6 py-5 space-y-5">
+        <div className="px-6 py-5 space-y-4">
           {/* Title input */}
           <input
             ref={inputRef}
             type="text"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') handleSubmit();
-            }}
+            onKeyDown={(e) => { if (e.key === 'Enter') handleSubmit(); }}
             placeholder="¿Qué necesitas hacer?"
             className="w-full bg-surface-container-lowest border border-outline-variant/20 rounded-xl px-4 py-3 text-on-surface placeholder:text-on-surface-variant/50 text-sm focus:ring-1 focus:ring-primary outline-none transition-all"
           />
+
+          {/* Space selector */}
+          <div>
+            <p className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant mb-2">
+              Dónde
+            </p>
+            <div className="flex items-center gap-1.5 flex-wrap">
+              {SPACE_OPTIONS.map((opt) => (
+                <button
+                  key={opt.value}
+                  type="button"
+                  onClick={() => setSpaceTarget(opt.value)}
+                  className={cn(
+                    'flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all border',
+                    spaceTarget === opt.value
+                      ? 'bg-primary/10 text-primary border-primary/30 font-bold'
+                      : 'text-on-surface-variant border-outline-variant/20 hover:border-outline-variant/50 hover:text-on-surface'
+                  )}
+                >
+                  <span className="material-symbols-outlined text-sm">{opt.icon}</span>
+                  {opt.label}
+                </button>
+              ))}
+            </div>
+          </div>
 
           {/* Type + Priority row */}
           <div className="flex items-center gap-4">
@@ -182,7 +212,7 @@ export function QuickCaptureDialog() {
         {/* Footer */}
         <div className="flex items-center justify-between px-6 pb-5 pt-1">
           <p className="text-[11px] text-on-surface-variant/50">
-            <kbd className="font-sans">Enter</kbd> para guardar · <kbd className="font-sans">Esc</kbd> para cerrar
+            <kbd className="font-sans">Enter</kbd> guardar · <kbd className="font-sans">Esc</kbd> cerrar
           </p>
           <div className="flex items-center gap-3">
             <button

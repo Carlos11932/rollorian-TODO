@@ -17,19 +17,13 @@ function getMockItem(id: string): MockItem {
 
   return {
     id,
-    title: 'Actualizar motor de renderizado editorial',
-    notes:
-      'Optimizar la lógica de carga asíncrona para las portadas de libros de alta resolución. El objetivo es reducir el tiempo de bloqueo del hilo principal durante el scroll infinito en la vista de curaduría.',
+    title: 'Tarea no encontrada',
+    notes: '',
     itemType: 'task',
-    status: 'blocked',
-    priority: 'high',
+    status: 'pending',
+    priority: 'medium',
     spaceType: 'personal',
-    blockedReason:
-      'Esperando aprobación final del departamento de diseño visual sobre el gradiente de placeholder.',
-    assignee: { id: 'user-2', name: 'Elena R.', initials: 'ER', avatarColor: '#004f34' },
-    dueDate: '24 Oct, 2023',
-    createdAt: '2023-10-08T08:00:00Z',
-    tags: ['Performance', 'Editorial', 'V1.2'],
+    createdAt: new Date().toISOString(),
   };
 }
 
@@ -125,23 +119,8 @@ export function TareaDetailPage({ id }: TareaDetailPageProps) {
             )}
           </section>
 
-          {/* Dependencies + Tags row */}
-          <div className="grid grid-cols-2 gap-4 shrink-0">
-            <section className="bg-surface-container-low rounded-xl p-4">
-              <h2 className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant mb-3 flex items-center gap-1.5">
-                <span className="material-symbols-outlined text-sm">link</span>
-                Dependencia
-              </h2>
-              <div className="flex items-center gap-2 p-2.5 bg-surface-container-highest/50 rounded-lg cursor-pointer hover:bg-surface-container-highest transition-colors">
-                <div className="w-1 h-8 bg-secondary rounded-full shrink-0" />
-                <div className="min-w-0">
-                  <p className="text-xs font-medium text-on-surface truncate">ARC-045: Sistema de Assets</p>
-                  <p className="text-[10px] text-on-surface-variant/60 truncate">Finalización de API de texturas</p>
-                </div>
-              </div>
-            </section>
-
-            {/* Tags — fully functional */}
+          {/* Tags */}
+          <div className="shrink-0">
             <section className="bg-surface-container-low rounded-xl p-4">
               <h2 className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant mb-3 flex items-center gap-1.5">
                 <span className="material-symbols-outlined text-sm">label</span>
@@ -194,6 +173,7 @@ export function TareaDetailPage({ id }: TareaDetailPageProps) {
           </div>
 
           {/* History */}
+
           <TaskHistorySection entries={MOCK_HISTORY} />
         </div>
 

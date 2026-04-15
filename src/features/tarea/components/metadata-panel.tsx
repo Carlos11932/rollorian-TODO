@@ -172,12 +172,6 @@ export function MetadataPanel({ item }: MetadataPanelProps) {
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-bold text-on-surface truncate">{item.assignee.name}</p>
               </div>
-              <button
-                type="button"
-                className="material-symbols-outlined text-sm text-on-surface-variant hover:text-primary transition-colors"
-              >
-                edit_square
-              </button>
             </div>
           ) : (
             <button
@@ -221,35 +215,6 @@ export function MetadataPanel({ item }: MetadataPanelProps) {
         </div>
       </section>
 
-      {/* Quick actions */}
-      <section className="bg-surface-container-low rounded-xl p-4 shrink-0">
-        <h2 className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant mb-3">
-          Acciones
-        </h2>
-        <div className="grid grid-cols-2 gap-2">
-          <button
-            type="button"
-            className="flex items-center justify-center gap-1.5 p-3 rounded-lg bg-surface-container-high hover:bg-surface-bright transition-all text-on-surface-variant text-xs font-medium"
-          >
-            <span className="material-symbols-outlined text-sm">content_copy</span>
-            Duplicar
-          </button>
-          <button
-            type="button"
-            className="flex items-center justify-center gap-1.5 p-3 rounded-lg bg-surface-container-high hover:bg-surface-bright transition-all text-on-surface-variant text-xs font-medium"
-          >
-            <span className="material-symbols-outlined text-sm">archive</span>
-            Archivar
-          </button>
-          <button
-            type="button"
-            className="col-span-2 flex items-center justify-center gap-1.5 p-3 rounded-lg bg-error/5 hover:bg-error/10 transition-all text-error text-xs font-medium"
-          >
-            <span className="material-symbols-outlined text-sm">delete_sweep</span>
-            Eliminar
-          </button>
-        </div>
-      </section>
     </div>
   );
 }
