@@ -83,7 +83,7 @@ import {
   createMockPersonalCommandSpace,
   resolveMockActor,
   resolveMockVisibleGroupIds,
-} from "@/lib/mock/actor";
+} from "@/dev-data/actor";
 import { type ItemOutput, type ItemCommandError } from "@/application/commands";
 import { type ItemViewRecord, VIEW_SPACE_FILTER } from "@/application/queries/views";
 

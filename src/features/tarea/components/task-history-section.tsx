@@ -1,4 +1,4 @@
-import type { MockHistoryEntry } from '@/lib/mock/types';
+import type { MockHistoryEntry } from '@/dev-data/types';
 import { cn } from '@/lib/cn';
 
 const ICON_BG: Record<string, string> = {

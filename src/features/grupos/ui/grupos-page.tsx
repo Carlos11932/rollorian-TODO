@@ -3,8 +3,8 @@
 import { useState } from 'react';
 import { GroupTaskList } from '../components/group-task-list';
 import { ChangeHistoryPanel } from '../components/change-history-panel';
-import { GROUP_ITEMS, MOCK_HISTORY, MOCK_USERS } from '@/lib/mock/data';
-import { MOCK_GROUPS } from '@/lib/mock/data';
+import { GROUP_ITEMS, MOCK_HISTORY, MOCK_USERS } from '@/dev-data/data';
+import { MOCK_GROUPS } from '@/dev-data/data';
 
 const ACTIVE_GROUP = MOCK_GROUPS[0]!;
 

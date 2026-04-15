@@ -1,8 +1,8 @@
 'use server';
 
 import { ensureDevSeed, getGroupViewHandler } from '@/lib/item-command-factory';
-import { MOCK_USER_ID } from '@/lib/mock/actor';
-import { SEED_GROUP_IDS } from '@/lib/mock/seed';
+import { MOCK_USER_ID } from '@/dev-data/actor';
+import { SEED_GROUP_IDS } from '@/dev-data/seed';
 import { createGroupId } from '@/domain/shared';
 import type { ItemCardDto } from '@/interfaces/ui/item-card-dto';
 import { toItemCard } from '@/interfaces/ui/item-card-mapper';

@@ -25,8 +25,8 @@ import {
 } from '@/domain/item';
 import type { TaskStatus, EventStatus } from '@/domain/item';
 import { createItemHandler, readItemByIdHandler, updateItemHandler, findItemById, removeItem, ensureDevSeed } from '@/lib/item-command-factory';
-import { MOCK_ACTOR, MOCK_PERSONAL_COMMAND_SPACE, MOCK_USER_ID } from '@/lib/mock/actor';
-import { SEED_GROUP_IDS, SEED_SPACE_IDS, SEED_USER_IDS } from '@/lib/mock/seed';
+import { MOCK_ACTOR, MOCK_PERSONAL_COMMAND_SPACE, MOCK_USER_ID } from '@/dev-data/actor';
+import { SEED_GROUP_IDS, SEED_SPACE_IDS, SEED_USER_IDS } from '@/dev-data/seed';
 import { createGroupMembership, MEMBERSHIP_ROLE } from '@/domain/identity';
 import { createMembershipId } from '@/domain/shared';
 import { createGroupSpaceAccessContext } from '@/domain/access';

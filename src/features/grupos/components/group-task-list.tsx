@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { cn } from '@/lib/cn';
 import { EmptyState } from '@/features/shared/components/empty-state';
-import type { MockItem } from '@/lib/mock/types';
+import type { MockItem } from '@/dev-data/types';
 
 type StatusConfig = {
   label: string;

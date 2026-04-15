@@ -2,8 +2,8 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { cn } from '@/lib/cn';
-import type { MockItem, ItemStatus, MockUser } from '@/lib/mock/types';
-import { MOCK_USERS, MOCK_GROUPS } from '@/lib/mock/data';
+import type { MockItem, ItemStatus, MockUser } from '@/dev-data/types';
+import { MOCK_USERS, MOCK_GROUPS } from '@/dev-data/data';
 
 type PriorityOption = 'low' | 'medium' | 'high' | 'urgent';
 

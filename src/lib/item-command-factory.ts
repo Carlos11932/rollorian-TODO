@@ -21,7 +21,7 @@ import {
   GetUndatedViewQueryHandler,
 } from '@/application/queries/views';
 import { createItemId } from '@/domain/shared';
-import { seedDevItems } from '@/lib/mock/seed';
+import { seedDevItems } from '@/dev-data/seed';
 import { runtimeStore } from '@/lib/runtime-store';
 
 const groupItemAuditRecorder = new AppendOnlyGroupItemAuditRecorder(runtimeStore);
