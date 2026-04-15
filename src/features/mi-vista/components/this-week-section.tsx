@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { cn } from '@/lib/cn';
+import { DateUtils } from '@/lib/date-utils';
 import type { WeekCardDto } from '@/interfaces/ui/item-card-dto';
 
 interface ThisWeekSectionProps {
@@ -34,10 +35,20 @@ export function ThisWeekSection({ cards }: ThisWeekSectionProps) {
             href={'/tareas/' + item.id}
             className="flex items-center gap-3 px-4 py-2.5 hover:bg-surface-container-highest/40 transition-colors cursor-pointer group"
           >
-            {/* Day label */}
-            <span className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant/50 w-12 shrink-0">
-              {dayLabel}
-            </span>
+            {/* Day label — semantic color if due date available */}
+            {(() => {
+              const semantic = item.dueDateRaw ? DateUtils.dueSemantic(new Date(item.dueDateRaw)) : null;
+              const dayColor =
+                semantic === 'overdue'  ? 'text-error' :
+                semantic === 'today'    ? 'text-[color:var(--color-success,#1e8a44)]' :
+                semantic === 'tomorrow' ? 'text-[color:var(--color-warning,#b45309)]' :
+                                          'text-on-surface-variant/50';
+              return (
+                <span className={cn('text-[10px] font-bold uppercase tracking-widest w-12 shrink-0', dayColor)}>
+                  {dayLabel}
+                </span>
+              );
+            })()}
 
             {/* Priority dot */}
             <span

@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { cn } from '@/lib/cn';
+import { DateUtils } from '@/lib/date-utils';
 import type { ItemCardDto } from '@/interfaces/ui/item-card-dto';
 
 interface DayAgendaProps {
@@ -58,9 +59,15 @@ export function DayAgenda({ dateLabel, items }: DayAgendaProps) {
               </div>
 
               <p className="text-sm font-semibold text-on-surface group-hover:text-primary transition-colors leading-snug">{item.title}</p>
-              {item.dueDate && (
-                <p className="text-xs text-on-surface-variant/60 mt-0.5">{item.dueDate}</p>
-              )}
+              {item.dueDate && item.dueDateRaw && (() => {
+                const semantic = DateUtils.dueSemantic(new Date(item.dueDateRaw));
+                const dateColor =
+                  semantic === 'overdue'  ? 'text-error' :
+                  semantic === 'today'    ? 'text-[color:var(--color-success,#1e8a44)]' :
+                  semantic === 'tomorrow' ? 'text-[color:var(--color-warning,#b45309)]' :
+                                            'text-on-surface-variant/60';
+                return <p className={cn('text-xs mt-0.5', dateColor)}>{item.dueDate}</p>;
+              })()}
             </Link>
           ))
         )}

@@ -1,23 +1,23 @@
 import Link from 'next/link';
 import { cn } from '@/lib/cn';
 import { EmptyState } from '@/features/shared/components/empty-state';
-import type { MockItem } from '@/dev-data/types';
+import type { ItemCardDto } from '@/interfaces/ui/item-card-dto';
 
 type StatusConfig = {
   label: string;
   icon: string;
-  color: string;
+  className: string;
 };
 
 const STATUS_CONFIG: Record<string, StatusConfig> = {
-  pending: { label: 'Pendiente', icon: 'schedule', color: 'text-on-surface-variant' },
-  in_progress: { label: 'En Progreso', icon: 'sync', color: 'text-primary' },
-  blocked: { label: 'Bloqueado', icon: 'block', color: 'text-error' },
-  postponed: { label: 'Pospuesto', icon: 'snooze', color: 'text-secondary' },
-  done: { label: 'Completado', icon: 'check_circle', color: 'text-primary' },
-  canceled: { label: 'Cancelado', icon: 'cancel', color: 'text-on-surface-variant' },
-  scheduled: { label: 'Programado', icon: 'event', color: 'text-primary' },
-  completed: { label: 'Completado', icon: 'event_available', color: 'text-primary' },
+  pending:     { label: 'Pendiente',  icon: 'schedule',        className: 'bg-on-surface-variant/[0.12] text-on-surface-variant' },
+  in_progress: { label: 'En Progreso',icon: 'sync',            className: 'bg-primary/[0.12] text-primary' },
+  blocked:     { label: 'Bloqueado',  icon: 'block',           className: 'bg-error/[0.12] text-error' },
+  postponed:   { label: 'Pospuesto', icon: 'snooze',           className: 'bg-secondary/[0.12] text-secondary' },
+  done:        { label: 'Completado', icon: 'check_circle',    className: 'bg-primary/[0.12] text-primary' },
+  canceled:    { label: 'Cancelado',  icon: 'cancel',          className: 'bg-on-surface-variant/[0.12] text-on-surface-variant' },
+  scheduled:   { label: 'Programado', icon: 'event',           className: 'bg-primary/[0.12] text-primary' },
+  completed:   { label: 'Completado', icon: 'event_available', className: 'bg-primary/[0.12] text-primary' },
 };
 
 const PRIORITY_BAR: Record<string, string> = {
@@ -28,14 +28,14 @@ const PRIORITY_BAR: Record<string, string> = {
 };
 
 const PRIORITY_LABEL: Record<string, { label: string; className: string }> = {
-  urgent: { label: 'Crítica', className: 'bg-error/10 text-error' },
-  high: { label: 'Alta', className: 'bg-secondary/10 text-secondary' },
-  medium: { label: 'Media', className: 'bg-primary/10 text-primary' },
-  low: { label: 'Baja', className: 'bg-surface-container-highest text-on-surface-variant' },
+  urgent: { label: 'Crítica', className: 'bg-error/[0.12] text-error' },
+  high:   { label: 'Alta',    className: 'bg-secondary/[0.12] text-secondary' },
+  medium: { label: 'Media',   className: 'bg-primary/[0.12] text-primary' },
+  low:    { label: 'Baja',    className: 'bg-on-surface-variant/[0.12] text-on-surface-variant' },
 };
 
 interface GroupTaskListProps {
-  items: MockItem[];
+  items: ItemCardDto[];
   selectedId?: string;
   onSelect?: (id: string) => void;
 }
@@ -62,8 +62,8 @@ export function GroupTaskList({ items, selectedId, onSelect }: GroupTaskListProp
         ) : (
           items.map((item) => {
             const isSelected = item.id === selectedId;
-            const status = STATUS_CONFIG[item.status] ?? (STATUS_CONFIG.pending as StatusConfig);
-            const priority = PRIORITY_LABEL[item.priority] ?? (PRIORITY_LABEL.medium as { label: string; className: string });
+            const status = STATUS_CONFIG[item.status] ?? STATUS_CONFIG.pending!;
+            const priority = PRIORITY_LABEL[item.priority] ?? PRIORITY_LABEL.medium!;
             const barColor = PRIORITY_BAR[item.priority] ?? 'bg-primary';
 
             return (
@@ -120,8 +120,10 @@ export function GroupTaskList({ items, selectedId, onSelect }: GroupTaskListProp
 
                 {/* Status */}
                 <div className="col-span-2 flex items-center justify-end gap-1.5">
-                  <span className={cn('text-[11px] font-medium', status.color)}>{status.label}</span>
-                  <span className={cn('material-symbols-outlined text-sm', status.color)}>{status.icon}</span>
+                  <span className={cn('flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold uppercase', status.className)}>
+                    <span className="material-symbols-outlined text-[11px]">{status.icon}</span>
+                    {status.label}
+                  </span>
                 </div>
               </div>
             );

@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { cn } from '@/lib/cn';
 import { EmptyState } from '@/features/shared/components/empty-state';
+import { DateUtils } from '@/lib/date-utils';
 import type { ItemCardDto } from '@/interfaces/ui/item-card-dto';
 
 interface TodaySectionProps {
@@ -21,6 +22,26 @@ const TYPE_CONFIG: Record<string, { label: string; color: string }> = {
   event: { label: 'EVT', color: 'text-secondary' },
   task: { label: 'TAR', color: 'text-on-surface-variant/60' },
 };
+
+const STATUS_BADGE: Record<string, { label: string; className: string }> = {
+  pending:     { label: 'Pendiente',  className: 'bg-on-surface-variant/[0.12] text-on-surface-variant' },
+  in_progress: { label: 'En curso',   className: 'bg-primary/[0.12] text-primary' },
+  blocked:     { label: 'Bloqueado',  className: 'bg-error/[0.12] text-error' },
+  postponed:   { label: 'Pospuesto', className: 'bg-secondary/[0.12] text-secondary' },
+  done:        { label: 'Hecho',      className: 'bg-primary/[0.12] text-primary' },
+  scheduled:   { label: 'Prog.',      className: 'bg-primary/[0.12] text-primary' },
+  canceled:    { label: 'Cancelado',  className: 'bg-on-surface-variant/[0.12] text-on-surface-variant' },
+};
+
+function DueDateChip({ raw, formatted }: { raw: string; formatted: string }) {
+  const semantic = DateUtils.dueSemantic(new Date(raw));
+  const colorClass =
+    semantic === 'overdue'  ? 'text-error' :
+    semantic === 'today'    ? 'text-[color:var(--color-success,#1e8a44)]' :
+    semantic === 'tomorrow' ? 'text-[color:var(--color-warning,#b45309)]' :
+                              'text-on-surface-variant/60';
+  return <span className={cn('text-xs block mt-0.5', colorClass)}>{formatted}</span>;
+}
 
 export function TodaySection({ items }: TodaySectionProps) {
   const [checked, setChecked] = useState<Set<string>>(new Set());
@@ -125,19 +146,20 @@ export function TodaySection({ items }: TodaySectionProps) {
                     >
                       {item.title}
                     </span>
-                    {item.dueDate && (
-                      <span className="text-xs text-on-surface-variant/60 block mt-0.5">
-                        {item.dueDate}
-                      </span>
+                    {item.dueDate && item.dueDateRaw && (
+                      <DueDateChip raw={item.dueDateRaw} formatted={item.dueDate} />
                     )}
                   </span>
 
-                  {/* First tag only */}
-                  {item.tags?.[0] && (
-                    <span className="px-2 py-0.5 rounded-full bg-primary/10 text-primary text-[10px] font-bold uppercase tracking-wide shrink-0 hidden sm:block">
-                      {item.tags[0]}
-                    </span>
-                  )}
+                  {/* Status badge */}
+                  {(() => {
+                    const badge = STATUS_BADGE[item.status] ?? STATUS_BADGE.pending!;
+                    return (
+                      <span className={cn('px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wide shrink-0 hidden sm:block', badge.className)}>
+                        {badge.label}
+                      </span>
+                    );
+                  })()}
 
                   <span className="material-symbols-outlined text-sm text-on-surface-variant/20 shrink-0 group-hover:text-on-surface-variant/50 transition-colors">
                     chevron_right
