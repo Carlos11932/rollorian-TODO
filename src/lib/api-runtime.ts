@@ -69,22 +69,23 @@ import {
 } from "@/interfaces/api";
 import {
   createItemHandler,
+  findItemById,
   getAttentionViewHandler,
   getCalendarViewHandler,
   getGroupViewHandler,
   getMyViewHandler,
   getUndatedViewHandler,
+  prismaGroupItemHistoryRepository,
+  prismaItemViewRepository,
+  prismaMembershipResolver,
   readItemByIdHandler,
   runtimeStore,
   updateItemHandler,
 } from "@/lib/item-command-factory";
 import {
-  createMockGroupCommandSpace,
-  createMockPersonalCommandSpace,
   resolveMockActor,
-  resolveMockVisibleGroupIds,
 } from "@/lib/mock/actor";
-import { type ItemOutput, type ItemCommandError } from "@/application/commands";
+import { createScopeMismatchError, type CommandFailure, type ItemCommandError, type ItemCommandSpace, type ItemOutput } from "@/application/commands";
 import { type ItemViewRecord, VIEW_SPACE_FILTER } from "@/application/queries/views";
 
 function getCommandErrorStatus(error: ItemCommandError): number {
@@ -101,10 +102,55 @@ function getCommandErrorStatus(error: ItemCommandError): number {
   }
 }
 
-function createCommandSpace(scope: ItemScopeRequest) {
-  return scope.spaceType === SPACE_TYPE.PERSONAL
-    ? createMockPersonalCommandSpace(createUserId(scope.ownerId), createSpaceId(scope.spaceId))
-    : createMockGroupCommandSpace(createGroupId(scope.groupId), createSpaceId(scope.spaceId));
+async function resolveRuntimeActor(request: Request) {
+  const selectedActor = resolveMockActor(request);
+
+  return (await prismaMembershipResolver.findActorByUserId(selectedActor.userId)) ?? selectedActor;
+}
+
+async function createCommandSpace(scope: ItemScopeRequest) {
+  if (scope.spaceType === SPACE_TYPE.PERSONAL) {
+    const space = await prismaMembershipResolver.hydratePersonalCommandSpace(createUserId(scope.ownerId));
+
+    if (space === null) {
+      return createScopeMismatchError([`Persisted personal space not found for ownerId \"${scope.ownerId}\".`]);
+    }
+
+    if (space.accessContext.spaceId !== createSpaceId(scope.spaceId)) {
+      return createScopeMismatchError([
+        `Requested personal space \"${scope.spaceId}\" does not match persisted space \"${space.accessContext.spaceId}\".`,
+      ]);
+    }
+
+    return space;
+  }
+
+  const space = await prismaMembershipResolver.hydrateGroupCommandSpace(createGroupId(scope.groupId));
+
+  if (space === null) {
+    return createScopeMismatchError([`Persisted group space not found for groupId \"${scope.groupId}\".`]);
+  }
+
+  if (space.accessContext.spaceId !== createSpaceId(scope.spaceId)) {
+    return createScopeMismatchError([
+      `Requested group space \"${scope.spaceId}\" does not match persisted space \"${space.accessContext.spaceId}\".`,
+    ]);
+  }
+
+  return space;
+}
+
+function isCommandFailure(value: CommandFailure | ItemCommandSpace): value is CommandFailure {
+  return "ok" in value && value.ok === false;
+}
+
+async function resolveVisibleGroupIds(request: Request) {
+  const actor = await resolveRuntimeActor(request);
+
+  return {
+    actor,
+    visibleGroupIds: await prismaMembershipResolver.listVisibleGroupIdsForActor(actor.userId),
+  };
 }
 
 function toEventLifecycle(
@@ -292,8 +338,17 @@ export function resetRuntimeStore(): void {
 }
 
 export async function createItem(request: Request, input: CreateItemRequest) {
-  const actor = resolveMockActor(request);
+  const actor = await resolveRuntimeActor(request);
   const body = input.body;
+  const space = await createCommandSpace(body);
+
+  if (isCommandFailure(space)) {
+    return {
+      body: toItemCommandResultResponse(space),
+      status: getCommandErrorStatus(space.error),
+    };
+  }
+
   const itemId = createItemId(`api-item-${crypto.randomUUID()}`);
   const result =
     body.itemType === ITEM_TYPE.TASK
@@ -307,7 +362,7 @@ export async function createItem(request: Request, input: CreateItemRequest) {
           notes: body.notes,
           postponeCount: body.postponeCount,
           priority: body.priority,
-          space: createCommandSpace(body),
+          space,
           temporal: toTaskTemporal(body.temporal),
           title: body.title,
         })
@@ -320,7 +375,7 @@ export async function createItem(request: Request, input: CreateItemRequest) {
           lifecycle: body.lifecycle ? toEventLifecycle(body.lifecycle) : undefined,
           notes: body.notes,
           priority: body.priority,
-          space: createCommandSpace(body),
+          space,
           temporal: toEventTemporal(body.temporal),
           title: body.title,
         });
@@ -332,11 +387,20 @@ export async function createItem(request: Request, input: CreateItemRequest) {
 }
 
 export async function getItem(request: Request, input: GetItemByIdRequest) {
-  const actor = resolveMockActor(request);
+  const actor = await resolveRuntimeActor(request);
+  const space = await createCommandSpace(input.query);
+
+  if (isCommandFailure(space)) {
+    return {
+      body: toItemCommandResultResponse(space),
+      status: getCommandErrorStatus(space.error),
+    };
+  }
+
   const result = await readItemByIdHandler.execute({
     actor,
     itemId: createItemId(input.params.itemId),
-    space: createCommandSpace(input.query),
+    space,
   });
 
   return {
@@ -346,10 +410,18 @@ export async function getItem(request: Request, input: GetItemByIdRequest) {
 }
 
 export async function updateItem(request: Request, input: UpdateItemRequest) {
-  const actor = resolveMockActor(request);
+  const actor = await resolveRuntimeActor(request);
   const body = input.body;
-  const current = await runtimeStore.findById(createItemId(input.params.itemId));
-  const resolvedItemType = body.itemType ?? current?.item.itemType ?? ITEM_TYPE.TASK;
+  const current = await findItemById(input.params.itemId);
+  const resolvedItemType = body.itemType ?? current?.itemType ?? ITEM_TYPE.TASK;
+  const space = await createCommandSpace(body);
+
+  if (isCommandFailure(space)) {
+    return {
+      body: toItemCommandResultResponse(space),
+      status: getCommandErrorStatus(space.error),
+    };
+  }
 
   const result =
     resolvedItemType === ITEM_TYPE.TASK
@@ -366,14 +438,14 @@ export async function updateItem(request: Request, input: UpdateItemRequest) {
           lifecycle: body.lifecycle ? toTaskLifecycle(body.lifecycle as Parameters<typeof toTaskLifecycle>[0]) : undefined,
           notes: body.notes,
           postponeCount:
-            "postponeCount" in body && typeof body.postponeCount === "number"
-              ? body.postponeCount
-              : undefined,
-          priority: body.priority as Priority | undefined,
-          space: createCommandSpace(body),
-          temporal: body.temporal ? toTaskTemporal(body.temporal as Parameters<typeof toTaskTemporal>[0]) : undefined,
-          title: body.title,
-        })
+           "postponeCount" in body && typeof body.postponeCount === "number"
+               ? body.postponeCount
+               : undefined,
+           priority: body.priority as Priority | undefined,
+           space,
+           temporal: body.temporal ? toTaskTemporal(body.temporal as Parameters<typeof toTaskTemporal>[0]) : undefined,
+           title: body.title,
+         })
       : await updateItemHandler.execute({
           actor,
           assigneeIds: body.assigneeIds?.map((userId) => createUserId(userId)),
@@ -382,15 +454,15 @@ export async function updateItem(request: Request, input: UpdateItemRequest) {
               ? undefined
               : createVersionToken(body.expectedVersionToken),
           itemId: createItemId(input.params.itemId),
-          itemType: ITEM_TYPE.EVENT,
-          labels: body.labels,
-          lifecycle: body.lifecycle ? toEventLifecycle(body.lifecycle as Parameters<typeof toEventLifecycle>[0]) : undefined,
-          notes: body.notes,
-          priority: body.priority as Priority | undefined,
-          space: createCommandSpace(body),
-          temporal: body.temporal ? toEventTemporal(body.temporal as Parameters<typeof toEventTemporal>[0]) : undefined,
-          title: body.title,
-        });
+           itemType: ITEM_TYPE.EVENT,
+           labels: body.labels,
+           lifecycle: body.lifecycle ? toEventLifecycle(body.lifecycle as Parameters<typeof toEventLifecycle>[0]) : undefined,
+           notes: body.notes,
+           priority: body.priority as Priority | undefined,
+           space,
+           temporal: body.temporal ? toEventTemporal(body.temporal as Parameters<typeof toEventTemporal>[0]) : undefined,
+           title: body.title,
+         });
 
   return {
     body: toItemCommandResultResponse(result),
@@ -399,9 +471,8 @@ export async function updateItem(request: Request, input: UpdateItemRequest) {
 }
 
 export async function listItems(request: Request, input: ListItemsRequest) {
-  const actor = resolveMockActor(request);
-  const visibleGroupIds = resolveMockVisibleGroupIds(actor);
-  const visibleItems = (await runtimeStore.listProjectedItems())
+  const { actor, visibleGroupIds } = await resolveVisibleGroupIds(request);
+  const visibleItems = (await prismaItemViewRepository.listProjectedItems())
     .filter((record) => isVisibleToActor(record, actor.userId, visibleGroupIds))
     .map((record) => record.item);
 
@@ -412,10 +483,10 @@ export async function listItems(request: Request, input: ListItemsRequest) {
 }
 
 export async function getMyView(request: Request, input: GetMyViewRequest) {
-  const actor = resolveMockActor(request);
+  const { actor, visibleGroupIds } = await resolveVisibleGroupIds(request);
   const result = await getMyViewHandler.execute({
     actorUserId: actor.userId,
-    visibleGroupIds: resolveMockVisibleGroupIds(actor),
+    visibleGroupIds,
   });
   const items = applyViewFilters(result.items, input.query.filters);
 
@@ -426,11 +497,11 @@ export async function getMyView(request: Request, input: GetMyViewRequest) {
 }
 
 export async function getGroupView(request: Request, input: GetGroupViewRequest) {
-  const actor = resolveMockActor(request);
+  const { actor, visibleGroupIds } = await resolveVisibleGroupIds(request);
   const result = await getGroupViewHandler.execute({
     actorUserId: actor.userId,
     groupId: createGroupId(input.params.groupId),
-    visibleGroupIds: resolveMockVisibleGroupIds(actor),
+    visibleGroupIds,
   });
   const items = applyViewFilters(result.items, input.query.filters);
 
@@ -441,7 +512,7 @@ export async function getGroupView(request: Request, input: GetGroupViewRequest)
 }
 
 export async function getCalendarView(request: Request, input: GetCalendarViewRequest) {
-  const actor = resolveMockActor(request);
+  const { actor, visibleGroupIds } = await resolveVisibleGroupIds(request);
   const result = await getCalendarViewHandler.execute({
     actorUserId: actor.userId,
     range: {
@@ -449,7 +520,7 @@ export async function getCalendarView(request: Request, input: GetCalendarViewRe
       startAt: new Date(input.query.range.startAt),
     },
     spaceFilter: input.query.spaceFilter,
-    visibleGroupIds: resolveMockVisibleGroupIds(actor),
+    visibleGroupIds,
   });
   const items = applyViewFilters(result.items, input.query.filters);
 
@@ -463,11 +534,11 @@ export async function getCalendarView(request: Request, input: GetCalendarViewRe
 }
 
 export async function getUndatedView(request: Request, input: GetUndatedViewRequest) {
-  const actor = resolveMockActor(request);
+  const { actor, visibleGroupIds } = await resolveVisibleGroupIds(request);
   const result = await getUndatedViewHandler.execute({
     actorUserId: actor.userId,
     spaceFilter: input.query.spaceFilter,
-    visibleGroupIds: resolveMockVisibleGroupIds(actor),
+    visibleGroupIds,
   });
   const items = applyViewFilters(result.items, input.query.filters);
 
@@ -478,11 +549,11 @@ export async function getUndatedView(request: Request, input: GetUndatedViewRequ
 }
 
 export async function getAttentionView(request: Request, input: GetAttentionViewRequest) {
-  const actor = resolveMockActor(request);
+  const { actor, visibleGroupIds } = await resolveVisibleGroupIds(request);
   const result = await getAttentionViewHandler.execute({
     actorUserId: actor.userId,
     spaceFilter: input.query.spaceFilter,
-    visibleGroupIds: resolveMockVisibleGroupIds(actor),
+    visibleGroupIds,
   });
   const items = applyViewFilters(result.items, input.query.filters);
 
@@ -493,11 +564,20 @@ export async function getAttentionView(request: Request, input: GetAttentionView
 }
 
 export async function getItemHistory(request: Request, input: GetItemHistoryRequest) {
-  const actor = resolveMockActor(request);
+  const actor = await resolveRuntimeActor(request);
+  const space = await createCommandSpace(input.query);
+
+  if (isCommandFailure(space)) {
+    return {
+      body: toItemCommandResultResponse(space),
+      status: getCommandErrorStatus(space.error),
+    };
+  }
+
   const readResult = await readItemByIdHandler.execute({
     actor,
     itemId: createItemId(input.params.itemId),
-    space: createCommandSpace(input.query),
+    space,
   });
 
   if (!readResult.ok) {
@@ -508,7 +588,10 @@ export async function getItemHistory(request: Request, input: GetItemHistoryRequ
   }
 
   return {
-    body: toItemHistoryEntriesResponse(input.params.itemId, runtimeStore.listHistoryEntries(input.params.itemId)),
+    body: toItemHistoryEntriesResponse(
+      input.params.itemId,
+      await prismaGroupItemHistoryRepository.listByItemId(createItemId(input.params.itemId)),
+    ),
     status: 200,
   };
 }
