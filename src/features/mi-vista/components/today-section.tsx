@@ -4,10 +4,10 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { cn } from '@/lib/cn';
 import { EmptyState } from '@/features/shared/components/empty-state';
-import type { MockItem } from '@/lib/mock/types';
+import type { ItemCardDto } from '@/interfaces/ui/item-card-dto';
 
 interface TodaySectionProps {
-  items: MockItem[];
+  items: ItemCardDto[];
 }
 
 const PRIORITY_BAR: Record<string, string> = {
@@ -125,9 +125,9 @@ export function TodaySection({ items }: TodaySectionProps) {
                     >
                       {item.title}
                     </span>
-                    {(item.location || item.time) && (
+                    {item.dueDate && (
                       <span className="text-xs text-on-surface-variant/60 block mt-0.5">
-                        {[item.time, item.location].filter(Boolean).join(' · ')}
+                        {item.dueDate}
                       </span>
                     )}
                   </span>

@@ -1,14 +1,9 @@
 import Link from 'next/link';
 import { cn } from '@/lib/cn';
-import type { MockItem } from '@/lib/mock/types';
-
-interface WeekCard {
-  item: MockItem;
-  dayLabel: string;
-}
+import type { WeekCardDto } from '@/interfaces/ui/item-card-dto';
 
 interface ThisWeekSectionProps {
-  cards: WeekCard[];
+  cards: WeekCardDto[];
 }
 
 const PRIORITY_COLOR: Record<string, string> = {

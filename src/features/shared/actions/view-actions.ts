@@ -13,7 +13,7 @@ import { createGroupId } from '@/domain/shared';
 import { VIEW_SPACE_FILTER } from '@/application/queries/views';
 import { ATTENTION_REASON } from '@/application/queries/projectors';
 import type { ItemViewRecord } from '@/application/queries/views';
-import type { MockItem } from '@/lib/mock/types';
+import type { ItemCardDto, WeekCardDto } from '@/interfaces/ui/item-card-dto';
 import { DateUtils } from '@/lib/date-utils';
 
 // ── Actor context ─────────────────────────────────────────────────────────────
@@ -26,7 +26,7 @@ const ACTOR_CONTEXT = {
 
 // ── Mapper ────────────────────────────────────────────────────────────────────
 
-function toMockItem(record: ItemViewRecord): MockItem {
+function toItemCard(record: ItemViewRecord): ItemCardDto {
   const { item, projection } = record;
   const dueAt = projection.datedSpan.dueAt;
   const attentionReasons = projection.attention.reasons;
@@ -41,12 +41,13 @@ function toMockItem(record: ItemViewRecord): MockItem {
     title: item.title,
     notes: item.notes ?? undefined,
     itemType: item.itemType,
-    status: item.status as MockItem['status'],
+    status: item.status,
     priority: item.priority,
     spaceType: item.spaceType,
     groupId: item.groupId ?? undefined,
     createdAt: item.createdAt.toISOString(),
-    dueDate: dueAt?.toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' }),
+    dueDate: dueAt ? DateUtils.formatCompactDate(dueAt) : undefined,
+    dueDateRaw: dueAt ? dueAt.toISOString().slice(0, 10) : undefined,
     tags: item.labels.map((l) => l.value),
     overdueByDays,
   };
@@ -62,7 +63,7 @@ export interface StatsSnapshot {
 }
 
 export interface TodayViewResult {
-  items: MockItem[];
+  items: ItemCardDto[];
   stats: StatsSnapshot;
 }
 
@@ -96,7 +97,7 @@ export async function getTodayViewAction(): Promise<TodayViewResult> {
   ).length;
 
   return {
-    items: todayItems.map(toMockItem),
+    items: todayItems.map(toItemCard),
     stats: {
       totalCount: result.totalCount,
       undatedCount,
@@ -107,7 +108,7 @@ export async function getTodayViewAction(): Promise<TodayViewResult> {
 }
 
 export interface RequiresAttentionResult {
-  items: MockItem[];
+  items: ItemCardDto[];
 }
 
 export async function getRequiresAttentionAction(): Promise<RequiresAttentionResult> {
@@ -118,16 +119,11 @@ export async function getRequiresAttentionAction(): Promise<RequiresAttentionRes
     spaceFilter: VIEW_SPACE_FILTER.BOTH,
   });
 
-  return { items: result.items.map(toMockItem) };
-}
-
-export interface WeekCard {
-  item: MockItem;
-  dayLabel: string;
+  return { items: result.items.map(toItemCard) };
 }
 
 export interface ThisWeekResult {
-  cards: WeekCard[];
+  cards: WeekCardDto[];
 }
 
 export async function getThisWeekAction(): Promise<ThisWeekResult> {
@@ -139,21 +135,20 @@ export async function getThisWeekAction(): Promise<ThisWeekResult> {
     spaceFilter: VIEW_SPACE_FILTER.BOTH,
   });
 
-  // Sort by due date ascending
   const sorted = [...result.items].sort((a, b) => {
     const aDate = a.projection.datedSpan.dueAt ?? a.projection.datedSpan.calendarStartAt;
     const bDate = b.projection.datedSpan.dueAt ?? b.projection.datedSpan.calendarStartAt;
     return (aDate?.getTime() ?? 0) - (bDate?.getTime() ?? 0);
   });
 
-  const cards: WeekCard[] = sorted.map((record) => {
+  const cards: WeekCardDto[] = sorted.map((record) => {
     const dateRef =
       record.projection.datedSpan.dueAt ??
       record.projection.datedSpan.calendarStartAt ??
       new Date();
 
     return {
-      item: toMockItem(record),
+      item: toItemCard(record),
       dayLabel: DateUtils.formatShortDayLabel(dateRef),
     };
   });
@@ -162,7 +157,7 @@ export async function getThisWeekAction(): Promise<ThisWeekResult> {
 }
 
 export interface GroupViewResult {
-  items: MockItem[];
+  items: ItemCardDto[];
 }
 
 export async function getGroupViewAction(groupId: string): Promise<GroupViewResult> {
@@ -175,23 +170,30 @@ export async function getGroupViewAction(groupId: string): Promise<GroupViewResu
     groupId: gid,
   });
 
-  return { items: result.items.map(toMockItem) };
+  return { items: result.items.map(toItemCard) };
 }
 
 // ── Calendar month view ───────────────────────────────────────────────────────
+
+export interface CalendarEventData {
+  id: string;
+  label: string;
+  type: 'task' | 'event';
+  spaceType: 'personal' | 'group';
+}
 
 export interface CalendarDayData {
   date: number;
   isCurrentMonth: boolean;
   isToday?: boolean;
-  events: { id: string; label: string; type: 'task' | 'event'; spaceType: 'personal' | 'group' }[];
+  events: CalendarEventData[];
 }
 
 export interface CalendarMonthResult {
   days: CalendarDayData[];
   monthLabel: string;
   todayDate: number;
-  agendaItemsByDay: Record<number, MockItem[]>;
+  agendaItemsByDay: Record<number, ItemCardDto[]>;
 }
 
 export async function getCalendarMonthAction(
@@ -202,14 +204,13 @@ export async function getCalendarMonthAction(
 
   const now = new Date();
   const targetYear = year ?? now.getFullYear();
-  const targetMonth = month ?? now.getMonth(); // 0-indexed
+  const targetMonth = month ?? now.getMonth();
 
   const monthStart = new Date(targetYear, targetMonth, 1);
   const monthEnd = new Date(targetYear, targetMonth + 1, 0, 23, 59, 59, 999);
 
-  // Prev month tail days for the first grid row
   const prevMonthEnd = new Date(targetYear, targetMonth, 0);
-  const firstDayOfWeek = monthStart.getDay(); // 0 = Sun
+  const firstDayOfWeek = monthStart.getDay();
 
   const result = await getCalendarViewHandler.execute({
     ...ACTOR_CONTEXT,
@@ -217,9 +218,8 @@ export async function getCalendarMonthAction(
     spaceFilter: VIEW_SPACE_FILTER.BOTH,
   });
 
-  // Group events by day-of-month
-  const eventsByDay = new Map<number, { id: string; label: string; type: 'task' | 'event'; spaceType: 'personal' | 'group' }[]>();
-  const agendaItemsByDay: Record<number, MockItem[]> = {};
+  const eventsByDay = new Map<number, CalendarEventData[]>();
+  const agendaItemsByDay: Record<number, ItemCardDto[]> = {};
 
   for (const record of result.items) {
     const { dueAt, calendarStartAt } = record.projection.datedSpan;
@@ -236,7 +236,7 @@ export async function getCalendarMonthAction(
       type: record.item.itemType === 'task' ? 'task' : 'event',
       spaceType: record.item.spaceType,
     });
-    agendaItemsByDay[dayNum].push(toMockItem(record));
+    agendaItemsByDay[dayNum].push(toItemCard(record));
   }
 
   const days: CalendarDayData[] = [];
@@ -244,16 +244,10 @@ export async function getCalendarMonthAction(
   const isCurrentMonth =
     now.getFullYear() === targetYear && now.getMonth() === targetMonth;
 
-  // Leading days from previous month
   for (let i = firstDayOfWeek - 1; i >= 0; i--) {
-    days.push({
-      date: prevMonthEnd.getDate() - i,
-      isCurrentMonth: false,
-      events: [],
-    });
+    days.push({ date: prevMonthEnd.getDate() - i, isCurrentMonth: false, events: [] });
   }
 
-  // Current month days
   const daysInMonth = monthEnd.getDate();
   for (let d = 1; d <= daysInMonth; d++) {
     days.push({
@@ -264,7 +258,6 @@ export async function getCalendarMonthAction(
     });
   }
 
-  // Trailing days from next month to complete the last row
   const remaining = 7 - (days.length % 7);
   if (remaining < 7) {
     for (let d = 1; d <= remaining; d++) {

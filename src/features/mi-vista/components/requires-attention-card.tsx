@@ -1,9 +1,9 @@
 import Link from 'next/link';
 import { cn } from '@/lib/cn';
-import type { MockItem } from '@/lib/mock/types';
+import type { ItemCardDto } from '@/interfaces/ui/item-card-dto';
 
 interface RequiresAttentionCardProps {
-  items: MockItem[];
+  items: ItemCardDto[];
 }
 
 export function RequiresAttentionCard({ items }: RequiresAttentionCardProps) {

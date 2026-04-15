@@ -2,11 +2,11 @@
 
 import Link from 'next/link';
 import { cn } from '@/lib/cn';
-import type { MockItem } from '@/lib/mock/types';
+import type { ItemCardDto } from '@/interfaces/ui/item-card-dto';
 
 interface DayAgendaProps {
   dateLabel: string;
-  items: MockItem[];
+  items: ItemCardDto[];
 }
 
 export function DayAgenda({ dateLabel, items }: DayAgendaProps) {
@@ -52,17 +52,14 @@ export function DayAgenda({ dateLabel, items }: DayAgendaProps) {
                 >
                   {item.itemType === 'event' ? 'Evento' : 'Tarea'}
                 </span>
-                {item.time && (
-                  <span className="text-xs text-on-surface-variant/60 ml-auto">{item.time}</span>
-                )}
                 <span className="material-symbols-outlined text-sm text-on-surface-variant/20 ml-auto group-hover:text-on-surface-variant/50 transition-colors">
                   chevron_right
                 </span>
               </div>
 
               <p className="text-sm font-semibold text-on-surface group-hover:text-primary transition-colors leading-snug">{item.title}</p>
-              {item.location && (
-                <p className="text-xs text-on-surface-variant/60 mt-0.5">{item.location}</p>
+              {item.dueDate && (
+                <p className="text-xs text-on-surface-variant/60 mt-0.5">{item.dueDate}</p>
               )}
             </Link>
           ))
