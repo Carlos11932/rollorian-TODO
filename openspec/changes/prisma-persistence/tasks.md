@@ -14,7 +14,7 @@
 - [x] 2.4 Implement `PrismaItemCommandRepository` in `src/interfaces/persistence/prisma/` with `findById`, `save`, item version checks, member-only group assignees, and scoped label reuse.
 - [x] 2.5 Implement `PrismaGroupItemHistoryRepository` in `src/interfaces/persistence/prisma/` for ordered audit append/read so history survives restarts.
 - [x] 2.6 Implement `PrismaMembershipResolver` in `src/interfaces/persistence/prisma/` so visible groups, memberships, and command-space hydration come from persisted memberships.
-- [ ] 2.7 Implement `PrismaItemViewRepository` in `src/interfaces/persistence/prisma/` to load visible item aggregates for existing query projectors and view filters.
+- [x] 2.7 Implement `PrismaItemViewRepository` in `src/interfaces/persistence/prisma/` to load visible item aggregates for existing query projectors and view filters.
 
 ## Phase 3: Runtime Wiring
 
