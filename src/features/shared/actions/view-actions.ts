@@ -14,6 +14,7 @@ import { VIEW_SPACE_FILTER } from '@/application/queries/views';
 import { ATTENTION_REASON } from '@/application/queries/projectors';
 import type { ItemViewRecord } from '@/application/queries/views';
 import type { MockItem } from '@/lib/mock/types';
+import { DateUtils } from '@/lib/date-utils';
 
 // ── Actor context ─────────────────────────────────────────────────────────────
 // Swap with real session when auth lands.
@@ -51,35 +52,6 @@ function toMockItem(record: ItemViewRecord): MockItem {
   };
 }
 
-// ── Date range helpers ────────────────────────────────────────────────────────
-
-function startOfToday(): Date {
-  const d = new Date();
-  d.setHours(0, 0, 0, 0);
-  return d;
-}
-
-function endOfDayOffset(offsetDays: number): Date {
-  const d = startOfToday();
-  d.setDate(d.getDate() + offsetDays);
-  d.setHours(23, 59, 59, 999);
-  return d;
-}
-
-function startOfWeek(): Date {
-  const d = startOfToday();
-  const day = d.getDay(); // 0 = Sun
-  d.setDate(d.getDate() - day);
-  return d;
-}
-
-function endOfWeek(): Date {
-  const d = startOfWeek();
-  d.setDate(d.getDate() + 6);
-  d.setHours(23, 59, 59, 999);
-  return d;
-}
-
 // ── View actions ──────────────────────────────────────────────────────────────
 
 export interface StatsSnapshot {
@@ -99,8 +71,8 @@ export async function getTodayViewAction(): Promise<TodayViewResult> {
 
   const result = await getMyViewHandler.execute(ACTOR_CONTEXT);
 
-  const todayStart = startOfToday();
-  const todayEnd = endOfDayOffset(0);
+  const todayStart = DateUtils.startOfToday();
+  const todayEnd = DateUtils.endOfDay(0);
 
   const todayItems = result.items.filter((record) => {
     const { dueAt, calendarStartAt } = record.projection.datedSpan;
@@ -158,23 +130,12 @@ export interface ThisWeekResult {
   cards: WeekCard[];
 }
 
-const WEEKDAY_SHORT: Record<number, string> = {
-  0: 'Dom', 1: 'Lun', 2: 'Mar', 3: 'Mié', 4: 'Jue', 5: 'Vie', 6: 'Sáb',
-};
-
-function formatDayLabel(date: Date): string {
-  const day = date.getDay();
-  const dayNum = date.getDate();
-  const month = date.toLocaleDateString('es-ES', { month: 'short' });
-  return `${WEEKDAY_SHORT[day]} ${dayNum} ${month}`;
-}
-
 export async function getThisWeekAction(): Promise<ThisWeekResult> {
   await ensureDevSeed();
 
   const result = await getCalendarViewHandler.execute({
     ...ACTOR_CONTEXT,
-    range: { startAt: startOfWeek(), endAt: endOfWeek() },
+    range: { startAt: DateUtils.startOfWeek(), endAt: DateUtils.endOfWeek() },
     spaceFilter: VIEW_SPACE_FILTER.BOTH,
   });
 
@@ -193,7 +154,7 @@ export async function getThisWeekAction(): Promise<ThisWeekResult> {
 
     return {
       item: toMockItem(record),
-      dayLabel: formatDayLabel(dateRef),
+      dayLabel: DateUtils.formatShortDayLabel(dateRef),
     };
   });
 

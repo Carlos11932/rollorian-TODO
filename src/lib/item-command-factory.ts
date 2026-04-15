@@ -37,10 +37,11 @@ export const getUndatedViewHandler = new GetUndatedViewQueryHandler(runtimeStore
 export const getAttentionViewHandler = new GetRequiresAttentionViewQueryHandler(runtimeStore);
 export const getRequiresAttentionHandler = getAttentionViewHandler;
 
+const IS_DEV = process.env.NODE_ENV !== 'production';
 let seeded = false;
 
 export async function ensureDevSeed(): Promise<void> {
-  if (seeded) return;
+  if (!IS_DEV || seeded) return;
   seeded = true;
   await seedDevItems(createItemHandler);
 }

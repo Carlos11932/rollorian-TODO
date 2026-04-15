@@ -29,6 +29,7 @@ import { createPersonalSpaceAccessContext, createGroupSpaceAccessContext } from 
 import { createPersonalItemScope, createGroupItemScope } from '@/domain/item';
 import { createAuthorizationActor } from '@/domain/identity';
 import type { CreateItemCommandHandler } from '@/application/commands';
+import { DateUtils } from '@/lib/date-utils';
 
 // ── Shared IDs ────────────────────────────────────────────────────────────────
 
@@ -53,12 +54,7 @@ export const SEED_SPACE_IDS = {
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
-function today(offsetDays = 0): Date {
-  const d = new Date();
-  d.setHours(0, 0, 0, 0);
-  d.setDate(d.getDate() + offsetDays);
-  return d;
-}
+const today = (offsetDays = 0) => DateUtils.today(offsetDays);
 
 function makePersonalSpace(userId = SEED_USER_IDS.carlos, spaceId = SEED_SPACE_IDS.carlosPersonal) {
   return {
