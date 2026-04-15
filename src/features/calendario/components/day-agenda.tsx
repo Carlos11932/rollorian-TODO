@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { cn } from '@/lib/cn';
 import type { MockItem } from '@/lib/mock/types';
 
@@ -31,9 +32,10 @@ export function DayAgenda({ dateLabel, items }: DayAgendaProps) {
           </div>
         ) : (
           items.map((item) => (
-            <div
+            <Link
               key={item.id}
-              className="px-4 py-3 hover:bg-surface-container-highest/40 transition-colors cursor-pointer"
+              href={`/tareas/${item.id}`}
+              className="block px-4 py-3 hover:bg-surface-container-highest/40 transition-colors group"
             >
               <div className="flex items-center gap-2 mb-1.5">
                 <div
@@ -53,13 +55,16 @@ export function DayAgenda({ dateLabel, items }: DayAgendaProps) {
                 {item.time && (
                   <span className="text-xs text-on-surface-variant/60 ml-auto">{item.time}</span>
                 )}
+                <span className="material-symbols-outlined text-sm text-on-surface-variant/20 ml-auto group-hover:text-on-surface-variant/50 transition-colors">
+                  chevron_right
+                </span>
               </div>
 
-              <p className="text-sm font-semibold text-on-surface leading-snug">{item.title}</p>
+              <p className="text-sm font-semibold text-on-surface group-hover:text-primary transition-colors leading-snug">{item.title}</p>
               {item.location && (
                 <p className="text-xs text-on-surface-variant/60 mt-0.5">{item.location}</p>
               )}
-            </div>
+            </Link>
           ))
         )}
       </div>
