@@ -17,19 +17,25 @@ export async function MiVistaPage() {
     getThisWeekAction(),
   ]);
 
+  const { stats } = todayResult;
+
   return (
     <div className="flex flex-col h-[calc(100vh-4rem)] px-5 pt-4 pb-4 gap-4 overflow-hidden">
-      {/* Compact page header */}
-      <div className="flex items-center justify-between shrink-0">
-        <div className="flex items-center gap-3">
-          <h2 className="text-xs font-bold uppercase tracking-widest text-on-surface-variant">
-            {dateLabel}
-          </h2>
-        </div>
-        <div className="flex items-center gap-1.5 text-xs text-on-surface-variant">
-          <span className="material-symbols-outlined text-sm text-secondary">inventory_2</span>
-          <span className="font-bold text-secondary">{todayResult.undatedCount}</span>
-          <span className="text-on-surface-variant/60">pendientes sin fecha</span>
+      {/* Header + stats bar */}
+      <div className="flex flex-col gap-2 shrink-0">
+        <h2 className="text-xs font-bold uppercase tracking-widest text-on-surface-variant">
+          {dateLabel}
+        </h2>
+
+        {/* Stats strip */}
+        <div className="flex items-center gap-1 flex-wrap">
+          <StatPill icon="checklist" value={stats.totalCount} label="en total" color="text-on-surface-variant" />
+          <span className="text-outline-variant/30 text-xs">·</span>
+          <StatPill icon="emergency" value={stats.urgentCount} label="urgentes" color="text-error" />
+          <span className="text-outline-variant/30 text-xs">·</span>
+          <StatPill icon="inventory_2" value={stats.undatedCount} label="sin fecha" color="text-secondary" />
+          <span className="text-outline-variant/30 text-xs">·</span>
+          <StatPill icon="person_off" value={stats.unassignedGroupCount} label="sin asignar en grupo" color="text-on-surface-variant/60" />
         </div>
       </div>
 
@@ -47,5 +53,25 @@ export async function MiVistaPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+function StatPill({
+  icon,
+  value,
+  label,
+  color,
+}: {
+  icon: string;
+  value: number;
+  label: string;
+  color: string;
+}) {
+  return (
+    <span className={`flex items-center gap-1 text-xs ${color}`}>
+      <span className="material-symbols-outlined text-sm">{icon}</span>
+      <span className="font-bold">{value}</span>
+      <span className="text-on-surface-variant/50">{label}</span>
+    </span>
   );
 }

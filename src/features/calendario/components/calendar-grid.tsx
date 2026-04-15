@@ -6,6 +6,7 @@ interface CalendarEvent {
   id: string;
   label: string;
   type: 'task' | 'event';
+  spaceType?: 'personal' | 'group';
 }
 
 interface CalendarDay {
@@ -15,18 +16,15 @@ interface CalendarDay {
   events: CalendarEvent[];
 }
 
-type SpaceFilter = 'both' | 'personal' | 'group';
-
 interface CalendarGridProps {
   days: CalendarDay[];
   onDayClick?: (date: number) => void;
   selectedDate?: number;
-  filter?: SpaceFilter;
 }
 
 const DAY_NAMES = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
 
-export function CalendarGrid({ days, onDayClick, selectedDate, filter = 'both' }: CalendarGridProps) {
+export function CalendarGrid({ days, onDayClick, selectedDate }: CalendarGridProps) {
   return (
     <div className="bg-surface-container-low rounded-xl overflow-hidden border border-outline-variant/10 flex flex-col h-full">
       {/* Day headers */}
@@ -34,7 +32,7 @@ export function CalendarGrid({ days, onDayClick, selectedDate, filter = 'both' }
         {DAY_NAMES.map((name) => (
           <div
             key={name}
-            className="py-2 text-center text-[10px] uppercase tracking-widest font-bold text-on-surface-variant"
+            className="py-2 text-center text-[11px] uppercase tracking-widest font-bold text-on-surface-variant"
           >
             {name}
           </div>
@@ -48,7 +46,7 @@ export function CalendarGrid({ days, onDayClick, selectedDate, filter = 'both' }
             key={i}
             onClick={() => day.isCurrentMonth && onDayClick?.(day.date)}
             className={cn(
-              'border-r border-b border-outline-variant/5 p-1.5 transition-colors',
+              'border-r border-b border-outline-variant/5 p-1.5 transition-colors min-h-0',
               day.isCurrentMonth
                 ? 'hover:bg-surface-bright/20 cursor-pointer'
                 : 'bg-surface-container-lowest/30 opacity-40',
@@ -58,30 +56,30 @@ export function CalendarGrid({ days, onDayClick, selectedDate, filter = 'both' }
           >
             <span
               className={cn(
-                'text-xs font-medium',
-                day.isToday && 'font-bold text-primary'
+                'text-xs font-semibold block',
+                day.isToday ? 'font-black text-primary' : 'text-on-surface'
               )}
             >
               {day.date}
             </span>
 
             {day.events.length > 0 && (
-              <div className="mt-2 flex flex-col gap-1">
+              <div className="mt-1 flex flex-col gap-0.5">
                 {day.events.slice(0, 3).map((ev) => (
                   <div
                     key={ev.id}
                     className={cn(
-                      'px-1.5 py-0.5 rounded text-[10px] font-bold border-l-2 truncate',
+                      'px-1.5 py-0.5 rounded text-[10px] font-semibold border-l-2 truncate leading-tight',
                       ev.type === 'task'
                         ? 'bg-primary/10 text-primary border-primary'
                         : 'bg-secondary/10 text-secondary border-secondary'
                     )}
                   >
-                    {ev.type === 'task' ? 'T' : 'E'}: {ev.label}
+                    {ev.label}
                   </div>
                 ))}
                 {day.events.length > 3 && (
-                  <span className="text-[10px] text-on-surface-variant pl-1">
+                  <span className="text-[10px] text-on-surface-variant/60 pl-1">
                     +{day.events.length - 3} más
                   </span>
                 )}

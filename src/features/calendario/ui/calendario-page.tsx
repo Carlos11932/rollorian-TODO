@@ -1,17 +1,24 @@
 'use client';
 
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { CalendarGrid } from '../components/calendar-grid';
 import { DayAgenda } from '../components/day-agenda';
 import type { MockItem } from '@/lib/mock/types';
 
 type SpaceFilter = 'both' | 'personal' | 'group';
 
+export interface CalendarEventData {
+  id: string;
+  label: string;
+  type: 'task' | 'event';
+  spaceType: 'personal' | 'group';
+}
+
 export interface CalendarDayData {
   date: number;
   isCurrentMonth: boolean;
   isToday?: boolean;
-  events: { id: string; label: string; type: 'task' | 'event' }[];
+  events: CalendarEventData[];
 }
 
 interface CalendarioPageProps {
@@ -31,15 +38,32 @@ export function CalendarioPage({ days, monthLabel, todayDate, agendaItemsByDay }
     { value: 'group', label: 'Grupo' },
   ];
 
-  const agendaItems = agendaItemsByDay[selectedDate] ?? [];
+  // Filter calendar days' events by spaceType client-side
+  const filteredDays = useMemo(() => {
+    if (filter === 'both') return days;
+    return days.map((day) => ({
+      ...day,
+      events: day.events.filter((ev) => ev.spaceType === filter),
+    }));
+  }, [days, filter]);
+
+  // Filter agenda items for selected day
+  const agendaItems = useMemo(() => {
+    const items = agendaItemsByDay[selectedDate] ?? [];
+    if (filter === 'both') return items;
+    return items.filter((item) => item.spaceType === filter);
+  }, [agendaItemsByDay, selectedDate, filter]);
+
   const shortMonth = monthLabel.split(' ')[1] ?? '';
-  const agendaLabel = `${selectedDate} ${shortMonth}`;
+  const agendaLabel = selectedDate === todayDate
+    ? `Hoy, ${selectedDate} ${shortMonth}`
+    : `${selectedDate} ${shortMonth}`;
 
   return (
     <div className="flex flex-col h-[calc(100vh-4rem)] px-5 pt-4 pb-4 gap-4 overflow-hidden">
-      {/* Compact header */}
+      {/* Header */}
       <div className="flex items-center justify-between shrink-0">
-        <h2 className="text-xs font-bold uppercase tracking-widest text-on-surface-variant">
+        <h2 className="text-sm font-bold text-on-surface">
           {monthLabel}
         </h2>
 
@@ -65,10 +89,9 @@ export function CalendarioPage({ days, monthLabel, todayDate, agendaItemsByDay }
       <div className="flex-1 grid grid-cols-1 lg:grid-cols-3 gap-4 min-h-0">
         <div className="lg:col-span-2 min-h-0">
           <CalendarGrid
-            days={days}
+            days={filteredDays}
             selectedDate={selectedDate}
             onDayClick={setSelectedDate}
-            filter={filter}
           />
         </div>
 

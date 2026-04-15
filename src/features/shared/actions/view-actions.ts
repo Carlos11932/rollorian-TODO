@@ -82,9 +82,16 @@ function endOfWeek(): Date {
 
 // ── View actions ──────────────────────────────────────────────────────────────
 
+export interface StatsSnapshot {
+  totalCount: number;
+  undatedCount: number;
+  urgentCount: number;
+  unassignedGroupCount: number;
+}
+
 export interface TodayViewResult {
   items: MockItem[];
-  undatedCount: number;
+  stats: StatsSnapshot;
 }
 
 export async function getTodayViewAction(): Promise<TodayViewResult> {
@@ -102,13 +109,28 @@ export async function getTodayViewAction(): Promise<TodayViewResult> {
     return ref.getTime() >= todayStart.getTime() && ref.getTime() <= todayEnd.getTime();
   });
 
-  const undatedItems = result.items.filter(
+  const undatedCount = result.items.filter(
     (record) => record.projection.undatedState.isUndated,
-  );
+  ).length;
+
+  const urgentCount = result.items.filter(
+    (record) => record.item.priority === 'urgent',
+  ).length;
+
+  const unassignedGroupCount = result.items.filter(
+    (record) =>
+      record.item.spaceType === 'group' &&
+      record.projection.assigneeSummary.isUnassigned,
+  ).length;
 
   return {
     items: todayItems.map(toMockItem),
-    undatedCount: undatedItems.length,
+    stats: {
+      totalCount: result.totalCount,
+      undatedCount,
+      urgentCount,
+      unassignedGroupCount,
+    },
   };
 }
 
@@ -201,7 +223,7 @@ export interface CalendarDayData {
   date: number;
   isCurrentMonth: boolean;
   isToday?: boolean;
-  events: { id: string; label: string; type: 'task' | 'event' }[];
+  events: { id: string; label: string; type: 'task' | 'event'; spaceType: 'personal' | 'group' }[];
 }
 
 export interface CalendarMonthResult {
@@ -235,7 +257,7 @@ export async function getCalendarMonthAction(
   });
 
   // Group events by day-of-month
-  const eventsByDay = new Map<number, { id: string; label: string; type: 'task' | 'event' }[]>();
+  const eventsByDay = new Map<number, { id: string; label: string; type: 'task' | 'event'; spaceType: 'personal' | 'group' }[]>();
   const agendaItemsByDay: Record<number, MockItem[]> = {};
 
   for (const record of result.items) {
@@ -251,6 +273,7 @@ export async function getCalendarMonthAction(
       id: record.item.id,
       label: record.item.title,
       type: record.item.itemType === 'task' ? 'task' : 'event',
+      spaceType: record.item.spaceType,
     });
     agendaItemsByDay[dayNum].push(toMockItem(record));
   }

@@ -82,13 +82,6 @@ export function TareaDetailPage({ id }: TareaDetailPageProps) {
         <div className="flex items-center gap-2 shrink-0 ml-4">
           <button
             type="button"
-            className="px-3 py-1.5 rounded-lg bg-surface-container-high text-on-surface-variant hover:bg-surface-bright transition-colors text-xs font-semibold flex items-center gap-1.5"
-          >
-            <span className="material-symbols-outlined text-sm">share</span>
-            Compartir
-          </button>
-          <button
-            type="button"
             onClick={handleSave}
             className={cn(
               'px-4 py-1.5 rounded-lg font-bold text-xs flex items-center gap-1.5 transition-colors',
