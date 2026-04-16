@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { cn } from '@/lib/cn';
 import type { MockItem, ItemStatus, MockUser } from '@/dev-data/types';
 import { MOCK_USERS, MOCK_GROUPS } from '@/dev-data/data';
+import type { GroupMemberDto } from '@/interfaces/ui/history-entry-dto';
 
 type PriorityOption = 'low' | 'medium' | 'high' | 'urgent';
 
@@ -38,6 +39,8 @@ const STATUS_LABELS: Record<string, string> = {
 
 interface MetadataPanelProps {
   item: MockItem;
+  /** Real group members from the DB. When provided, replaces MOCK_USERS for the assignee picker. */
+  groupMembers?: GroupMemberDto[];
 }
 
 const TASK_STATUS_OPTIONS: { value: ItemStatus; label: string }[] = [
@@ -55,7 +58,7 @@ const EVENT_STATUS_OPTIONS: { value: ItemStatus; label: string }[] = [
   { value: 'canceled', label: 'Cancelado' },
 ];
 
-export function MetadataPanel({ item }: MetadataPanelProps) {
+export function MetadataPanel({ item, groupMembers }: MetadataPanelProps) {
   const [priority, setPriority] = useState<PriorityOption>(item.priority as PriorityOption);
   const [status, setStatus] = useState<ItemStatus>(item.status);
   const [assignee, setAssignee] = useState<MockUser | undefined>(item.assignee);
@@ -64,10 +67,12 @@ export function MetadataPanel({ item }: MetadataPanelProps) {
   const statusRef = useRef<HTMLDivElement>(null);
   const assigneeRef = useRef<HTMLDivElement>(null);
 
-  // Build the candidate user list: group members if group item, all users otherwise
-  const candidateUsers: MockUser[] = item.groupId
-    ? (MOCK_GROUPS.find((g) => g.id === item.groupId)?.members ?? MOCK_USERS)
-    : MOCK_USERS;
+  // Use real group members if provided, otherwise fall back to dev mock data
+  const candidateUsers: MockUser[] = groupMembers
+    ? groupMembers.map((m) => ({ id: m.id, name: m.name, initials: m.initials, avatarColor: undefined }))
+    : item.groupId
+      ? (MOCK_GROUPS.find((g) => g.id === item.groupId)?.members ?? MOCK_USERS)
+      : MOCK_USERS;
 
   useEffect(() => {
     if (!statusOpen) return;
