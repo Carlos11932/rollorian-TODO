@@ -1,10 +1,11 @@
 /**
  * Command + Query handler factory — single DI injection point.
  *
- * Current: in-memory runtime store (dev stub, no cross-request persistence).
- * Next step: replace with Prisma-backed repositories when the persistence slice lands.
- * That swap happens ONLY here — command handlers, actions, and routes stay untouched.
+ * Production runtime now composes Prisma-backed repositories here.
+ * The legacy in-memory runtime store stays exported only for test/fallback compatibility.
  */
+import type { PrismaClient } from "@prisma/client";
+
 import {
   AppendOnlyGroupItemAuditRecorder,
   CreateItemCommandHandler,
@@ -21,20 +22,101 @@ import {
   GetUndatedViewQueryHandler,
 } from '@/application/queries/views';
 import { createItemId } from '@/domain/shared';
+import {
+  PrismaGroupItemHistoryRepository,
+  PrismaItemCommandRepository,
+  PrismaItemViewRepository,
+  PrismaMembershipResolver,
+} from '@/interfaces/persistence/prisma';
 import { seedDevItems } from '@/lib/mock/seed';
+import { prisma } from '@/lib/prisma';
 import { runtimeStore } from '@/lib/runtime-store';
 
-const groupItemAuditRecorder = new AppendOnlyGroupItemAuditRecorder(runtimeStore);
+type PrismaRuntimeClient = Pick<
+  PrismaClient,
+  | "$transaction"
+  | "group"
+  | "groupAuditEntry"
+  | "item"
+  | "itemAssignee"
+  | "itemLabel"
+  | "label"
+  | "membership"
+  | "user"
+>;
 
-export const createItemHandler = new CreateItemCommandHandler(runtimeStore);
-export const readItemByIdHandler = new ReadItemByIdCommandHandler(runtimeStore);
-export const updateItemHandler = new UpdateItemCommandHandler(runtimeStore, groupItemAuditRecorder);
+export interface ProductionItemRuntime {
+  commandRepository: PrismaItemCommandRepository;
+  viewRepository: PrismaItemViewRepository;
+  historyRepository: PrismaGroupItemHistoryRepository;
+  membershipResolver: PrismaMembershipResolver;
+  groupItemAuditRecorder: AppendOnlyGroupItemAuditRecorder;
+  createItemHandler: CreateItemCommandHandler;
+  readItemByIdHandler: ReadItemByIdCommandHandler;
+  updateItemHandler: UpdateItemCommandHandler;
+  getMyViewHandler: GetMyViewQueryHandler;
+  getGroupViewHandler: GetGroupViewQueryHandler;
+  getCalendarViewHandler: GetCalendarViewQueryHandler;
+  getUndatedViewHandler: GetUndatedViewQueryHandler;
+  getAttentionViewHandler: GetRequiresAttentionViewQueryHandler;
+  findItemById(id: string): Promise<ItemOutput | null>;
+  removeItem(id: string): Promise<void>;
+}
 
-export const getMyViewHandler = new GetMyViewQueryHandler(runtimeStore);
-export const getGroupViewHandler = new GetGroupViewQueryHandler(runtimeStore);
-export const getCalendarViewHandler = new GetCalendarViewQueryHandler(runtimeStore);
-export const getUndatedViewHandler = new GetUndatedViewQueryHandler(runtimeStore);
-export const getAttentionViewHandler = new GetRequiresAttentionViewQueryHandler(runtimeStore);
+export function createProductionItemRuntime(
+  client: PrismaRuntimeClient = prisma,
+): ProductionItemRuntime {
+  const commandRepository = new PrismaItemCommandRepository(client);
+  const viewRepository = new PrismaItemViewRepository(client);
+  const historyRepository = new PrismaGroupItemHistoryRepository(client);
+  const membershipResolver = new PrismaMembershipResolver(client);
+  const groupItemAuditRecorder = new AppendOnlyGroupItemAuditRecorder(historyRepository);
+
+  return {
+    commandRepository,
+    viewRepository,
+    historyRepository,
+    membershipResolver,
+    groupItemAuditRecorder,
+    createItemHandler: new CreateItemCommandHandler(commandRepository),
+    readItemByIdHandler: new ReadItemByIdCommandHandler(commandRepository),
+    updateItemHandler: new UpdateItemCommandHandler(commandRepository, groupItemAuditRecorder),
+    getMyViewHandler: new GetMyViewQueryHandler(viewRepository),
+    getGroupViewHandler: new GetGroupViewQueryHandler(viewRepository),
+    getCalendarViewHandler: new GetCalendarViewQueryHandler(viewRepository),
+    getUndatedViewHandler: new GetUndatedViewQueryHandler(viewRepository),
+    getAttentionViewHandler: new GetRequiresAttentionViewQueryHandler(viewRepository),
+    async findItemById(id: string): Promise<ItemOutput | null> {
+      const record = await commandRepository.findById(createItemId(id));
+
+      return record ? toItemOutput(record) : null;
+    },
+    async removeItem(id: string): Promise<void> {
+      await client.item.deleteMany({
+        where: { id: createItemId(id) },
+      });
+    },
+  };
+}
+
+export const productionItemRuntime = createProductionItemRuntime();
+
+export const {
+  commandRepository: prismaItemCommandRepository,
+  viewRepository: prismaItemViewRepository,
+  historyRepository: prismaGroupItemHistoryRepository,
+  membershipResolver: prismaMembershipResolver,
+  groupItemAuditRecorder,
+  createItemHandler,
+  readItemByIdHandler,
+  updateItemHandler,
+  getMyViewHandler,
+  getGroupViewHandler,
+  getCalendarViewHandler,
+  getUndatedViewHandler,
+  getAttentionViewHandler,
+} = productionItemRuntime;
+
 export const getRequiresAttentionHandler = getAttentionViewHandler;
 
 let seeded = false;
@@ -46,12 +128,12 @@ export async function ensureDevSeed(): Promise<void> {
 }
 
 export async function findItemById(id: string): Promise<ItemOutput | null> {
-  const record = await runtimeStore.findById(createItemId(id));
-  return record ? toItemOutput(record) : null;
+  return productionItemRuntime.findItemById(id);
 }
 
 export async function removeItem(id: string): Promise<void> {
-  await runtimeStore.remove(createItemId(id));
+  await productionItemRuntime.removeItem(id);
 }
 
+// Legacy export kept for test/fallback compatibility only.
 export { runtimeStore };
