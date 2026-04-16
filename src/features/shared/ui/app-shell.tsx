@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { auth } from '@/lib/auth';
 import { SideNavBar } from './side-nav-bar';
 import { TopAppBar } from './top-app-bar';
 import { MobileNav } from './mobile-nav';
@@ -10,11 +11,20 @@ interface AppShellProps {
   children: ReactNode;
 }
 
-export function AppShell({ children }: AppShellProps) {
+export async function AppShell({ children }: AppShellProps) {
+  const session = await auth();
+  const user = session?.user
+    ? {
+        name: session.user.name ?? null,
+        email: session.user.email ?? '',
+        image: session.user.image ?? null,
+      }
+    : null;
+
   return (
     <QuickCaptureProvider>
       {/* Fixed left sidebar — desktop only */}
-      <SideNavBar />
+      <SideNavBar user={user} />
 
       {/* Fixed top bar — offset by sidebar width on desktop */}
       <TopAppBar />

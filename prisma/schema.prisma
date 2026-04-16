@@ -6,4 +6,145 @@ datasource db {
   provider = "postgresql"
 }
 
-// Product models land in later batches.
+// ── Auth (NextAuth v5 + PrismaAdapter) ──────────────────────────────────────
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  emailVerified DateTime?
+  image         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  accounts         Account[]
+  sessions         Session[]
+  groupMemberships GroupMembership[]
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// ── Groups & Memberships ─────────────────────────────────────────────────────
+
+model Group {
+  id        String   @id @default(cuid())
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  members GroupMembership[]
+  items   Item[]
+}
+
+model GroupMembership {
+  id        String   @id @default(cuid())
+  groupId   String
+  userId    String
+  role      String   @default("member") // "owner" | "member"
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+
+  group Group @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([groupId, userId])
+}
+
+// ── Items ─────────────────────────────────────────────────────────────────────
+
+model Item {
+  id            String   @id
+  title         String
+  notes         String?
+  spaceId       String
+  spaceType     String   // "personal" | "group"
+  ownerId       String?  // set when spaceType = "personal"
+  groupId       String?  // set when spaceType = "group"
+  itemType      String   // "task" | "event"
+  priority      String   @default("medium")
+  status        String   // "pending" | "in_progress" | "blocked" | "postponed" | "done" | "canceled" | "scheduled" | "completed"
+  postponeCount Int      @default(0)
+  versionToken  String
+
+  // Discriminated unions stored as JSON — hydrated on read
+  temporal  Json // TaskTemporal | EventTemporal
+  lifecycle Json // TaskLifecycle | EventLifecycle
+
+  createdAt DateTime
+  updatedAt DateTime
+
+  group     Group?            @relation(fields: [groupId], references: [id])
+  assignees ItemAssignee[]
+  labels    ItemLabel[]
+  auditLog  GroupAuditEntry[]
+}
+
+model ItemAssignee {
+  id     String @id @default(cuid())
+  itemId String
+  userId String
+
+  item Item @relation(fields: [itemId], references: [id], onDelete: Cascade)
+
+  @@unique([itemId, userId])
+}
+
+model ItemLabel {
+  id     String @id @default(cuid())
+  itemId String
+  value  String
+
+  item Item @relation(fields: [itemId], references: [id], onDelete: Cascade)
+
+  @@unique([itemId, value])
+}
+
+// ── Audit Log ─────────────────────────────────────────────────────────────────
+
+model GroupAuditEntry {
+  id           String   @id @default(cuid())
+  itemId       String
+  groupId      String
+  actorId      String
+  actorName    String?
+  actorEmail   String?
+  changes      Json
+  versionToken String
+  changedAt    DateTime
+
+  item Item @relation(fields: [itemId], references: [id], onDelete: Cascade)
+}

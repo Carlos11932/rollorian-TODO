@@ -1,16 +1,10 @@
 'use server';
 
 import { ensureDevSeed, getMyViewHandler } from '@/lib/item-command-factory';
-import { MOCK_USER_ID } from '@/dev-data/actor';
-import { SEED_GROUP_IDS } from '@/dev-data/seed';
+import { getActorContext } from '@/lib/session-actor';
 import type { ItemCardDto } from '@/interfaces/ui/item-card-dto';
 import { toItemCard } from '@/interfaces/ui/item-card-mapper';
 import { DateUtils } from '@/lib/date-utils';
-
-const ACTOR_CONTEXT = {
-  actorUserId: MOCK_USER_ID,
-  visibleGroupIds: [SEED_GROUP_IDS.alpha, SEED_GROUP_IDS.producto] as const,
-} as const;
 
 export interface StatsSnapshot {
   totalCount: number;
@@ -26,8 +20,9 @@ export interface TodayViewResult {
 
 export async function getTodayViewAction(): Promise<TodayViewResult> {
   await ensureDevSeed();
+  const actorContext = await getActorContext();
 
-  const result = await getMyViewHandler.execute(ACTOR_CONTEXT);
+  const result = await getMyViewHandler.execute(actorContext);
 
   const todayStart = DateUtils.startOfToday();
   const todayEnd = DateUtils.endOfDay(0);

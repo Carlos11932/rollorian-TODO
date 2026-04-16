@@ -1,9 +1,10 @@
 /**
  * Command + Query handler factory — single DI injection point.
  *
- * Current: in-memory runtime store (dev stub, no cross-request persistence).
- * Next step: replace with Prisma-backed repositories when the persistence slice lands.
- * That swap happens ONLY here — command handlers, actions, and routes stay untouched.
+ * In production: PrismaItemRepository (persistent PostgreSQL).
+ * In development: InMemoryRuntimeStore (fast, seeded on first request).
+ *
+ * All handlers, actions, and routes are unaware of which store is active.
  */
 import {
   AppendOnlyGroupItemAuditRecorder,
@@ -21,23 +22,30 @@ import {
   GetUndatedViewQueryHandler,
 } from '@/application/queries/views';
 import { createItemId } from '@/domain/shared';
-import { seedDevItems } from '@/dev-data/seed';
+import type { GroupItemAuditEntry } from '@/domain/history';
+import { prismaItemRepository } from '@/infrastructure/prisma-item-repository';
 import { runtimeStore } from '@/lib/runtime-store';
-
-const groupItemAuditRecorder = new AppendOnlyGroupItemAuditRecorder(runtimeStore);
-
-export const createItemHandler = new CreateItemCommandHandler(runtimeStore);
-export const readItemByIdHandler = new ReadItemByIdCommandHandler(runtimeStore);
-export const updateItemHandler = new UpdateItemCommandHandler(runtimeStore, groupItemAuditRecorder);
-
-export const getMyViewHandler = new GetMyViewQueryHandler(runtimeStore);
-export const getGroupViewHandler = new GetGroupViewQueryHandler(runtimeStore);
-export const getCalendarViewHandler = new GetCalendarViewQueryHandler(runtimeStore);
-export const getUndatedViewHandler = new GetUndatedViewQueryHandler(runtimeStore);
-export const getAttentionViewHandler = new GetRequiresAttentionViewQueryHandler(runtimeStore);
-export const getRequiresAttentionHandler = getAttentionViewHandler;
+import { seedDevItems } from '@/dev-data/seed';
 
 const IS_DEV = process.env.NODE_ENV !== 'production';
+
+// In dev: use in-memory store (no DB needed, seeded on first request).
+// In prod: use Prisma (persistent PostgreSQL).
+const activeStore = IS_DEV ? runtimeStore : prismaItemRepository;
+
+const groupItemAuditRecorder = new AppendOnlyGroupItemAuditRecorder(activeStore);
+
+export const createItemHandler = new CreateItemCommandHandler(activeStore);
+export const readItemByIdHandler = new ReadItemByIdCommandHandler(activeStore);
+export const updateItemHandler = new UpdateItemCommandHandler(activeStore, groupItemAuditRecorder);
+
+export const getMyViewHandler = new GetMyViewQueryHandler(activeStore);
+export const getGroupViewHandler = new GetGroupViewQueryHandler(activeStore);
+export const getCalendarViewHandler = new GetCalendarViewQueryHandler(activeStore);
+export const getUndatedViewHandler = new GetUndatedViewQueryHandler(activeStore);
+export const getAttentionViewHandler = new GetRequiresAttentionViewQueryHandler(activeStore);
+export const getRequiresAttentionHandler = getAttentionViewHandler;
+
 let seeded = false;
 
 export async function ensureDevSeed(): Promise<void> {
@@ -47,12 +55,20 @@ export async function ensureDevSeed(): Promise<void> {
 }
 
 export async function findItemById(id: string): Promise<ItemOutput | null> {
-  const record = await runtimeStore.findById(createItemId(id));
+  const record = await activeStore.findById(createItemId(id));
   return record ? toItemOutput(record) : null;
 }
 
 export async function removeItem(id: string): Promise<void> {
-  await runtimeStore.remove(createItemId(id));
+  await activeStore.remove(createItemId(id));
 }
 
+export async function getHistoryEntries(id: string): Promise<readonly GroupItemAuditEntry[]> {
+  if (IS_DEV) {
+    return runtimeStore.listHistoryEntries(id);
+  }
+  return prismaItemRepository.listHistoryEntries(id);
+}
+
+// Keep runtimeStore export for tests that access it directly
 export { runtimeStore };

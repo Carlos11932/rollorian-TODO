@@ -1,17 +1,11 @@
 'use server';
 
 import { ensureDevSeed, getCalendarViewHandler } from '@/lib/item-command-factory';
-import { MOCK_USER_ID } from '@/dev-data/actor';
-import { SEED_GROUP_IDS } from '@/dev-data/seed';
+import { getActorContext } from '@/lib/session-actor';
 import { VIEW_SPACE_FILTER } from '@/application/queries/views';
 import type { WeekCardDto } from '@/interfaces/ui/item-card-dto';
 import { toItemCard } from '@/interfaces/ui/item-card-mapper';
 import { DateUtils } from '@/lib/date-utils';
-
-const ACTOR_CONTEXT = {
-  actorUserId: MOCK_USER_ID,
-  visibleGroupIds: [SEED_GROUP_IDS.alpha, SEED_GROUP_IDS.producto] as const,
-} as const;
 
 export interface ThisWeekResult {
   cards: WeekCardDto[];
@@ -19,9 +13,10 @@ export interface ThisWeekResult {
 
 export async function getThisWeekAction(): Promise<ThisWeekResult> {
   await ensureDevSeed();
+  const actorContext = await getActorContext();
 
   const result = await getCalendarViewHandler.execute({
-    ...ACTOR_CONTEXT,
+    ...actorContext,
     range: { startAt: DateUtils.startOfWeek(), endAt: DateUtils.endOfWeek() },
     spaceFilter: VIEW_SPACE_FILTER.BOTH,
   });
