@@ -4,6 +4,8 @@ import { Manrope } from "next/font/google";
 import "./globals.css";
 import { AppShell } from "@/features/shared/ui/app-shell";
 
+export const dynamic = "force-dynamic";
+
 const manrope = Manrope({
   subsets: ["latin"],
   display: "swap",
