@@ -19,6 +19,9 @@
     "test:coverage": "vitest run --coverage",
     "test:e2e": "playwright test"
   },
+  "prisma": {
+    "seed": "tsx prisma/seed.ts"
+  },
   "dependencies": {
     "@auth/prisma-adapter": "^2.11.2",
     "@prisma/client": "^7.5.0",
@@ -52,8 +55,5 @@
     "tsx": "^4.21.0",
     "typescript": "^5",
     "vitest": "^4.1.1"
-  },
-  "prisma": {
-    "seed": "tsx prisma/seed.ts"
   }
 }

@@ -29,9 +29,9 @@ export default async function TareaDetailRoute({ params }: TareaDetailRouteProps
   // Fetch group members if this is a group item (needed for the assignee picker)
   let groupMembers: GroupMemberDto[] = [];
   if (!IS_DEV && item.spaceType === SPACE_TYPE.GROUP && item.groupId) {
-    const memberships = await prisma.groupMembership.findMany({
+    const memberships = await prisma.membership.findMany({
       where: { groupId: item.groupId as string, isActive: true },
-      include: { user: { select: { id: true, name: true, image: true } } },
+      include: { user: { select: { id: true, image: true, name: true } } },
     });
     groupMembers = memberships.map((m) => {
       const name = m.user.name ?? m.user.id;

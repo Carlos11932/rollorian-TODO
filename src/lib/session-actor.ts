@@ -18,7 +18,7 @@ export async function getActorContext(): Promise<ActorContext> {
   const session = await auth();
   if (!session?.user?.id) redirect('/login');
 
-  const memberships = await prisma.groupMembership.findMany({
+  const memberships = await prisma.membership.findMany({
     where: { userId: session.user.id, isActive: true },
     select: { groupId: true },
   });
@@ -37,7 +37,7 @@ export async function tryGetActorContext(): Promise<ActorContext | null> {
   const session = await auth();
   if (!session?.user?.id) return null;
 
-  const memberships = await prisma.groupMembership.findMany({
+  const memberships = await prisma.membership.findMany({
     where: { userId: session.user.id, isActive: true },
     select: { groupId: true },
   });

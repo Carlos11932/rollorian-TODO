@@ -4,27 +4,84 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
 }
 
-// ── Auth (NextAuth v5 + PrismaAdapter) ──────────────────────────────────────
+enum SpaceType {
+  personal
+  group
+}
+
+enum ItemType {
+  task
+  event
+}
+
+enum ItemStatus {
+  pending
+  in_progress
+  blocked
+  postponed
+  done
+  canceled
+  scheduled
+  completed
+}
+
+enum Priority {
+  low
+  medium
+  high
+  urgent
+}
+
+enum MembershipRole {
+  owner
+  member
+}
+
+enum ItemTemporalKind {
+  undated
+  due_date
+  start_date
+  start_and_end
+  start_and_due
+  start_end_and_due
+  start
+}
+
+enum GroupAuditChangeKind {
+  assignees
+  cancellation
+  completion
+  dates
+  labels
+  priority
+  status
+  title
+}
 
 model User {
-  id            String    @id @default(cuid())
+  id            String            @id @default(cuid())
   name          String?
-  email         String    @unique
+  email         String?           @unique
   emailVerified DateTime?
   image         String?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @default(now())
+  personalSpace Space?            @relation("PersonalSpaceOwner")
+  ownedItems    Item[]            @relation("PersonalItemOwner")
+  memberships   Membership[]
+  assigneeLinks ItemAssignee[]    @relation("ItemAssigneeUser")
+  personalLabels Label[]          @relation("PersonalLabelOwner")
+  auditEntries  GroupAuditEntry[] @relation("GroupAuditActor")
+  accounts      Account[]
+  sessions      Session[]
 
-  accounts         Account[]
-  sessions         Session[]
-  groupMemberships GroupMembership[]
+  @@map("users")
 }
 
 model Account {
-  id                String  @id @default(cuid())
+  id                String @id @default(cuid())
   userId            String
   type              String
   provider          String
@@ -40,6 +97,7 @@ model Account {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
+  @@map("accounts")
 }
 
 model Session {
@@ -49,6 +107,8 @@ model Session {
   expires      DateTime
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
 }
 
 model VerificationToken {
@@ -57,95 +117,192 @@ model VerificationToken {
   expires    DateTime
 
   @@unique([identifier, token])
+  @@map("verification_tokens")
 }
-
-// ── Groups & Memberships ─────────────────────────────────────────────────────
 
 model Group {
-  id        String   @id @default(cuid())
-  name      String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id           String            @id
+  name         String
+  slug         String?           @unique
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @default(now())
+  space        Space?            @relation("GroupSpace")
+  memberships  Membership[]
+  items        Item[]            @relation("GroupItems")
+  labels       Label[]           @relation("GroupLabels")
+  auditEntries GroupAuditEntry[]
 
-  members GroupMembership[]
-  items   Item[]
+  @@map("groups")
 }
 
-model GroupMembership {
-  id        String   @id @default(cuid())
-  groupId   String
-  userId    String
-  role      String   @default("member") // "owner" | "member"
-  isActive  Boolean  @default(true)
-  createdAt DateTime @default(now())
+model Membership {
+  id            String         @id
+  userId        String
+  groupId       String
+  role          MembershipRole @default(member)
+  isActive      Boolean        @default(true)
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @default(now())
+  user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  group         Group          @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  itemAssignees ItemAssignee[] @relation("ItemAssigneeMembership")
 
-  group Group @relation(fields: [groupId], references: [id], onDelete: Cascade)
-  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([groupId, userId])
+  @@unique([groupId, userId], map: "memberships_group_id_user_id_key")
+  @@index([userId, isActive], map: "memberships_user_id_is_active_idx")
+  @@index([groupId, isActive], map: "memberships_group_id_is_active_idx")
+  @@map("memberships")
 }
 
-// ── Items ─────────────────────────────────────────────────────────────────────
+model Space {
+  id        String   @id
+  type      SpaceType
+  ownerId   String?  @unique(map: "spaces_owner_id_key")
+  groupId   String?  @unique(map: "spaces_group_id_key")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+  owner     User?    @relation("PersonalSpaceOwner", fields: [ownerId], references: [id], onDelete: Cascade)
+  group     Group?   @relation("GroupSpace", fields: [groupId], references: [id], onDelete: Cascade)
+  items     Item[]
+
+  @@index([type], map: "spaces_type_idx")
+  @@map("spaces")
+}
 
 model Item {
-  id            String   @id
-  title         String
-  notes         String?
-  spaceId       String
-  spaceType     String   // "personal" | "group"
-  ownerId       String?  // set when spaceType = "personal"
-  groupId       String?  // set when spaceType = "group"
-  itemType      String   // "task" | "event"
-  priority      String   @default("medium")
-  status        String   // "pending" | "in_progress" | "blocked" | "postponed" | "done" | "canceled" | "scheduled" | "completed"
-  postponeCount Int      @default(0)
-  versionToken  String
+  id             String           @id
+  spaceId        String
+  spaceType      SpaceType
+  ownerId        String?
+  groupId        String?
+  itemType       ItemType
+  status         ItemStatus
+  priority       Priority         @default(medium)
+  title          String
+  notes          String?
+  temporalKind   ItemTemporalKind
+  startAt        DateTime?
+  endAt          DateTime?
+  dueAt          DateTime?
+  postponedUntil DateTime?
+  completedAt    DateTime?
+  canceledAt     DateTime?
+  postponeCount  Int              @default(0)
+  versionToken   Int              @default(0)
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @default(now())
+  space          Space            @relation(fields: [spaceId], references: [id], onDelete: Restrict)
+  owner          User?            @relation("PersonalItemOwner", fields: [ownerId], references: [id], onDelete: Restrict)
+  group          Group?           @relation("GroupItems", fields: [groupId], references: [id], onDelete: Restrict)
+  assignees      ItemAssignee[]
+  labels         ItemLabel[]
+  auditEntries   GroupAuditEntry[]
 
-  // Discriminated unions stored as JSON — hydrated on read
-  temporal  Json // TaskTemporal | EventTemporal
-  lifecycle Json // TaskLifecycle | EventLifecycle
-
-  createdAt DateTime
-  updatedAt DateTime
-
-  group     Group?            @relation(fields: [groupId], references: [id])
-  assignees ItemAssignee[]
-  labels    ItemLabel[]
-  auditLog  GroupAuditEntry[]
+  @@index([spaceId, updatedAt], map: "items_space_id_updated_at_idx")
+  @@index([ownerId, updatedAt], map: "items_owner_id_updated_at_idx")
+  @@index([groupId, updatedAt], map: "items_group_id_updated_at_idx")
+  @@index([spaceType, itemType, status], map: "items_space_type_item_type_status_idx")
+  @@unique([id, versionToken], map: "items_id_version_token_key")
+  @@map("items")
 }
 
 model ItemAssignee {
-  id     String @id @default(cuid())
-  itemId String
-  userId String
+  itemId       String
+  userId       String
+  membershipId String?
+  createdAt    DateTime    @default(now())
+  item         Item        @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  user         User        @relation("ItemAssigneeUser", fields: [userId], references: [id], onDelete: Restrict)
+  membership   Membership? @relation("ItemAssigneeMembership", fields: [membershipId], references: [id], onDelete: Restrict)
 
-  item Item @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  @@id([itemId, userId])
+  @@unique([itemId, membershipId], map: "item_assignees_item_id_membership_id_key")
+  @@index([membershipId], map: "item_assignees_membership_id_idx")
+  @@map("item_assignees")
+}
 
-  @@unique([itemId, userId])
+model Label {
+  id         String      @id
+  value      String
+  ownerId    String?
+  groupId    String?
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @default(now())
+  owner      User?       @relation("PersonalLabelOwner", fields: [ownerId], references: [id], onDelete: Cascade)
+  group      Group?      @relation("GroupLabels", fields: [groupId], references: [id], onDelete: Cascade)
+  itemLabels ItemLabel[]
+
+  @@unique([ownerId, value], map: "labels_owner_id_value_key")
+  @@unique([groupId, value], map: "labels_group_id_value_key")
+  @@index([value], map: "labels_value_idx")
+  @@map("labels")
 }
 
 model ItemLabel {
-  id     String @id @default(cuid())
-  itemId String
-  value  String
+  itemId    String
+  labelId   String
+  createdAt DateTime @default(now())
+  item      Item     @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  label     Label    @relation(fields: [labelId], references: [id], onDelete: Cascade)
 
-  item Item @relation(fields: [itemId], references: [id], onDelete: Cascade)
-
-  @@unique([itemId, value])
+  @@id([itemId, labelId])
+  @@index([labelId], map: "item_labels_label_id_idx")
+  @@map("item_labels")
 }
 
-// ── Audit Log ─────────────────────────────────────────────────────────────────
-
 model GroupAuditEntry {
-  id           String   @id @default(cuid())
-  itemId       String
-  groupId      String
-  actorId      String
-  actorName    String?
-  actorEmail   String?
-  changes      Json
-  versionToken String
-  changedAt    DateTime
+  id               String             @id
+  groupId          String
+  itemId           String
+  actorUserId      String
+  actorDisplayName String?
+  actorEmail       String?
+  versionToken     Int
+  changedAt        DateTime
+  createdAt        DateTime           @default(now())
+  group            Group              @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  item             Item               @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  actor            User               @relation("GroupAuditActor", fields: [actorUserId], references: [id], onDelete: Restrict)
+  changes          GroupAuditChange[]
 
-  item Item @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  @@unique([itemId, versionToken], map: "group_audit_entries_item_id_version_token_key")
+  @@index([groupId, changedAt], map: "group_audit_entries_group_id_changed_at_idx")
+  @@index([itemId, changedAt], map: "group_audit_entries_item_id_changed_at_idx")
+  @@map("group_audit_entries")
+}
+
+model GroupAuditChange {
+  entryId            String
+  position           Int
+  kind               GroupAuditChangeKind
+  beforeStatus       ItemStatus?
+  afterStatus        ItemStatus?
+  beforePriority     Priority?
+  afterPriority      Priority?
+  beforeTitle        String?
+  afterTitle         String?
+  beforeAssigneeIds  String[]         @default([])
+  afterAssigneeIds   String[]         @default([])
+  beforeLabelValues  String[]         @default([])
+  afterLabelValues   String[]         @default([])
+  beforeTemporalKind ItemTemporalKind?
+  afterTemporalKind  ItemTemporalKind?
+  beforeStartAt      DateTime?
+  afterStartAt       DateTime?
+  beforeEndAt        DateTime?
+  afterEndAt         DateTime?
+  beforeDueAt        DateTime?
+  afterDueAt         DateTime?
+  beforeCompletedAt  DateTime?
+  afterCompletedAt   DateTime?
+  beforeIsCompleted  Boolean?
+  afterIsCompleted   Boolean?
+  beforeCanceledAt   DateTime?
+  afterCanceledAt    DateTime?
+  beforeIsCanceled   Boolean?
+  afterIsCanceled    Boolean?
+  entry              GroupAuditEntry  @relation(fields: [entryId], references: [id], onDelete: Cascade)
+
+  @@id([entryId, position])
+  @@index([kind], map: "group_audit_changes_kind_idx")
+  @@map("group_audit_changes")
 }

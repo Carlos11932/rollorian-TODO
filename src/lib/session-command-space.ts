@@ -83,7 +83,7 @@ export async function buildGroupActorAndSpace(
     }),
   );
 
-  const dbMemberships = await prisma.groupMembership.findMany({
+  const dbMemberships = await prisma.membership.findMany({
     where: { groupId: groupId as string, isActive: true },
     select: { id: true, userId: true, role: true },
   });

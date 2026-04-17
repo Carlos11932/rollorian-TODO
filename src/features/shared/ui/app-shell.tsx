@@ -28,7 +28,7 @@ export async function AppShell({ children }: AppShellProps) {
   // Fetch real groups in production; dev uses the dialog's built-in mock options
   let groups: GroupDto[] = [];
   if (!IS_DEV && session?.user?.id) {
-    const memberships = await prisma.groupMembership.findMany({
+    const memberships = await prisma.membership.findMany({
       where: { userId: session.user.id, isActive: true },
       include: { group: { select: { id: true, name: true } } },
     });

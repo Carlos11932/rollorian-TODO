@@ -62,7 +62,7 @@ export type SpaceTarget = 'personal' | string;
 
 // ── Dev-only command space resolver (uses seeded mock data) ────────────────────
 
-function resolveDevCommandSpace(spaceTarget: SpaceTarget): ItemCommandSpace {
+async function resolveDevCommandSpace(spaceTarget: SpaceTarget): Promise<ItemCommandSpace> {
   if (spaceTarget === 'personal') return MOCK_PERSONAL_COMMAND_SPACE;
 
   const groupId =
@@ -77,7 +77,7 @@ function resolveDevCommandSpace(spaceTarget: SpaceTarget): ItemCommandSpace {
 
 async function resolveActorAndSpace(spaceTarget: SpaceTarget = 'personal') {
   if (IS_DEV) {
-    return { actor: MOCK_ACTOR, space: resolveDevCommandSpace(spaceTarget), actorUserId: MOCK_USER_ID };
+    return { actor: MOCK_ACTOR, space: await resolveDevCommandSpace(spaceTarget), actorUserId: MOCK_USER_ID };
   }
 
   if (spaceTarget === 'personal') {
@@ -101,7 +101,11 @@ export async function createItemAction(
   input: CreateItemInput,
 ): Promise<ActionResult<ItemView>> {
   const resolved = IS_DEV
-    ? { actor: MOCK_ACTOR, space: resolveDevCommandSpace(input.spaceTarget ?? 'personal'), actorUserId: MOCK_USER_ID }
+    ? {
+        actor: MOCK_ACTOR,
+        actorUserId: MOCK_USER_ID,
+        space: await resolveDevCommandSpace(input.spaceTarget ?? 'personal'),
+      }
     : await resolveActorAndSpace(input.spaceTarget ?? 'personal');
   const { actor, space, actorUserId } = resolved;
 
