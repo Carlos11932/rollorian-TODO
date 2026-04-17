@@ -62,7 +62,7 @@ function createAuditEntryAggregate(
 ): PrismaGroupAuditEntryAggregate {
   return {
     actor: {
-      displayName: "Fallback Name",
+      name: "Fallback Name",
       email: "fallback@example.com",
       id: "user-1",
     },

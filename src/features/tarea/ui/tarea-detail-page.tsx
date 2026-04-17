@@ -4,15 +4,18 @@ import { useRef, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { MetadataPanel } from '../components/metadata-panel';
 import { TaskHistorySection } from '../components/task-history-section';
-import { MOCK_HISTORY, MOCK_USERS } from '@/lib/mock/data';
-import type { MockItem, ItemStatus } from '@/lib/mock/types';
+import { MOCK_USERS } from '@/dev-data/data';
+import type { MockItem, ItemStatus } from '@/dev-data/types';
 import type { ItemView, TaskItemView } from '@/interfaces/views/item-view';
+import type { HistoryEntryDto, GroupMemberDto } from '@/interfaces/ui/history-entry-dto';
 import { cn } from '@/lib/cn';
 import { deleteItemAction } from '@/features/shared/actions/item-actions';
 
 interface TareaDetailPageProps {
   id: string;
   item: ItemView;
+  history: HistoryEntryDto[];
+  groupMembers: GroupMemberDto[];
 }
 
 function itemViewToMockItem(view: ItemView): MockItem {
@@ -44,7 +47,7 @@ function itemViewToMockItem(view: ItemView): MockItem {
   };
 }
 
-export function TareaDetailPage({ id, item: itemView }: TareaDetailPageProps) {
+export function TareaDetailPage({ id, item: itemView, history, groupMembers }: TareaDetailPageProps) {
   const router = useRouter();
   const mockItem = itemViewToMockItem(itemView);
 
@@ -209,12 +212,12 @@ export function TareaDetailPage({ id, item: itemView }: TareaDetailPageProps) {
           </div>
 
           {/* History */}
-          <TaskHistorySection entries={MOCK_HISTORY} />
+          <TaskHistorySection entries={history} />
         </div>
 
         {/* Right: metadata */}
         <div className="min-h-0">
-          <MetadataPanel item={mockItem} />
+          <MetadataPanel item={mockItem} groupMembers={groupMembers.length > 0 ? groupMembers : undefined} />
         </div>
       </div>
     </div>

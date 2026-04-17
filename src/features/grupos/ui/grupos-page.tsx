@@ -3,15 +3,20 @@
 import { useState } from 'react';
 import { GroupTaskList } from '../components/group-task-list';
 import { ChangeHistoryPanel } from '../components/change-history-panel';
-import { GROUP_ITEMS, MOCK_HISTORY, MOCK_USERS } from '@/lib/mock/data';
-import { MOCK_GROUPS } from '@/lib/mock/data';
+import { MOCK_HISTORY, MOCK_USERS } from '@/dev-data/data';
+import { MOCK_GROUPS } from '@/dev-data/data';
+import type { ItemCardDto } from '@/interfaces/ui/item-card-dto';
 
 const ACTIVE_GROUP = MOCK_GROUPS[0]!;
 
-export function GruposPage() {
-  const defaultItem = GROUP_ITEMS[1] ?? GROUP_ITEMS[0];
+interface GruposPageProps {
+  items: ItemCardDto[];
+}
+
+export function GruposPage({ items }: GruposPageProps) {
+  const defaultItem = items[1] ?? items[0];
   const [selectedId, setSelectedId] = useState<string>(defaultItem?.id ?? '');
-  const selectedItem = GROUP_ITEMS.find((i) => i.id === selectedId) ?? defaultItem;
+  const selectedItem = items.find((i) => i.id === selectedId) ?? defaultItem;
 
   return (
     <div className="flex flex-col h-[calc(100vh-4rem)] px-5 pt-4 pb-4 gap-4 overflow-hidden">
@@ -21,7 +26,7 @@ export function GruposPage() {
           <span className="material-symbols-outlined text-sm text-primary">group</span>
           <h2 className="text-sm font-bold text-on-surface">{ACTIVE_GROUP.name}</h2>
           <span className="text-[10px] text-on-surface-variant/40 uppercase tracking-widest">
-            {GROUP_ITEMS.length} tareas
+            {items.length} tareas
           </span>
         </div>
 
@@ -49,7 +54,7 @@ export function GruposPage() {
       <div className="flex-1 grid grid-cols-1 xl:grid-cols-3 gap-4 min-h-0">
         <div className="xl:col-span-2 min-h-0">
           <GroupTaskList
-            items={GROUP_ITEMS}
+            items={items}
             selectedId={selectedId}
             onSelect={setSelectedId}
           />

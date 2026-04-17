@@ -82,7 +82,7 @@ describe("PrismaItemViewRepository", () => {
             },
             membershipId: "membership-alpha-user-2",
             user: {
-              displayName: "User 2",
+              name: "User 2",
               email: "user-2@example.com",
               id: "user-2",
             },

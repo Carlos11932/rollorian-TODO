@@ -84,8 +84,14 @@ import {
 } from "@/lib/item-command-factory";
 import {
   resolveMockActor,
-} from "@/lib/mock/actor";
-import { createScopeMismatchError, type CommandFailure, type ItemCommandError, type ItemCommandSpace, type ItemOutput } from "@/application/commands";
+} from "@/dev-data/actor";
+import {
+  createScopeMismatchError,
+  type CommandFailure,
+  type ItemCommandError,
+  type ItemCommandSpace,
+  type ItemOutput,
+} from "@/application/commands";
 import { type ItemViewRecord, VIEW_SPACE_FILTER } from "@/application/queries/views";
 
 function getCommandErrorStatus(error: ItemCommandError): number {

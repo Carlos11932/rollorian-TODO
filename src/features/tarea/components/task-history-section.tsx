@@ -1,4 +1,4 @@
-import type { MockHistoryEntry } from '@/lib/mock/types';
+import type { HistoryEntryDto } from '@/interfaces/ui/history-entry-dto';
 import { cn } from '@/lib/cn';
 
 const ICON_BG: Record<string, string> = {
@@ -14,10 +14,21 @@ const ICON_COLOR: Record<string, string> = {
 };
 
 interface TaskHistorySectionProps {
-  entries: MockHistoryEntry[];
+  entries: HistoryEntryDto[];
 }
 
 export function TaskHistorySection({ entries }: TaskHistorySectionProps) {
+  if (entries.length === 0) {
+    return (
+      <section className="bg-surface-container-low rounded-xl p-4 shrink-0">
+        <h2 className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant mb-3">
+          Historial
+        </h2>
+        <p className="text-xs text-on-surface-variant/60">Sin cambios registrados aún.</p>
+      </section>
+    );
+  }
+
   return (
     <section className="bg-surface-container-low rounded-xl p-4 shrink-0">
       <h2 className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant mb-3">

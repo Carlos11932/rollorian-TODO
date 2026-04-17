@@ -55,7 +55,7 @@ function createMembershipAggregate(
     role: overrides.role ?? "member",
     updatedAt: new Date("2026-04-15T08:00:00.000Z"),
     user: {
-      displayName: `User ${userId}`,
+      name: `User ${userId}`,
       email: `${userId}@example.com`,
       id: userId,
     },
@@ -70,7 +70,7 @@ describe("PrismaMembershipResolver", () => {
     const resolver = new PrismaMembershipResolver(client as unknown as PrismaClient);
 
     client.user.findUnique.mockResolvedValue({
-      displayName: "Curator",
+      name: "Curator",
       email: "curator@example.com",
       id: "user-1",
     });
@@ -79,7 +79,7 @@ describe("PrismaMembershipResolver", () => {
 
     expect(client.user.findUnique).toHaveBeenCalledWith({
       select: {
-        displayName: true,
+        name: true,
         email: true,
         id: true,
       },

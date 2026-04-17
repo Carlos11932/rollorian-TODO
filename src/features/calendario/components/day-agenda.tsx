@@ -2,11 +2,12 @@
 
 import Link from 'next/link';
 import { cn } from '@/lib/cn';
-import type { MockItem } from '@/lib/mock/types';
+import { DateUtils } from '@/lib/date-utils';
+import type { ItemCardDto } from '@/interfaces/ui/item-card-dto';
 
 interface DayAgendaProps {
   dateLabel: string;
-  items: MockItem[];
+  items: ItemCardDto[];
 }
 
 export function DayAgenda({ dateLabel, items }: DayAgendaProps) {
@@ -52,18 +53,21 @@ export function DayAgenda({ dateLabel, items }: DayAgendaProps) {
                 >
                   {item.itemType === 'event' ? 'Evento' : 'Tarea'}
                 </span>
-                {item.time && (
-                  <span className="text-xs text-on-surface-variant/60 ml-auto">{item.time}</span>
-                )}
                 <span className="material-symbols-outlined text-sm text-on-surface-variant/20 ml-auto group-hover:text-on-surface-variant/50 transition-colors">
                   chevron_right
                 </span>
               </div>
 
               <p className="text-sm font-semibold text-on-surface group-hover:text-primary transition-colors leading-snug">{item.title}</p>
-              {item.location && (
-                <p className="text-xs text-on-surface-variant/60 mt-0.5">{item.location}</p>
-              )}
+              {item.dueDate && item.dueDateRaw && (() => {
+                const semantic = DateUtils.dueSemantic(new Date(item.dueDateRaw));
+                const dateColor =
+                  semantic === 'overdue'  ? 'text-error' :
+                  semantic === 'today'    ? 'text-[color:var(--color-success,#1e8a44)]' :
+                  semantic === 'tomorrow' ? 'text-[color:var(--color-warning,#b45309)]' :
+                                            'text-on-surface-variant/60';
+                return <p className={cn('text-xs mt-0.5', dateColor)}>{item.dueDate}</p>;
+              })()}
             </Link>
           ))
         )}

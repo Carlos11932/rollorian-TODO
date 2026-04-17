@@ -1,7 +1,7 @@
 /**
  * Command + Query handler factory — single DI injection point.
  *
- * Production runtime now composes Prisma-backed repositories here.
+ * Production runtime composes Prisma-backed repositories here.
  * The legacy in-memory runtime store stays exported only for test/fallback compatibility.
  */
 import type { PrismaClient } from "@prisma/client";
@@ -13,28 +13,32 @@ import {
   UpdateItemCommandHandler,
   toItemOutput,
   type ItemOutput,
-} from '@/application/commands';
+} from "@/application/commands";
+import type { GroupItemAuditEntry } from "@/domain/history";
 import {
   GetCalendarViewQueryHandler,
   GetGroupViewQueryHandler,
   GetMyViewQueryHandler,
   GetRequiresAttentionViewQueryHandler,
   GetUndatedViewQueryHandler,
-} from '@/application/queries/views';
-import { createItemId } from '@/domain/shared';
+} from "@/application/queries/views";
+import { createItemId } from "@/domain/shared";
 import {
   PrismaGroupItemHistoryRepository,
   PrismaItemCommandRepository,
   PrismaItemViewRepository,
   PrismaMembershipResolver,
-} from '@/interfaces/persistence/prisma';
-import { seedDevItems } from '@/lib/mock/seed';
-import { prisma } from '@/lib/prisma';
-import { runtimeStore } from '@/lib/runtime-store';
+} from "@/interfaces/persistence/prisma";
+import { prisma } from "@/lib/prisma";
+import { runtimeStore } from "@/lib/runtime-store";
+import { seedDevItems } from "@/dev-data/seed";
+
+const IS_DEV = process.env.NODE_ENV !== "production";
 
 type PrismaRuntimeClient = Pick<
   PrismaClient,
   | "$transaction"
+  | "account"
   | "group"
   | "groupAuditEntry"
   | "item"
@@ -42,7 +46,9 @@ type PrismaRuntimeClient = Pick<
   | "itemLabel"
   | "label"
   | "membership"
+  | "session"
   | "user"
+  | "verificationToken"
 >;
 
 export interface ProductionItemRuntime {
@@ -61,6 +67,7 @@ export interface ProductionItemRuntime {
   getAttentionViewHandler: GetRequiresAttentionViewQueryHandler;
   findItemById(id: string): Promise<ItemOutput | null>;
   removeItem(id: string): Promise<void>;
+  getHistoryEntries(id: string): Promise<readonly GroupItemAuditEntry[]>;
 }
 
 export function createProductionItemRuntime(
@@ -96,6 +103,9 @@ export function createProductionItemRuntime(
         where: { id: createItemId(id) },
       });
     },
+    async getHistoryEntries(id: string): Promise<readonly GroupItemAuditEntry[]> {
+      return historyRepository.listByItemId(createItemId(id));
+    },
   };
 }
 
@@ -122,7 +132,10 @@ export const getRequiresAttentionHandler = getAttentionViewHandler;
 let seeded = false;
 
 export async function ensureDevSeed(): Promise<void> {
-  if (seeded) return;
+  if (!IS_DEV || seeded) {
+    return;
+  }
+
   seeded = true;
   await seedDevItems(createItemHandler);
 }
@@ -133,6 +146,10 @@ export async function findItemById(id: string): Promise<ItemOutput | null> {
 
 export async function removeItem(id: string): Promise<void> {
   await productionItemRuntime.removeItem(id);
+}
+
+export async function getHistoryEntries(id: string): Promise<readonly GroupItemAuditEntry[]> {
+  return productionItemRuntime.getHistoryEntries(id);
 }
 
 // Legacy export kept for test/fallback compatibility only.

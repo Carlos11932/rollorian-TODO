@@ -61,7 +61,7 @@ function mapPrismaUserIdentityRowToAuthorizationActor(
 ): AuthorizationActor {
   return createAuthorizationActor(
     createUserIdentity({
-      displayName: row.displayName,
+      displayName: row.name,
       email: row.email,
       id: createUserId(row.id),
     }),

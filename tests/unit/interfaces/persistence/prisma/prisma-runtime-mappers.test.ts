@@ -27,7 +27,7 @@ function createTaskAggregate(overrides: Partial<PrismaItemAggregate> = {}): Pris
         },
         membershipId: "membership-1",
         user: {
-          displayName: "Alex",
+          name: "Alex",
           email: "alex@example.com",
           id: "user-2",
         },
@@ -77,7 +77,7 @@ function createTaskAggregate(overrides: Partial<PrismaItemAggregate> = {}): Pris
 function createAuditEntryAggregate(): PrismaGroupAuditEntryAggregate {
   return {
     actor: {
-      displayName: "Fallback Name",
+      name: "Fallback Name",
       email: "fallback@example.com",
       id: "user-1",
     },

@@ -7,6 +7,7 @@ import { createItemAction } from '../actions/item-actions';
 import type { SpaceTarget } from '../actions/item-actions';
 import type { ItemType } from '@/domain/shared/item-type';
 import type { Priority } from '@/domain/shared/priority';
+import type { GroupDto } from '@/interfaces/ui/history-entry-dto';
 
 const TYPE_OPTIONS: { value: ItemType; label: string; icon: string }[] = [
   { value: 'task', label: 'Tarea', icon: 'check_circle' },
@@ -20,13 +21,18 @@ const PRIORITY_OPTIONS: { value: Priority; label: string; color: string }[] = [
   { value: 'urgent', label: 'Crítica', color: 'text-error' },
 ];
 
-const SPACE_OPTIONS: { value: SpaceTarget; label: string; icon: string }[] = [
+// Dev fallback options — only used when no real groups are passed
+const DEV_SPACE_OPTIONS: { value: SpaceTarget; label: string; icon: string }[] = [
   { value: 'personal', label: 'Mi Vista', icon: 'person' },
   { value: 'group-1', label: 'Equipo Alpha', icon: 'group' },
   { value: 'group-2', label: 'Producto', icon: 'group' },
 ];
 
-export function QuickCaptureDialog() {
+interface QuickCaptureDialogProps {
+  groups?: GroupDto[];
+}
+
+export function QuickCaptureDialog({ groups = [] }: QuickCaptureDialogProps) {
   const { isOpen, close } = useQuickCapture();
   const [title, setTitle] = useState('');
   const [itemType, setItemType] = useState<ItemType>('task');
@@ -131,7 +137,13 @@ export function QuickCaptureDialog() {
               Dónde
             </p>
             <div className="flex items-center gap-1.5 flex-wrap">
-              {SPACE_OPTIONS.map((opt) => (
+              {(groups.length > 0
+                ? [
+                    { value: 'personal' as SpaceTarget, label: 'Mi Vista', icon: 'person' },
+                    ...groups.map((g) => ({ value: g.id as SpaceTarget, label: g.name, icon: 'group' })),
+                  ]
+                : DEV_SPACE_OPTIONS
+              ).map((opt) => (
                 <button
                   key={opt.value}
                   type="button"
