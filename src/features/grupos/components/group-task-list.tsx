@@ -42,9 +42,9 @@ interface GroupTaskListProps {
 
 export function GroupTaskList({ items, selectedId, onSelect }: GroupTaskListProps) {
   return (
-    <div className="flex flex-col h-full bg-surface-container-low rounded-xl overflow-hidden">
+    <div className="flex flex-col h-full bg-[rgba(255,255,255,0.02)] rounded-lg border border-[rgba(255,255,255,0.05)] overflow-hidden">
       {/* Table header */}
-      <div className="grid grid-cols-12 px-4 py-2.5 text-[10px] font-bold uppercase tracking-[0.15em] text-on-surface-variant/50 border-b border-outline-variant/10 shrink-0">
+      <div className="grid grid-cols-12 px-4 py-2.5 text-[10px] font-medium uppercase tracking-[0.15em] text-on-surface-variant/40 border-b border-[rgba(255,255,255,0.05)] shrink-0">
         <div className="col-span-6">Tarea</div>
         <div className="col-span-2 text-center">Asignado</div>
         <div className="col-span-2 text-center">Prioridad</div>
@@ -52,7 +52,7 @@ export function GroupTaskList({ items, selectedId, onSelect }: GroupTaskListProp
       </div>
 
       {/* Rows — scrollable */}
-      <div className="flex-1 overflow-y-auto hide-scrollbar divide-y divide-outline-variant/10">
+      <div className="flex-1 overflow-y-auto hide-scrollbar divide-y divide-[rgba(255,255,255,0.05)]">
         {items.length === 0 ? (
           <EmptyState
             icon="group"
@@ -73,8 +73,8 @@ export function GroupTaskList({ items, selectedId, onSelect }: GroupTaskListProp
                 className={cn(
                   'grid grid-cols-12 items-center px-4 py-2.5 cursor-pointer transition-colors',
                   isSelected
-                    ? 'bg-surface-container-highest'
-                    : 'hover:bg-surface-container-highest/50'
+                    ? 'bg-[rgba(255,255,255,0.05)]'
+                    : 'hover:bg-[rgba(255,255,255,0.03)]'
                 )}
               >
                 {/* Title */}
@@ -98,8 +98,8 @@ export function GroupTaskList({ items, selectedId, onSelect }: GroupTaskListProp
                 <div className="col-span-2 flex justify-center">
                   {item.assignee ? (
                     <div
-                      className="w-6 h-6 rounded-full flex items-center justify-center text-[9px] font-bold text-on-surface"
-                      style={{ backgroundColor: item.assignee.avatarColor ?? '#004f34' }}
+                      className="w-6 h-6 rounded-full flex items-center justify-center text-[9px] font-medium text-on-surface"
+                      style={{ backgroundColor: item.assignee.avatarColor ?? '#064e3b' }}
                       title={item.assignee.name}
                     >
                       {item.assignee.initials}
@@ -113,14 +113,14 @@ export function GroupTaskList({ items, selectedId, onSelect }: GroupTaskListProp
 
                 {/* Priority */}
                 <div className="col-span-2 flex justify-center">
-                  <span className={cn('px-2 py-0.5 rounded text-[10px] font-bold uppercase', priority.className)}>
+                  <span className={cn('px-2 py-0.5 rounded-full text-[10px] font-medium uppercase', priority.className)}>
                     {priority.label}
                   </span>
                 </div>
 
                 {/* Status */}
                 <div className="col-span-2 flex items-center justify-end gap-1.5">
-                  <span className={cn('flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold uppercase', status.className)}>
+                  <span className={cn('flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium uppercase', status.className)}>
                     <span className="material-symbols-outlined text-[11px]">{status.icon}</span>
                     {status.label}
                   </span>
