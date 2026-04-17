@@ -12,11 +12,11 @@ interface DayAgendaProps {
 
 export function DayAgenda({ dateLabel, items }: DayAgendaProps) {
   return (
-    <div className="bg-surface-container-low rounded-xl overflow-hidden flex flex-col h-full border border-outline-variant/10">
+    <div className="bg-[rgba(255,255,255,0.02)] rounded-lg overflow-hidden flex flex-col h-full border border-[rgba(255,255,255,0.05)]">
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3 border-b border-outline-variant/10 shrink-0">
+      <div className="flex items-center justify-between px-4 py-3 border-b border-[rgba(255,255,255,0.05)] shrink-0">
         <div>
-          <p className="text-sm font-bold text-on-surface">{dateLabel}</p>
+          <p className="text-sm font-semibold text-on-surface">{dateLabel}</p>
           <p className="text-xs text-on-surface-variant/60">
             {items.length} {items.length === 1 ? 'entrada' : 'entradas'}
           </p>
@@ -25,7 +25,7 @@ export function DayAgenda({ dateLabel, items }: DayAgendaProps) {
       </div>
 
       {/* Items */}
-      <div className="flex-1 overflow-y-auto divide-y divide-outline-variant/10 hide-scrollbar">
+      <div className="flex-1 overflow-y-auto divide-y divide-[rgba(255,255,255,0.05)] hide-scrollbar">
         {items.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full gap-2 text-on-surface-variant/40 px-4 py-8">
             <span className="material-symbols-outlined text-2xl">event_available</span>
@@ -36,7 +36,7 @@ export function DayAgenda({ dateLabel, items }: DayAgendaProps) {
             <Link
               key={item.id}
               href={`/tareas/${item.id}`}
-              className="block px-4 py-3 hover:bg-surface-container-highest/40 transition-colors group"
+              className="block px-4 py-3 hover:bg-[rgba(255,255,255,0.03)] transition-colors group"
             >
               <div className="flex items-center gap-2 mb-1.5">
                 <div
@@ -47,7 +47,7 @@ export function DayAgenda({ dateLabel, items }: DayAgendaProps) {
                 />
                 <span
                   className={cn(
-                    'text-[11px] font-bold uppercase tracking-wide',
+                    'text-[11px] font-medium uppercase tracking-wide',
                     item.itemType === 'event' ? 'text-secondary' : 'text-primary'
                   )}
                 >
