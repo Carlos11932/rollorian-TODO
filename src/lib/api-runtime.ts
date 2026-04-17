@@ -79,7 +79,6 @@ import {
   prismaItemViewRepository,
   prismaMembershipResolver,
   readItemByIdHandler,
-  runtimeStore,
   updateItemHandler,
 } from "@/lib/item-command-factory";
 import {
@@ -337,10 +336,6 @@ function isVisibleToActor(record: ItemViewRecord, actorUserId: string, visibleGr
       record.item.groupId !== null &&
       visibleGroupIds.includes(record.item.groupId))
   );
-}
-
-export function resetRuntimeStore(): void {
-  runtimeStore.reset();
 }
 
 export async function createItem(request: Request, input: CreateItemRequest) {

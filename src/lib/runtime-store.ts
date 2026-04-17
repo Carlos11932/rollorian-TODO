@@ -1,3 +1,7 @@
+/**
+ * In-memory runtime storage for tests or controlled fallback scenarios only.
+ * Production runtime wiring must use Prisma-backed repositories instead.
+ */
 import { type AppendGroupItemAuditEntryRepository } from "@/application/history";
 import {
   toItemOutput,
@@ -73,4 +77,6 @@ export class InMemoryRuntimeStore
   }
 }
 
-export const runtimeStore = new InMemoryRuntimeStore();
+export function createInMemoryRuntimeStore(): InMemoryRuntimeStore {
+  return new InMemoryRuntimeStore();
+}
