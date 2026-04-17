@@ -7,7 +7,7 @@ export function GoogleSignInButton() {
     <button
       type="button"
       onClick={() => void signIn('google', { redirectTo: '/' })}
-      className="w-full flex items-center justify-center gap-3 bg-surface-container-highest hover:bg-surface-container-high text-on-surface font-semibold text-sm py-3 px-4 rounded-xl transition-colors border border-outline-variant/20"
+      className="w-full flex items-center justify-center gap-3 bg-[rgba(255,255,255,0.04)] hover:bg-[rgba(255,255,255,0.06)] text-on-surface font-medium text-sm py-3 px-4 rounded-md transition-colors border border-[rgba(255,255,255,0.08)]"
     >
       <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true">
         <path
