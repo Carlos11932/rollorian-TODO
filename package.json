@@ -15,8 +15,8 @@
     "prisma:seed": "tsx prisma/seed.ts",
     "db:push": "prisma db push",
     "test": "vitest",
-    "test:run": "vitest run",
-    "test:coverage": "vitest run --coverage",
+    "test:run": "vitest run --maxWorkers 1",
+    "test:coverage": "vitest run --coverage --maxWorkers 1",
     "test:e2e": "playwright test"
   },
   "prisma": {

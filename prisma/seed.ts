@@ -21,6 +21,8 @@ function createPrismaClient() {
   return new PrismaClient();
 }
 
+type SeedClient = PrismaClient | Prisma.TransactionClient;
+
 const GROUP_SEED_DETAILS = {
   [MOCK_BOOTSTRAP_GROUP_IDS.ALPHA]: {
     name: "Archive Circle Alpha",
@@ -662,7 +664,7 @@ async function reseedItems(tx: TransactionClient) {
   });
 }
 
-export async function seedDatabase(client: PrismaClient) {
+export async function seedDatabase(client: SeedClient) {
   await client.$transaction(async (tx) => {
     await upsertUsers(tx);
     await upsertGroups(tx);
