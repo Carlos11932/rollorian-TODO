@@ -1,5 +1,6 @@
 import "server-only";
 
+import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "@prisma/client";
 
 const globalForPrisma = globalThis as typeof globalThis & {
@@ -10,6 +11,9 @@ const PRISMA_DATASOURCE_ENV_KEYS = [
   "DATABASE_URL_UNPOOLED",
   "DIRECT_URL",
   "DATABASE_URL",
+  "POSTGRES_PRISMA_URL",
+  "POSTGRES_URL_NON_POOLING",
+  "POSTGRES_URL",
 ] as const;
 
 function hasPrismaDatasourceUrl(): boolean {
@@ -21,7 +25,7 @@ function hasPrismaDatasourceUrl(): boolean {
 
 function createMissingDatasourceProxy(): PrismaClient {
   const message =
-    "Prisma runtime access requires DATABASE_URL, DIRECT_URL, or DATABASE_URL_UNPOOLED. The module was imported in an environment without datasource configuration.";
+    "Prisma runtime access requires DATABASE_URL, DATABASE_URL_UNPOOLED, DIRECT_URL, or POSTGRES_* datasource variables. The module was imported in an environment without datasource configuration.";
 
   return new Proxy({} as PrismaClient, {
     get() {
@@ -30,12 +34,27 @@ function createMissingDatasourceProxy(): PrismaClient {
   });
 }
 
+function resolveDatasourceUrl(): string | undefined {
+  return PRISMA_DATASOURCE_ENV_KEYS.reduce<string | undefined>((resolved, key) => {
+    if (resolved !== undefined) {
+      return resolved;
+    }
+
+    const value = process.env[key];
+    return typeof value === "string" && value.length > 0 ? value : undefined;
+  }, undefined);
+}
+
 function createPrismaClient(): PrismaClient {
-  if (!hasPrismaDatasourceUrl()) {
+  const datasourceUrl = resolveDatasourceUrl();
+
+  if (datasourceUrl === undefined) {
     return createMissingDatasourceProxy();
   }
 
-  return new PrismaClient();
+  return new PrismaClient({
+    adapter: new PrismaPg({ connectionString: datasourceUrl }),
+  });
 }
 
 export const prisma = globalForPrisma.prisma ?? createPrismaClient();
