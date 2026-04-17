@@ -26,5 +26,5 @@
 
 - [x] 4.1 Replace in-memory API harness coverage in `tests/integration/api/item-api-integration.test.ts` with Prisma-backed integration scenarios for CRUD, concurrency, non-member assignment rejection, label reuse, and persisted history.
 - [x] 4.2 Update `tests/integration/api/app-router-runtime.test.ts` to run App Router contract checks against seeded Prisma data, including restart-safe history and unassigned group visibility.
-- [ ] 4.3 Add mapper/repository tests under `tests/unit/` or `tests/integration/` for audit reconstruction, membership reachability across groups, and scoped-label normalization.
+- [x] 4.3 Add mapper/repository tests under `tests/unit/` or `tests/integration/` for audit reconstruction, membership reachability across groups, and scoped-label normalization.
 - [ ] 4.4 Demote `src/lib/runtime-store.ts` to test/fallback-only usage, keep `resetRuntimeStore()` isolated to non-production paths, and remove production exports that bypass Prisma.
