@@ -24,7 +24,7 @@ export function GruposPage({ items }: GruposPageProps) {
       <div className="flex items-center justify-between shrink-0">
         <div className="flex items-center gap-2">
           <span className="material-symbols-outlined text-sm text-primary">group</span>
-          <h2 className="text-sm font-bold text-on-surface">{ACTIVE_GROUP.name}</h2>
+          <h2 className="text-sm font-semibold text-on-surface">{ACTIVE_GROUP.name}</h2>
           <span className="text-[10px] text-on-surface-variant/40 uppercase tracking-widest">
             {items.length} tareas
           </span>
@@ -35,15 +35,15 @@ export function GruposPage({ items }: GruposPageProps) {
           {MOCK_USERS.slice(0, 4).map((user) => (
             <div
               key={user.id}
-              className="w-7 h-7 rounded-full border-2 border-surface flex items-center justify-center text-[10px] font-bold text-on-surface"
-              style={{ backgroundColor: user.avatarColor ?? '#004f34' }}
+              className="w-7 h-7 rounded-full border-2 border-surface flex items-center justify-center text-[10px] font-medium text-on-surface"
+              style={{ backgroundColor: user.avatarColor ?? '#064e3b' }}
               title={user.name}
             >
               {user.initials}
             </div>
           ))}
           {MOCK_USERS.length > 4 && (
-            <div className="w-7 h-7 rounded-full border-2 border-surface bg-surface-container-highest flex items-center justify-center text-[10px] font-bold text-primary">
+            <div className="w-7 h-7 rounded-full border-2 border-surface bg-[rgba(255,255,255,0.08)] flex items-center justify-center text-[10px] font-medium text-primary">
               +{MOCK_USERS.length - 4}
             </div>
           )}

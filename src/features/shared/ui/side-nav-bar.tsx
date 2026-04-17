@@ -39,7 +39,7 @@ function UserAvatar({ image, name }: { image: string | null; name: string | null
     .join('')
     .toUpperCase() ?? '?';
   return (
-    <div className="w-8 h-8 rounded-full bg-primary-container flex items-center justify-center text-[11px] font-bold text-primary">
+    <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-[11px] font-medium text-primary">
       {initials}
     </div>
   );
@@ -49,17 +49,17 @@ export function SideNavBar({ user }: SideNavBarProps) {
   const pathname = usePathname();
 
   return (
-    <aside className="fixed left-0 top-0 h-full w-64 hidden lg:flex flex-col py-6 px-4 gap-4 z-40 bg-surface-container-lowest shadow-[40px_0_40px_rgba(0,17,12,0.4)]">
+    <aside className="fixed left-0 top-0 h-full w-64 hidden lg:flex flex-col py-6 px-4 gap-4 z-40 bg-surface-container-low border-r border-outline-variant/60">
       {/* App branding */}
       <div className="flex items-center gap-3 px-2 mb-6">
-        <div className="w-10 h-10 bg-primary-container rounded-lg flex items-center justify-center shrink-0">
-          <span className="material-symbols-outlined text-primary">checklist</span>
+        <div className="w-9 h-9 bg-primary/10 rounded-md flex items-center justify-center shrink-0">
+          <span className="material-symbols-outlined text-primary text-xl">checklist</span>
         </div>
         <div>
-          <h2 className="text-lg font-black text-primary font-headline tracking-tighter leading-none">
+          <h2 className="text-base font-semibold text-on-surface font-headline tracking-tight leading-none">
             rollorian
           </h2>
-          <p className="text-[10px] uppercase tracking-widest text-on-surface-variant/60 mt-0.5">
+          <p className="text-[10px] uppercase tracking-widest text-on-surface-variant/50 mt-0.5">
             TODO
           </p>
         </div>
@@ -74,10 +74,10 @@ export function SideNavBar({ user }: SideNavBarProps) {
               key={href}
               href={href}
               className={cn(
-                'flex items-center gap-3 px-3 py-2.5 text-sm font-medium transition-all duration-200 rounded-lg',
+                'group/link flex items-center gap-3 px-3 py-2 text-sm font-medium transition-all duration-150 rounded-md',
                 isActive
-                  ? 'bg-surface-container-high text-primary'
-                  : 'text-on-surface/70 hover:bg-surface-container-high/50 hover:text-on-surface'
+                  ? 'bg-[rgba(255,255,255,0.05)] text-on-surface'
+                  : 'text-on-surface-variant hover:bg-[rgba(255,255,255,0.03)] hover:text-on-surface'
               )}
             >
               <span
@@ -98,17 +98,17 @@ export function SideNavBar({ user }: SideNavBarProps) {
 
       {/* User section */}
       {user && (
-        <div className="border-t border-outline-variant/10 pt-4 flex items-center gap-3 px-1">
+        <div className="border-t border-[rgba(255,255,255,0.05)] pt-4 flex items-center gap-3 px-1">
           <UserAvatar image={user.image} name={user.name} />
           <div className="flex-1 min-w-0">
-            <p className="text-xs font-semibold text-on-surface truncate">{user.name ?? user.email}</p>
-            <p className="text-[10px] text-on-surface-variant/50 truncate">{user.email}</p>
+            <p className="text-xs font-medium text-on-surface truncate">{user.name ?? user.email}</p>
+            <p className="text-[10px] text-on-surface-variant/40 truncate">{user.email}</p>
           </div>
           <button
             type="button"
             onClick={() => signOut({ callbackUrl: '/login' })}
             title="Cerrar sesión"
-            className="text-on-surface-variant/40 hover:text-error transition-colors shrink-0"
+            className="text-on-surface-variant/30 hover:text-error transition-colors shrink-0"
           >
             <span className="material-symbols-outlined text-sm">logout</span>
           </button>

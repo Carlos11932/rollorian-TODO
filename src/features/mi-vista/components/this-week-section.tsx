@@ -16,24 +16,24 @@ const PRIORITY_COLOR: Record<string, string> = {
 
 export function ThisWeekSection({ cards }: ThisWeekSectionProps) {
   return (
-    <div className="flex flex-col bg-surface-container-low rounded-xl overflow-hidden flex-1 min-h-0">
+    <div className="flex flex-col bg-[rgba(255,255,255,0.02)] rounded-lg border border-[rgba(255,255,255,0.05)] overflow-hidden flex-1 min-h-0">
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-2.5 border-b border-outline-variant/10 shrink-0">
+      <div className="flex items-center justify-between px-4 py-2.5 border-b border-[rgba(255,255,255,0.05)] shrink-0">
         <div className="flex items-center gap-2">
           <span className="material-symbols-outlined text-sm text-secondary">date_range</span>
-          <span className="text-xs font-bold uppercase tracking-widest text-on-surface-variant">
+          <span className="text-xs font-medium uppercase tracking-widest text-on-surface-variant/60">
             Esta Semana
           </span>
         </div>
       </div>
 
       {/* Compact list */}
-      <div className="divide-y divide-outline-variant/10 overflow-y-auto hide-scrollbar flex-1">
+      <div className="divide-y divide-[rgba(255,255,255,0.05)] overflow-y-auto hide-scrollbar flex-1">
         {cards.map(({ item, dayLabel }) => (
           <Link
             key={item.id}
             href={'/tareas/' + item.id}
-            className="flex items-center gap-3 px-4 py-2.5 hover:bg-surface-container-highest/40 transition-colors cursor-pointer group"
+            className="flex items-center gap-3 px-4 py-2.5 hover:bg-[rgba(255,255,255,0.03)] transition-colors cursor-pointer group"
           >
             {/* Day label — semantic color if due date available */}
             {(() => {
@@ -44,7 +44,7 @@ export function ThisWeekSection({ cards }: ThisWeekSectionProps) {
                 semantic === 'tomorrow' ? 'text-[color:var(--color-warning,#b45309)]' :
                                           'text-on-surface-variant/50';
               return (
-                <span className={cn('text-[10px] font-bold uppercase tracking-widest w-12 shrink-0', dayColor)}>
+                <span className={cn('text-[10px] font-medium uppercase tracking-widest w-12 shrink-0', dayColor)}>
                   {dayLabel}
                 </span>
               );

@@ -50,11 +50,11 @@ export function CalendarioPage({ days, monthLabel, todayDate, agendaItemsByDay }
     <div className="flex flex-col h-[calc(100vh-4rem)] px-5 pt-4 pb-4 gap-4 overflow-hidden">
       {/* Header */}
       <div className="flex items-center justify-between shrink-0">
-        <h2 className="text-sm font-bold text-on-surface">
+        <h2 className="text-sm font-semibold text-on-surface">
           {monthLabel}
         </h2>
 
-        <div className="flex items-center bg-surface-container-low p-0.5 rounded-lg border border-outline-variant/10">
+        <div className="flex items-center bg-[rgba(255,255,255,0.02)] p-0.5 rounded-md border border-[rgba(255,255,255,0.05)]">
           {FILTER_OPTIONS.map(({ value, label }) => (
             <button
               key={value}
@@ -62,7 +62,7 @@ export function CalendarioPage({ days, monthLabel, todayDate, agendaItemsByDay }
               onClick={() => setFilter(value)}
               className={
                 filter === value
-                  ? 'px-3 py-1 text-xs font-bold rounded-md bg-surface-container-highest text-primary transition-all'
+                  ? 'px-3 py-1 text-xs font-medium rounded-md bg-[rgba(255,255,255,0.05)] text-on-surface transition-all'
                   : 'px-3 py-1 text-xs font-medium text-on-surface-variant hover:text-on-surface transition-all'
               }
             >
