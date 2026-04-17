@@ -88,7 +88,9 @@ describe("Prisma persistence repositories (integration)", () => {
   });
 
   afterAll(async () => {
-    await prismaHarness.stop();
+    if (prismaHarness !== undefined) {
+      await prismaHarness.stop();
+    }
   }, 120_000);
 
   it("reconstructs persisted audit entries with ordered semantic changes", async () => {

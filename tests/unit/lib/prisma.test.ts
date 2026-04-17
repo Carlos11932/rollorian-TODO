@@ -6,6 +6,9 @@ const PRISMA_ENV_KEYS = [
   "DATABASE_URL_UNPOOLED",
   "DIRECT_URL",
   "DATABASE_URL",
+  "POSTGRES_PRISMA_URL",
+  "POSTGRES_URL_NON_POOLING",
+  "POSTGRES_URL",
 ] as const;
 
 async function importPrismaModule() {
@@ -37,7 +40,7 @@ describe("prisma runtime bootstrap", () => {
     const { prisma } = await importPrismaModule();
 
     expect(() => prisma.$transaction).toThrow(
-      /Prisma runtime access requires DATABASE_URL, DIRECT_URL, or DATABASE_URL_UNPOOLED/,
+      /Prisma runtime access requires DATABASE_URL, DATABASE_URL_UNPOOLED, DIRECT_URL, or POSTGRES_\* datasource variables/,
     );
   });
 });
