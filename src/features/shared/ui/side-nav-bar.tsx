@@ -25,6 +25,7 @@ interface SideNavBarUser {
 
 interface SideNavBarProps {
   user: SideNavBarUser | null;
+  isAdmin?: boolean;
 }
 
 function UserAvatar({ image, name }: { image: string | null; name: string | null }) {
@@ -45,7 +46,7 @@ function UserAvatar({ image, name }: { image: string | null; name: string | null
   );
 }
 
-export function SideNavBar({ user }: SideNavBarProps) {
+export function SideNavBar({ user, isAdmin }: SideNavBarProps) {
   const pathname = usePathname();
 
   return (
@@ -94,6 +95,33 @@ export function SideNavBar({ user }: SideNavBarProps) {
             </Link>
           );
         })}
+
+        {isAdmin && (
+          <>
+            <div className="my-1 border-t border-outline-variant/10" />
+            <Link
+              href="/admin"
+              className={cn(
+                'flex items-center gap-3 px-3 py-2.5 text-sm font-medium transition-all duration-200 rounded-lg',
+                pathname === '/admin'
+                  ? 'bg-surface-container-high text-primary'
+                  : 'text-on-surface/70 hover:bg-surface-container-high/50 hover:text-on-surface'
+              )}
+            >
+              <span
+                className="material-symbols-outlined"
+                style={
+                  pathname === '/admin'
+                    ? { fontVariationSettings: "'FILL' 1, 'wght' 300, 'GRAD' 0, 'opsz' 24" }
+                    : undefined
+                }
+              >
+                admin_panel_settings
+              </span>
+              Admin
+            </Link>
+          </>
+        )}
       </nav>
 
       {/* User section */}

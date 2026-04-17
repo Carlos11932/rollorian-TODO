@@ -38,7 +38,7 @@ export async function AppShell({ children }: AppShellProps) {
   return (
     <QuickCaptureProvider>
       {/* Fixed left sidebar — desktop only */}
-      <SideNavBar user={user} />
+      <SideNavBar user={user} isAdmin={session?.user?.role === 'SUPERADMIN'} />
 
       {/* Fixed top bar — offset by sidebar width on desktop */}
       <TopAppBar />
