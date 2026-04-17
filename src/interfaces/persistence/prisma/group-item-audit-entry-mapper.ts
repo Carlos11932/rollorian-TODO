@@ -120,7 +120,7 @@ export function mapPrismaGroupAuditEntryAggregateToGroupItemAuditEntry(
   return {
     actor: {
       actorId: createUserId(aggregate.actorUserId),
-      displayName: aggregate.actorDisplayName ?? aggregate.actor.displayName,
+      displayName: aggregate.actorDisplayName ?? aggregate.actor.name,
       email: aggregate.actorEmail ?? aggregate.actor.email,
     },
     changedAt: aggregate.changedAt,

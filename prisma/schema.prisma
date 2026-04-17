@@ -61,31 +61,75 @@ enum GroupAuditChangeKind {
 }
 
 model User {
-  id           String            @id
-  displayName  String?
-  email        String?           @unique
-  createdAt    DateTime          @default(now())
-  updatedAt    DateTime          @default(now())
-  personalSpace Space?           @relation("PersonalSpaceOwner")
-  ownedItems   Item[]            @relation("PersonalItemOwner")
-  memberships  Membership[]
-  assigneeLinks ItemAssignee[]   @relation("ItemAssigneeUser")
-  personalLabels Label[]         @relation("PersonalLabelOwner")
-  auditEntries GroupAuditEntry[] @relation("GroupAuditActor")
+  id            String            @id @default(cuid())
+  name          String?
+  email         String?           @unique
+  emailVerified DateTime?
+  image         String?
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @default(now())
+  personalSpace Space?            @relation("PersonalSpaceOwner")
+  ownedItems    Item[]            @relation("PersonalItemOwner")
+  memberships   Membership[]
+  assigneeLinks ItemAssignee[]    @relation("ItemAssigneeUser")
+  personalLabels Label[]          @relation("PersonalLabelOwner")
+  auditEntries  GroupAuditEntry[] @relation("GroupAuditActor")
+  accounts      Account[]
+  sessions      Session[]
 
   @@map("users")
 }
 
+model Account {
+  id                String @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verification_tokens")
+}
+
 model Group {
-  id          String            @id
-  name        String
-  slug        String?           @unique
-  createdAt   DateTime          @default(now())
-  updatedAt   DateTime          @default(now())
-  space       Space?            @relation("GroupSpace")
-  memberships Membership[]
-  items       Item[]            @relation("GroupItems")
-  labels      Label[]           @relation("GroupLabels")
+  id           String            @id
+  name         String
+  slug         String?           @unique
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @default(now())
+  space        Space?            @relation("GroupSpace")
+  memberships  Membership[]
+  items        Item[]            @relation("GroupItems")
+  labels       Label[]           @relation("GroupLabels")
   auditEntries GroupAuditEntry[]
 
   @@map("groups")
@@ -110,14 +154,14 @@ model Membership {
 }
 
 model Space {
-  id        String     @id
+  id        String   @id
   type      SpaceType
-  ownerId   String?    @unique(map: "spaces_owner_id_key")
-  groupId   String?    @unique(map: "spaces_group_id_key")
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @default(now())
-  owner     User?      @relation("PersonalSpaceOwner", fields: [ownerId], references: [id], onDelete: Cascade)
-  group     Group?     @relation("GroupSpace", fields: [groupId], references: [id], onDelete: Cascade)
+  ownerId   String?  @unique(map: "spaces_owner_id_key")
+  groupId   String?  @unique(map: "spaces_group_id_key")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+  owner     User?    @relation("PersonalSpaceOwner", fields: [ownerId], references: [id], onDelete: Cascade)
+  group     Group?   @relation("GroupSpace", fields: [groupId], references: [id], onDelete: Cascade)
   items     Item[]
 
   @@index([type], map: "spaces_type_idx")
@@ -125,14 +169,14 @@ model Space {
 }
 
 model Item {
-  id             String            @id
+  id             String           @id
   spaceId        String
   spaceType      SpaceType
   ownerId        String?
   groupId        String?
   itemType       ItemType
   status         ItemStatus
-  priority       Priority          @default(medium)
+  priority       Priority         @default(medium)
   title          String
   notes          String?
   temporalKind   ItemTemporalKind
@@ -142,13 +186,13 @@ model Item {
   postponedUntil DateTime?
   completedAt    DateTime?
   canceledAt     DateTime?
-  postponeCount  Int               @default(0)
-  versionToken   Int               @default(0)
-  createdAt      DateTime          @default(now())
-  updatedAt      DateTime          @default(now())
-  space          Space             @relation(fields: [spaceId], references: [id], onDelete: Restrict)
-  owner          User?             @relation("PersonalItemOwner", fields: [ownerId], references: [id], onDelete: Restrict)
-  group          Group?            @relation("GroupItems", fields: [groupId], references: [id], onDelete: Restrict)
+  postponeCount  Int              @default(0)
+  versionToken   Int              @default(0)
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @default(now())
+  space          Space            @relation(fields: [spaceId], references: [id], onDelete: Restrict)
+  owner          User?            @relation("PersonalItemOwner", fields: [ownerId], references: [id], onDelete: Restrict)
+  group          Group?           @relation("GroupItems", fields: [groupId], references: [id], onDelete: Restrict)
   assignees      ItemAssignee[]
   labels         ItemLabel[]
   auditEntries   GroupAuditEntry[]
@@ -206,19 +250,19 @@ model ItemLabel {
 }
 
 model GroupAuditEntry {
-  id           String             @id
-  groupId      String
-  itemId       String
-  actorUserId  String
+  id               String             @id
+  groupId          String
+  itemId           String
+  actorUserId      String
   actorDisplayName String?
-  actorEmail   String?
-  versionToken Int
-  changedAt    DateTime
-  createdAt    DateTime           @default(now())
-  group        Group              @relation(fields: [groupId], references: [id], onDelete: Cascade)
-  item         Item               @relation(fields: [itemId], references: [id], onDelete: Cascade)
-  actor        User               @relation("GroupAuditActor", fields: [actorUserId], references: [id], onDelete: Restrict)
-  changes      GroupAuditChange[]
+  actorEmail       String?
+  versionToken     Int
+  changedAt        DateTime
+  createdAt        DateTime           @default(now())
+  group            Group              @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  item             Item               @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  actor            User               @relation("GroupAuditActor", fields: [actorUserId], references: [id], onDelete: Restrict)
+  changes          GroupAuditChange[]
 
   @@unique([itemId, versionToken], map: "group_audit_entries_item_id_version_token_key")
   @@index([groupId, changedAt], map: "group_audit_entries_group_id_changed_at_idx")
@@ -227,36 +271,36 @@ model GroupAuditEntry {
 }
 
 model GroupAuditChange {
-  entryId             String
-  position            Int
-  kind                GroupAuditChangeKind
-  beforeStatus        ItemStatus?
-  afterStatus         ItemStatus?
-  beforePriority      Priority?
-  afterPriority       Priority?
-  beforeTitle         String?
-  afterTitle          String?
-  beforeAssigneeIds   String[]             @default([])
-  afterAssigneeIds    String[]             @default([])
-  beforeLabelValues   String[]             @default([])
-  afterLabelValues    String[]             @default([])
-  beforeTemporalKind  ItemTemporalKind?
-  afterTemporalKind   ItemTemporalKind?
-  beforeStartAt       DateTime?
-  afterStartAt        DateTime?
-  beforeEndAt         DateTime?
-  afterEndAt          DateTime?
-  beforeDueAt         DateTime?
-  afterDueAt          DateTime?
-  beforeCompletedAt   DateTime?
-  afterCompletedAt    DateTime?
-  beforeIsCompleted   Boolean?
-  afterIsCompleted    Boolean?
-  beforeCanceledAt    DateTime?
-  afterCanceledAt     DateTime?
-  beforeIsCanceled    Boolean?
-  afterIsCanceled     Boolean?
-  entry               GroupAuditEntry      @relation(fields: [entryId], references: [id], onDelete: Cascade)
+  entryId            String
+  position           Int
+  kind               GroupAuditChangeKind
+  beforeStatus       ItemStatus?
+  afterStatus        ItemStatus?
+  beforePriority     Priority?
+  afterPriority      Priority?
+  beforeTitle        String?
+  afterTitle         String?
+  beforeAssigneeIds  String[]         @default([])
+  afterAssigneeIds   String[]         @default([])
+  beforeLabelValues  String[]         @default([])
+  afterLabelValues   String[]         @default([])
+  beforeTemporalKind ItemTemporalKind?
+  afterTemporalKind  ItemTemporalKind?
+  beforeStartAt      DateTime?
+  afterStartAt       DateTime?
+  beforeEndAt        DateTime?
+  afterEndAt         DateTime?
+  beforeDueAt        DateTime?
+  afterDueAt         DateTime?
+  beforeCompletedAt  DateTime?
+  afterCompletedAt   DateTime?
+  beforeIsCompleted  Boolean?
+  afterIsCompleted   Boolean?
+  beforeCanceledAt   DateTime?
+  afterCanceledAt    DateTime?
+  beforeIsCanceled   Boolean?
+  afterIsCanceled    Boolean?
+  entry              GroupAuditEntry  @relation(fields: [entryId], references: [id], onDelete: Cascade)
 
   @@id([entryId, position])
   @@index([kind], map: "group_audit_changes_kind_idx")

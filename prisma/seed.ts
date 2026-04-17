@@ -15,7 +15,7 @@ import {
   MOCK_BOOTSTRAP_SPACE_IDS,
   MOCK_BOOTSTRAP_USER_IDS,
   MOCK_BOOTSTRAP_USERS,
-} from "../src/lib/mock/bootstrap";
+} from "../src/dev-data/bootstrap";
 
 function createPrismaClient() {
   return new PrismaClient();
@@ -380,19 +380,119 @@ async function upsertUsers(tx: TransactionClient) {
     await tx.user.upsert({
       create: {
         createdAt: DEFAULT_CREATED_AT,
-        displayName: user.displayName,
         email: user.email,
         id: user.id,
+        name: user.displayName,
         updatedAt: DEFAULT_UPDATED_AT,
       },
       update: {
-        displayName: user.displayName,
         email: user.email,
+        name: user.displayName,
         updatedAt: DEFAULT_UPDATED_AT,
       },
       where: { id: user.id },
     });
   }
+}
+
+async function provisionAuthGroupFromEnv(client: PrismaClient) {
+  const email1 = process.env["USER_1_EMAIL"];
+  const email2 = process.env["USER_2_EMAIL"];
+
+  if (!email1 || !email2) {
+    return;
+  }
+
+  const groupName = process.env["GROUP_NAME"] ?? "Familia";
+  const groupSlug = `group-${groupName.toLowerCase().replace(/\s+/g, "-")}`;
+  const groupSpaceId = `space-group-${groupSlug}`;
+  const ownerMembershipId = `membership-${groupSlug}-owner`;
+  const memberMembershipId = `membership-${groupSlug}-member`;
+
+  const [user1, user2] = await Promise.all([
+    client.user.findUnique({ where: { email: email1 } }),
+    client.user.findUnique({ where: { email: email2 } }),
+  ]);
+
+  if (!user1 || !user2) {
+    throw new Error(
+      `Seed provisioning requires both ${email1} and ${email2} to exist in users. Sign in first, then rerun prisma db seed.`,
+    );
+  }
+
+  await client.$transaction(async (tx) => {
+    const group = await tx.group.upsert({
+      create: {
+        createdAt: DEFAULT_CREATED_AT,
+        id: groupSlug,
+        name: groupName,
+        slug: groupSlug,
+        updatedAt: DEFAULT_UPDATED_AT,
+      },
+      update: {
+        name: groupName,
+        slug: groupSlug,
+        updatedAt: DEFAULT_UPDATED_AT,
+      },
+      where: { id: groupSlug },
+    });
+
+    await tx.space.upsert({
+      create: {
+        createdAt: DEFAULT_CREATED_AT,
+        groupId: group.id,
+        id: groupSpaceId,
+        type: "group",
+        updatedAt: DEFAULT_UPDATED_AT,
+      },
+      update: {
+        groupId: group.id,
+        type: "group",
+        updatedAt: DEFAULT_UPDATED_AT,
+      },
+      where: { id: groupSpaceId },
+    });
+
+    await tx.membership.upsert({
+      create: {
+        createdAt: DEFAULT_CREATED_AT,
+        groupId: group.id,
+        id: ownerMembershipId,
+        isActive: true,
+        role: "owner",
+        updatedAt: DEFAULT_UPDATED_AT,
+        userId: user1.id,
+      },
+      update: {
+        isActive: true,
+        role: "owner",
+        updatedAt: DEFAULT_UPDATED_AT,
+      },
+      where: { id: ownerMembershipId },
+    });
+
+    await tx.membership.upsert({
+      create: {
+        createdAt: DEFAULT_CREATED_AT,
+        groupId: group.id,
+        id: memberMembershipId,
+        isActive: true,
+        role: "member",
+        updatedAt: DEFAULT_UPDATED_AT,
+        userId: user2.id,
+      },
+      update: {
+        isActive: true,
+        role: "member",
+        updatedAt: DEFAULT_UPDATED_AT,
+      },
+      where: { id: memberMembershipId },
+    });
+  });
+
+  console.log(
+    `Provisioned auth-linked group \"${groupName}\" for ${user1.name ?? user1.email} and ${user2.name ?? user2.email}.`,
+  );
 }
 
 async function upsertGroups(tx: TransactionClient) {
@@ -578,6 +678,7 @@ async function main() {
 
   try {
     await seedDatabase(prisma);
+    await provisionAuthGroupFromEnv(prisma);
   } finally {
     await prisma.$disconnect();
   }

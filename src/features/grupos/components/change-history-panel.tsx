@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { cn } from '@/lib/cn';
-import type { MockHistoryEntry } from '@/lib/mock/types';
+import type { MockHistoryEntry } from '@/dev-data/types';
 
 const ICON_COLOR_CLASS: Record<string, string> = {
   primary: 'bg-primary',

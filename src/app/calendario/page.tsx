@@ -1,5 +1,5 @@
 import { CalendarioPage } from '@/features/calendario/ui/calendario-page';
-import { getCalendarMonthAction } from '@/features/shared/actions/view-actions';
+import { getCalendarMonthAction } from '@/features/calendario/actions/calendar-month-action';
 
 export default async function CalendarioRoute() {
   const calendarData = await getCalendarMonthAction();

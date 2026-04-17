@@ -1,15 +1,14 @@
 import { RequiresAttentionCard } from '../components/requires-attention-card';
 import { TodaySection } from '../components/today-section';
 import { ThisWeekSection } from '../components/this-week-section';
-import {
-  getTodayViewAction,
-  getRequiresAttentionAction,
-  getThisWeekAction,
-} from '@/features/shared/actions/view-actions';
+import { StatPill } from '@/features/shared/components/stat-pill';
+import { DateUtils } from '@/lib/date-utils';
+import { getTodayViewAction } from '../actions/today-view-action';
+import { getRequiresAttentionAction } from '../actions/requires-attention-action';
+import { getThisWeekAction } from '../actions/this-week-action';
 
 export async function MiVistaPage() {
-  const today = new Date();
-  const dateLabel = today.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' });
+  const dateLabel = DateUtils.formatLongDateLabel(new Date());
 
   const [todayResult, attentionResult, weekResult] = await Promise.all([
     getTodayViewAction(),
@@ -53,25 +52,5 @@ export async function MiVistaPage() {
         </div>
       </div>
     </div>
-  );
-}
-
-function StatPill({
-  icon,
-  value,
-  label,
-  color,
-}: {
-  icon: string;
-  value: number;
-  label: string;
-  color: string;
-}) {
-  return (
-    <span className={`flex items-center gap-1 text-xs ${color}`}>
-      <span className="material-symbols-outlined text-sm">{icon}</span>
-      <span className="font-bold">{value}</span>
-      <span className="text-on-surface-variant/50">{label}</span>
-    </span>
   );
 }

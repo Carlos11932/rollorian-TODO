@@ -3,29 +3,16 @@
 import { useMemo, useState } from 'react';
 import { CalendarGrid } from '../components/calendar-grid';
 import { DayAgenda } from '../components/day-agenda';
-import type { MockItem } from '@/lib/mock/types';
+import type { ItemCardDto } from '@/interfaces/ui/item-card-dto';
+import type { CalendarDayData } from '@/features/calendario/actions/calendar-month-action';
 
 type SpaceFilter = 'both' | 'personal' | 'group';
-
-export interface CalendarEventData {
-  id: string;
-  label: string;
-  type: 'task' | 'event';
-  spaceType: 'personal' | 'group';
-}
-
-export interface CalendarDayData {
-  date: number;
-  isCurrentMonth: boolean;
-  isToday?: boolean;
-  events: CalendarEventData[];
-}
 
 interface CalendarioPageProps {
   days: CalendarDayData[];
   monthLabel: string;
   todayDate: number;
-  agendaItemsByDay: Record<number, MockItem[]>;
+  agendaItemsByDay: Record<number, ItemCardDto[]>;
 }
 
 export function CalendarioPage({ days, monthLabel, todayDate, agendaItemsByDay }: CalendarioPageProps) {

@@ -133,7 +133,7 @@ function createItemAggregate(): PrismaItemAggregate {
         },
         membershipId: "membership-1",
         user: {
-          displayName: "Alex",
+          name: "Alex",
           email: "alex@example.com",
           id: "user-2",
         },

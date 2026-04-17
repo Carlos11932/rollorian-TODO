@@ -29,7 +29,7 @@ export const PRISMA_MEMBERSHIP_ORDER_BY: Prisma.MembershipOrderByWithRelationInp
 
 export const prismaUserIdentitySelect = {
   id: true,
-  displayName: true,
+  name: true,
   email: true,
 } as const satisfies Prisma.UserSelect;
 

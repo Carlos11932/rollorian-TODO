@@ -49,17 +49,17 @@ export type ItemView = TaskItemView | EventItemView;
 
 export function toItemView(output: ItemOutput): ItemView {
   const base: ItemViewBase = {
-    id: output.id as string,
+    id: output.id,
     title: output.title,
     notes: output.notes,
-    spaceId: output.spaceId as string,
+    spaceId: output.spaceId,
     spaceType: output.spaceType === SPACE_TYPE.PERSONAL ? 'personal' : 'group',
-    ownerId: output.ownerId as string | null,
-    groupId: output.groupId as string | null,
+    ownerId: output.ownerId,
+    groupId: output.groupId,
     priority: output.priority,
     postponeCount: output.postponeCount,
     status: output.status,
-    assigneeIds: [...output.assigneeIds] as string[],
+    assigneeIds: [...output.assigneeIds],
     labels: output.labels.map((l) => ({ value: l.value })),
     versionToken: String(output.versionToken),
     createdAt: output.createdAt.toISOString(),

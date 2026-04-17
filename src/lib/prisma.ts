@@ -11,6 +11,9 @@ const PRISMA_DATASOURCE_ENV_KEYS = [
   "DATABASE_URL_UNPOOLED",
   "DIRECT_URL",
   "DATABASE_URL",
+  "POSTGRES_PRISMA_URL",
+  "POSTGRES_URL_NON_POOLING",
+  "POSTGRES_URL",
 ] as const;
 
 const REQUIRED_POSTGRES_SEARCH_PARAMS = {
@@ -27,7 +30,7 @@ function hasPrismaDatasourceUrl(): boolean {
 
 function createMissingDatasourceProxy(): PrismaClient {
   const message =
-    "Prisma runtime access requires DATABASE_URL, DIRECT_URL, or DATABASE_URL_UNPOOLED. The module was imported in an environment without datasource configuration.";
+    "Prisma runtime access requires DATABASE_URL, DATABASE_URL_UNPOOLED, DIRECT_URL, or POSTGRES_* datasource variables. The module was imported in an environment without datasource configuration.";
 
   return new Proxy({} as PrismaClient, {
     get() {
@@ -36,30 +39,18 @@ function createMissingDatasourceProxy(): PrismaClient {
   });
 }
 
-function createPrismaClient(): PrismaClient {
-  if (!hasPrismaDatasourceUrl()) {
-    return createMissingDatasourceProxy();
-  }
-
-  const datasourceUrl = resolveDatasourceUrl();
-
-  return new PrismaClient({
-    adapter: new PrismaPg({ connectionString: datasourceUrl }),
-  });
-}
-
-function resolveDatasourceUrl(): string {
-  const datasourceUrl = PRISMA_DATASOURCE_ENV_KEYS.reduce<string | null>((resolved, key) => {
-    if (resolved !== null) {
+function resolveDatasourceUrl(): string | undefined {
+  const datasourceUrl = PRISMA_DATASOURCE_ENV_KEYS.reduce<string | undefined>((resolved, key) => {
+    if (resolved !== undefined) {
       return resolved;
     }
 
     const value = process.env[key];
-    return typeof value === "string" && value.length > 0 ? value : null;
-  }, null);
+    return typeof value === "string" && value.length > 0 ? value : undefined;
+  }, undefined);
 
-  if (datasourceUrl === null) {
-    throw new Error("Prisma datasource URL could not be resolved from environment.");
+  if (datasourceUrl === undefined) {
+    return undefined;
   }
 
   const normalizedUrl = new URL(datasourceUrl);
@@ -69,6 +60,18 @@ function resolveDatasourceUrl(): string {
   }
 
   return normalizedUrl.toString();
+}
+
+function createPrismaClient(): PrismaClient {
+  const datasourceUrl = resolveDatasourceUrl();
+
+  if (datasourceUrl === undefined) {
+    return createMissingDatasourceProxy();
+  }
+
+  return new PrismaClient({
+    adapter: new PrismaPg({ connectionString: datasourceUrl }),
+  });
 }
 
 export const prisma = globalForPrisma.prisma ?? createPrismaClient();

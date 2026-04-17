@@ -30,7 +30,7 @@ import {
   MOCK_PERSONAL_SPACE_ID,
   MOCK_TEAMMATE_USER_ID,
   MOCK_USER_ID,
-} from "@/lib/mock/actor";
+} from "@/dev-data/actor";
 
 function createRequest(url: string, init?: RequestInit, actorId = MOCK_USER_ID) {
   const headers = new Headers(init?.headers);

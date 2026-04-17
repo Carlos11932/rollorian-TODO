@@ -3,6 +3,8 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/cn';
+import { signOut } from 'next-auth/react';
+
 interface NavItem {
   href: string;
   icon: string;
@@ -15,7 +17,35 @@ const NAV_ITEMS: NavItem[] = [
   { href: '/calendario', icon: 'calendar_today', label: 'Calendario' },
 ];
 
-export function SideNavBar() {
+interface SideNavBarUser {
+  name: string | null;
+  email: string;
+  image: string | null;
+}
+
+interface SideNavBarProps {
+  user: SideNavBarUser | null;
+}
+
+function UserAvatar({ image, name }: { image: string | null; name: string | null }) {
+  if (image) {
+    // eslint-disable-next-line @next/next/no-img-element
+    return <img src={image} alt={name ?? ''} className="w-8 h-8 rounded-full object-cover" />;
+  }
+  const initials = name
+    ?.split(' ')
+    .map((n) => n[0])
+    .slice(0, 2)
+    .join('')
+    .toUpperCase() ?? '?';
+  return (
+    <div className="w-8 h-8 rounded-full bg-primary-container flex items-center justify-center text-[11px] font-bold text-primary">
+      {initials}
+    </div>
+  );
+}
+
+export function SideNavBar({ user }: SideNavBarProps) {
   const pathname = usePathname();
 
   return (
@@ -66,6 +96,24 @@ export function SideNavBar() {
         })}
       </nav>
 
+      {/* User section */}
+      {user && (
+        <div className="border-t border-outline-variant/10 pt-4 flex items-center gap-3 px-1">
+          <UserAvatar image={user.image} name={user.name} />
+          <div className="flex-1 min-w-0">
+            <p className="text-xs font-semibold text-on-surface truncate">{user.name ?? user.email}</p>
+            <p className="text-[10px] text-on-surface-variant/50 truncate">{user.email}</p>
+          </div>
+          <button
+            type="button"
+            onClick={() => signOut({ callbackUrl: '/login' })}
+            title="Cerrar sesión"
+            className="text-on-surface-variant/40 hover:text-error transition-colors shrink-0"
+          >
+            <span className="material-symbols-outlined text-sm">logout</span>
+          </button>
+        </div>
+      )}
     </aside>
   );
 }
