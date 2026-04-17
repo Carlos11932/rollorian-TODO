@@ -44,7 +44,7 @@ export async function AppShell({ children }: AppShellProps) {
       <TopAppBar />
 
       {/* Main canvas */}
-      <main className="lg:ml-64 pt-16 min-h-screen">{children}</main>
+      <main className="lg:ml-64 pt-14 min-h-screen">{children}</main>
 
       {/* Bottom nav — mobile only */}
       <MobileNav />

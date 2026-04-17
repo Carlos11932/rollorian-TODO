@@ -1,60 +1,71 @@
 @import "tailwindcss";
 
 @theme {
-  /* Colors — Evergreen Archive palette (Material You) */
-  --color-primary: #4edea3;
-  --color-primary-fixed: #6ffbbe;
-  --color-primary-fixed-dim: #4edea3;
-  --color-primary-container: #004f34;
-  --color-on-primary: #003824;
-  --color-on-primary-fixed: #002113;
-  --color-on-primary-fixed-variant: #005236;
-  --color-on-primary-container: #31c98f;
-  --color-inverse-primary: #006c49;
-  --color-surface-tint: #4edea3;
+  /* ──────────────────────────────────────────────────────
+     Rollorian TODO — Linear-inspired design tokens
+     See DESIGN.md for full spec and rationale.
+     ────────────────────────────────────────────────────── */
 
-  --color-secondary: #ffc640;
-  --color-secondary-fixed: #ffdf9f;
-  --color-secondary-fixed-dim: #f9bd22;
-  --color-secondary-container: #e3aa00;
-  --color-on-secondary: #402d00;
-  --color-on-secondary-fixed: #261a00;
-  --color-on-secondary-fixed-variant: #5c4300;
-  --color-on-secondary-container: #5a4100;
+  /* Background surfaces (luminance-based elevation) */
+  --color-surface: #0a0a0c;
+  --color-surface-dim: #08080a;
+  --color-surface-bright: #2c2c32;
+  --color-surface-variant: #1a1a1e;
+  --color-surface-container-lowest: #08080a;
+  --color-surface-container-low: #111114;
+  --color-surface-container: #1a1a1e;
+  --color-surface-container-high: #242429;
+  --color-surface-container-highest: #2c2c32;
+  --color-background: #0a0a0c;
 
-  --color-tertiary: #d1c79d;
-  --color-tertiary-fixed: #ede3b8;
-  --color-tertiary-fixed-dim: #d1c79d;
-  --color-tertiary-container: #b4ab84;
-  --color-on-tertiary: #363113;
-  --color-on-tertiary-fixed: #201c02;
-  --color-on-tertiary-fixed-variant: #4d4727;
-  --color-on-tertiary-container: #453f20;
+  /* Text on surfaces */
+  --color-on-surface: #f7f8f8;
+  --color-on-surface-variant: #b0b4bc;
+  --color-on-background: #f7f8f8;
+  --color-inverse-surface: #f7f8f8;
+  --color-inverse-on-surface: #0a0a0c;
 
-  --color-surface: #001711;
-  --color-surface-dim: #001711;
-  --color-surface-bright: #194035;
-  --color-surface-variant: #143b30;
-  --color-surface-container-lowest: #00110c;
-  --color-surface-container-low: #002018;
-  --color-surface-container: #00251c;
-  --color-surface-container-high: #073026;
-  --color-surface-container-highest: #143b30;
-  --color-on-surface: #c2ebdc;
-  --color-on-surface-variant: #bfc9c3;
-  --color-inverse-surface: #c2ebdc;
-  --color-inverse-on-surface: #0f372c;
+  /* Brand accent — emerald */
+  --color-primary: #34d399;
+  --color-primary-fixed: #6ee7b7;
+  --color-primary-fixed-dim: #34d399;
+  --color-primary-container: #064e3b;
+  --color-on-primary: #ffffff;
+  --color-on-primary-fixed: #022c22;
+  --color-on-primary-fixed-variant: #064e3b;
+  --color-on-primary-container: #6ee7b7;
+  --color-inverse-primary: #059669;
+  --color-surface-tint: #34d399;
 
-  --color-background: #001711;
-  --color-on-background: #c2ebdc;
+  /* Secondary — amber/gold (priority high, postponed) */
+  --color-secondary: #fbbf24;
+  --color-secondary-fixed: #fde68a;
+  --color-secondary-fixed-dim: #fbbf24;
+  --color-secondary-container: #92400e;
+  --color-on-secondary: #1c1305;
+  --color-on-secondary-fixed: #1c1305;
+  --color-on-secondary-fixed-variant: #78350f;
+  --color-on-secondary-container: #fde68a;
 
-  --color-outline: #89938d;
-  --color-outline-variant: #404944;
+  /* Tertiary — blue (scheduled status) */
+  --color-tertiary: #60a5fa;
+  --color-tertiary-fixed: #93c5fd;
+  --color-tertiary-fixed-dim: #60a5fa;
+  --color-tertiary-container: #1e3a5f;
+  --color-on-tertiary: #0c1929;
+  --color-on-tertiary-fixed: #0c1929;
+  --color-on-tertiary-fixed-variant: #1e3a5f;
+  --color-on-tertiary-container: #93c5fd;
 
-  --color-error: #ffb4ab;
-  --color-error-container: #93000a;
-  --color-on-error: #690005;
-  --color-on-error-container: #ffdad6;
+  /* Error — red (blocked, urgent, danger) */
+  --color-error: #f87171;
+  --color-error-container: #7f1d1d;
+  --color-on-error: #1c0505;
+  --color-on-error-container: #fecaca;
+
+  /* Borders — semi-transparent white */
+  --color-outline: #62666d;
+  --color-outline-variant: rgba(255, 255, 255, 0.08);
 
   /* Semantic aliases */
   --color-text: var(--color-on-surface);
@@ -69,25 +80,26 @@
   --color-surface-soft: var(--color-surface-container);
   --color-surface-strong: var(--color-surface-container-high);
 
-  /* Typography */
-  --font-headline: var(--font-manrope), sans-serif;
-  --font-body: var(--font-manrope), sans-serif;
-  --font-label: var(--font-manrope), sans-serif;
-  --font-sans: var(--font-manrope), sans-serif;
+  /* Typography — Inter Variable */
+  --font-headline: var(--font-inter), -apple-system, system-ui, sans-serif;
+  --font-body: var(--font-inter), -apple-system, system-ui, sans-serif;
+  --font-label: var(--font-inter), -apple-system, system-ui, sans-serif;
+  --font-sans: var(--font-inter), -apple-system, system-ui, sans-serif;
 
   /* Border radius */
-  --radius: 0.125rem;
-  --radius-sm: var(--radius);
-  --radius-md: var(--radius-lg);
-  --radius-lg: 0.25rem;
-  --radius-xl: 0.5rem;
-  --radius-full: 0.75rem;
+  --radius: 0.25rem;
+  --radius-sm: 0.25rem;
+  --radius-md: 0.375rem;
+  --radius-lg: 0.5rem;
+  --radius-xl: 0.75rem;
+  --radius-full: 624.9375rem;
 }
 
 @layer base {
   body {
     @apply bg-surface text-on-surface font-body antialiased;
     @apply selection:bg-primary/30 selection:text-primary;
+    font-feature-settings: "cv01", "ss03";
   }
 
   .material-symbols-outlined {
@@ -100,7 +112,6 @@
   .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 }
 
-/* Animations */
 @keyframes fade-slide-up {
   from {
     opacity: 0;
@@ -112,11 +123,10 @@
   }
 }
 
-/* Backdrop grid overlay */
 .backdrop-grid {
   background-image:
-    linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+    linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
   background-size: 56px 56px;
   mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.65), transparent 85%);
 }

@@ -14,11 +14,11 @@ export default function ErrorPage({ error, reset }: ErrorPageProps) {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-[60vh] gap-6 px-6 text-center">
-      <div className="w-16 h-16 bg-error-container/20 rounded-full flex items-center justify-center">
+      <div className="w-16 h-16 bg-error/10 rounded-full flex items-center justify-center">
         <span className="material-symbols-outlined text-error text-3xl">error_outline</span>
       </div>
       <div className="space-y-2 max-w-sm">
-        <h2 className="text-xl font-bold text-on-surface">Algo fue mal</h2>
+        <h2 className="text-xl font-semibold text-on-surface">Algo fue mal</h2>
         <p className="text-sm text-on-surface-variant">
           Ha ocurrido un error inesperado. Puedes intentar recargar esta sección.
         </p>
@@ -29,7 +29,7 @@ export default function ErrorPage({ error, reset }: ErrorPageProps) {
       <button
         type="button"
         onClick={reset}
-        className="flex items-center gap-2 bg-primary-container text-on-primary px-5 py-2.5 rounded-xl text-sm font-bold hover:bg-primary transition-colors"
+        className="flex items-center gap-2 bg-primary text-on-primary px-5 py-2.5 rounded-md text-sm font-medium hover:bg-primary-fixed transition-colors"
       >
         <span className="material-symbols-outlined text-sm">refresh</span>
         Intentar de nuevo

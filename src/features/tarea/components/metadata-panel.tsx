@@ -101,17 +101,17 @@ export function MetadataPanel({ item, groupMembers }: MetadataPanelProps) {
   return (
     <div className="flex flex-col h-full gap-3 overflow-y-auto hide-scrollbar">
       {/* Metadata */}
-      <section className="bg-surface-container-low rounded-xl p-4 space-y-4 shrink-0">
+      <section className="bg-[rgba(255,255,255,0.02)] rounded-lg border border-[rgba(255,255,255,0.05)] p-4 space-y-4 shrink-0">
         {/* Status */}
         <div>
-          <label className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant block mb-2">
+          <label className="text-[10px] font-medium uppercase tracking-widest text-on-surface-variant/50 block mb-2">
             Estado
           </label>
           <div ref={statusRef} className="relative">
             <button
               type="button"
               onClick={() => setStatusOpen((o) => !o)}
-              className="w-full flex items-center justify-between px-3 py-2 bg-surface-container-high rounded-lg hover:bg-surface-container-highest transition-colors"
+              className="w-full flex items-center justify-between px-3 py-2 bg-[rgba(255,255,255,0.03)] rounded-md hover:bg-[rgba(255,255,255,0.05)] transition-colors"
             >
               <div className="flex items-center gap-2.5">
                 <div className={cn('w-2 h-2 rounded-full', STATUS_COLORS[status])} />
@@ -128,14 +128,14 @@ export function MetadataPanel({ item, groupMembers }: MetadataPanelProps) {
             </button>
 
             {statusOpen && (
-              <div className="absolute top-full left-0 right-0 mt-1 bg-surface-container-highest rounded-xl border border-outline-variant/20 shadow-xl shadow-black/30 z-10 overflow-hidden">
+              <div className="absolute top-full left-0 right-0 mt-1 bg-surface-container-high rounded-lg border border-[rgba(255,255,255,0.08)] shadow-xl shadow-black/40 z-10 overflow-hidden">
                 {statusOptions.map((opt) => (
                   <button
                     key={opt.value}
                     type="button"
                     onClick={() => { setStatus(opt.value); setStatusOpen(false); }}
                     className={cn(
-                      'w-full flex items-center gap-2.5 px-3 py-2 text-sm hover:bg-surface-bright/20 transition-colors',
+                      'w-full flex items-center gap-2.5 px-3 py-2 text-sm hover:bg-[rgba(255,255,255,0.05)] transition-colors',
                       status === opt.value && 'text-primary font-medium'
                     )}
                   >
@@ -153,7 +153,7 @@ export function MetadataPanel({ item, groupMembers }: MetadataPanelProps) {
 
         {/* Priority */}
         <div>
-          <label className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant block mb-2">
+          <label className="text-[10px] font-medium uppercase tracking-widest text-on-surface-variant/50 block mb-2">
             Prioridad
           </label>
           <div className="grid grid-cols-4 gap-1.5">
@@ -163,7 +163,7 @@ export function MetadataPanel({ item, groupMembers }: MetadataPanelProps) {
                 type="button"
                 onClick={() => setPriority(opt.value)}
                 className={cn(
-                  'py-1.5 rounded-lg text-[10px] font-bold border transition-all',
+                  'py-1.5 rounded-md text-[10px] font-medium border transition-all',
                   priority === opt.value
                     ? opt.value === 'urgent'
                       ? 'bg-error/10 text-error border-error/30'
@@ -171,8 +171,8 @@ export function MetadataPanel({ item, groupMembers }: MetadataPanelProps) {
                         ? 'bg-secondary/10 text-secondary border-secondary/30'
                         : opt.value === 'medium'
                           ? 'bg-primary/10 text-primary border-primary/30'
-                          : 'bg-surface-container-highest text-on-surface-variant border-outline-variant/40'
-                    : 'bg-surface-container-high text-on-surface-variant border-transparent hover:border-outline-variant/30'
+                          : 'bg-[rgba(255,255,255,0.05)] text-on-surface-variant border-[rgba(255,255,255,0.08)]'
+                    : 'bg-[rgba(255,255,255,0.03)] text-on-surface-variant border-transparent hover:border-[rgba(255,255,255,0.08)]'
                 )}
               >
                 {opt.label}
@@ -184,7 +184,7 @@ export function MetadataPanel({ item, groupMembers }: MetadataPanelProps) {
         {/* Assignee — only for group items (personal items are implicitly self-assigned) */}
         {item.spaceType === 'group' && (
         <div>
-          <label className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant block mb-2">
+          <label className="text-[10px] font-medium uppercase tracking-widest text-on-surface-variant/50 block mb-2">
             Asignado
           </label>
           <div ref={assigneeRef} className="relative">
@@ -192,11 +192,11 @@ export function MetadataPanel({ item, groupMembers }: MetadataPanelProps) {
               <button
                 type="button"
                 onClick={() => setAssigneeOpen((o) => !o)}
-                className="w-full flex items-center gap-2.5 p-2.5 rounded-lg bg-surface-container-high/50 border border-outline-variant/10 hover:border-outline-variant/30 transition-colors"
+                className="w-full flex items-center gap-2.5 p-2.5 rounded-md bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.05)] hover:border-[rgba(255,255,255,0.08)] transition-colors"
               >
                 <div
                   className="h-7 w-7 rounded-full flex items-center justify-center text-[10px] font-bold text-on-surface shrink-0"
-                  style={{ backgroundColor: assignee.avatarColor ?? '#004f34' }}
+                  style={{ backgroundColor: assignee.avatarColor ?? '#064e3b' }}
                 >
                   {assignee.initials}
                 </div>
@@ -214,7 +214,7 @@ export function MetadataPanel({ item, groupMembers }: MetadataPanelProps) {
               <button
                 type="button"
                 onClick={() => setAssigneeOpen((o) => !o)}
-                className="w-full p-2.5 rounded-lg border border-dashed border-outline-variant/40 text-on-surface-variant text-xs hover:border-primary/40 hover:text-primary transition-all flex items-center justify-center gap-2"
+                className="w-full p-2.5 rounded-md border border-dashed border-[rgba(255,255,255,0.08)] text-on-surface-variant text-xs hover:border-primary/40 hover:text-primary transition-all flex items-center justify-center gap-2"
               >
                 <span className="material-symbols-outlined text-sm">person_add</span>
                 Asignar responsable
@@ -222,12 +222,12 @@ export function MetadataPanel({ item, groupMembers }: MetadataPanelProps) {
             )}
 
             {assigneeOpen && (
-              <div className="absolute top-full left-0 right-0 mt-1 bg-surface-container-highest rounded-xl border border-outline-variant/20 shadow-xl shadow-black/30 z-10 overflow-hidden">
+              <div className="absolute top-full left-0 right-0 mt-1 bg-surface-container-high rounded-lg border border-[rgba(255,255,255,0.08)] shadow-xl shadow-black/40 z-10 overflow-hidden">
                 {assignee && (
                   <button
                     type="button"
                     onClick={() => { setAssignee(undefined); setAssigneeOpen(false); }}
-                    className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-on-surface-variant hover:bg-surface-bright/20 transition-colors border-b border-outline-variant/10"
+                    className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-on-surface-variant hover:bg-[rgba(255,255,255,0.05)] transition-colors border-b border-[rgba(255,255,255,0.05)]"
                   >
                     <span className="material-symbols-outlined text-sm">person_off</span>
                     Sin asignar
@@ -239,13 +239,13 @@ export function MetadataPanel({ item, groupMembers }: MetadataPanelProps) {
                     type="button"
                     onClick={() => { setAssignee(user); setAssigneeOpen(false); }}
                     className={cn(
-                      'w-full flex items-center gap-2.5 px-3 py-2 text-sm hover:bg-surface-bright/20 transition-colors',
+                      'w-full flex items-center gap-2.5 px-3 py-2 text-sm hover:bg-[rgba(255,255,255,0.05)] transition-colors',
                       assignee?.id === user.id && 'text-primary font-medium'
                     )}
                   >
                     <div
                       className="h-6 w-6 rounded-full flex items-center justify-center text-[9px] font-bold text-on-surface shrink-0"
-                      style={{ backgroundColor: user.avatarColor ?? '#004f34' }}
+                      style={{ backgroundColor: user.avatarColor ?? '#064e3b' }}
                     >
                       {user.initials}
                     </div>
@@ -268,7 +268,7 @@ export function MetadataPanel({ item, groupMembers }: MetadataPanelProps) {
               <label className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant block mb-1.5">
                 Fecha de entrega
               </label>
-              <div className="flex items-center gap-2 bg-surface-container-high/30 px-3 py-2 rounded-lg">
+              <div className="flex items-center gap-2 bg-[rgba(255,255,255,0.03)] px-3 py-2 rounded-md">
                 <span className="material-symbols-outlined text-sm text-secondary">calendar_today</span>
                 <span className="text-sm text-on-surface">{item.dueDate}</span>
               </div>

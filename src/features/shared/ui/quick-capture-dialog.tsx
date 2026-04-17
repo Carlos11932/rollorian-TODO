@@ -100,13 +100,13 @@ export function QuickCaptureDialog({ groups = [] }: QuickCaptureDialogProps) {
         role="dialog"
         aria-label="Captura rápida"
         aria-modal="true"
-        className="w-full max-w-lg mx-4 bg-surface-container-low rounded-2xl border border-outline-variant/20 shadow-2xl shadow-black/40 overflow-hidden"
+        className="w-full max-w-lg mx-4 bg-surface-container rounded-xl border border-[rgba(255,255,255,0.08)] shadow-2xl shadow-black/60 overflow-hidden"
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-6 pt-5 pb-4 border-b border-outline-variant/10">
+        <div className="flex items-center justify-between px-6 pt-5 pb-4 border-b border-[rgba(255,255,255,0.05)]">
           <div className="flex items-center gap-2">
             <span className="material-symbols-outlined text-primary">bolt</span>
-            <h2 className="text-base font-bold text-on-surface">Nueva entrada</h2>
+            <h2 className="text-base font-semibold text-on-surface">Nueva entrada</h2>
           </div>
           <button
             type="button"
@@ -128,12 +128,12 @@ export function QuickCaptureDialog({ groups = [] }: QuickCaptureDialogProps) {
             onChange={(e) => setTitle(e.target.value)}
             onKeyDown={(e) => { if (e.key === 'Enter') handleSubmit(); }}
             placeholder="¿Qué necesitas hacer?"
-            className="w-full bg-surface-container-lowest border border-outline-variant/20 rounded-xl px-4 py-3 text-on-surface placeholder:text-on-surface-variant/50 text-sm focus:ring-1 focus:ring-primary outline-none transition-all"
+            className="w-full bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.08)] rounded-md px-4 py-3 text-on-surface placeholder:text-on-surface-variant/40 text-sm focus:border-primary/40 outline-none transition-all"
           />
 
           {/* Space selector */}
           <div>
-            <p className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant mb-2">
+            <p className="text-[10px] font-medium uppercase tracking-widest text-on-surface-variant/50 mb-2">
               Dónde
             </p>
             <div className="flex items-center gap-1.5 flex-wrap">
@@ -149,10 +149,10 @@ export function QuickCaptureDialog({ groups = [] }: QuickCaptureDialogProps) {
                   type="button"
                   onClick={() => setSpaceTarget(opt.value)}
                   className={cn(
-                    'flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all border',
+                    'flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-all border',
                     spaceTarget === opt.value
-                      ? 'bg-primary/10 text-primary border-primary/30 font-bold'
-                      : 'text-on-surface-variant border-outline-variant/20 hover:border-outline-variant/50 hover:text-on-surface'
+                      ? 'bg-primary/10 text-primary border-primary/30'
+                      : 'text-on-surface-variant border-[rgba(255,255,255,0.08)] hover:border-[rgba(255,255,255,0.15)] hover:text-on-surface'
                   )}
                 >
                   <span className="material-symbols-outlined text-sm">{opt.icon}</span>
@@ -165,16 +165,16 @@ export function QuickCaptureDialog({ groups = [] }: QuickCaptureDialogProps) {
           {/* Type + Priority row */}
           <div className="flex items-center gap-4">
             {/* Type toggle */}
-            <div className="flex items-center gap-1 bg-surface-container-lowest rounded-xl p-1 border border-outline-variant/10">
+            <div className="flex items-center gap-1 bg-[rgba(255,255,255,0.02)] rounded-md p-1 border border-[rgba(255,255,255,0.05)]">
               {TYPE_OPTIONS.map((opt) => (
                 <button
                   key={opt.value}
                   type="button"
                   onClick={() => setItemType(opt.value)}
                   className={cn(
-                    'flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all',
+                    'flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-all',
                     itemType === opt.value
-                      ? 'bg-primary-container text-on-primary-container font-bold'
+                      ? 'bg-[rgba(255,255,255,0.05)] text-on-surface'
                       : 'text-on-surface-variant hover:text-on-surface'
                   )}
                 >
@@ -193,10 +193,10 @@ export function QuickCaptureDialog({ groups = [] }: QuickCaptureDialogProps) {
                   onClick={() => setPriority(opt.value)}
                   title={opt.label}
                   className={cn(
-                    'w-7 h-7 rounded-lg text-[10px] font-bold uppercase transition-all border',
+                    'w-7 h-7 rounded-md text-[10px] font-medium uppercase transition-all border',
                     priority === opt.value
-                      ? `${opt.color} bg-surface-container-highest border-current`
-                      : 'text-on-surface-variant/40 border-transparent hover:border-outline-variant/30'
+                      ? `${opt.color} bg-[rgba(255,255,255,0.05)] border-current`
+                      : 'text-on-surface-variant/30 border-transparent hover:border-[rgba(255,255,255,0.08)]'
                   )}
                 >
                   {opt.label[0]}
@@ -238,7 +238,7 @@ export function QuickCaptureDialog({ groups = [] }: QuickCaptureDialogProps) {
               type="button"
               onClick={handleSubmit}
               disabled={!title.trim() || isPending}
-              className="flex items-center gap-2 bg-primary text-on-primary px-4 py-2 rounded-xl text-sm font-bold hover:bg-primary-fixed transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+              className="flex items-center gap-2 bg-primary text-on-primary px-4 py-2 rounded-md text-sm font-medium hover:bg-primary-fixed transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
             >
               <span className="material-symbols-outlined text-sm">
                 {isPending ? 'sync' : 'add'}

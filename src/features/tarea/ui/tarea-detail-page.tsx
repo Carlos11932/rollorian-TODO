@@ -99,7 +99,7 @@ export function TareaDetailPage({ id, item: itemView, history, groupMembers }: T
             <span className="material-symbols-outlined text-xs">chevron_right</span>
             <span className="text-secondary font-medium uppercase">{id}</span>
           </div>
-          <h1 className="text-base font-bold text-on-surface font-headline truncate">
+          <h1 className="text-base font-semibold text-on-surface font-headline truncate">
             {mockItem.title}
           </h1>
         </div>
@@ -108,7 +108,7 @@ export function TareaDetailPage({ id, item: itemView, history, groupMembers }: T
             type="button"
             onClick={handleDelete}
             disabled={isDeleting}
-            className="px-3 py-1.5 rounded-lg font-bold text-xs flex items-center gap-1.5 transition-colors text-error hover:bg-error/10 disabled:opacity-40 disabled:cursor-not-allowed"
+            className="px-3 py-1.5 rounded-md font-medium text-xs flex items-center gap-1.5 transition-colors text-error hover:bg-error/10 disabled:opacity-40 disabled:cursor-not-allowed"
           >
             <span className="material-symbols-outlined text-sm">delete</span>
             {isDeleting ? 'Eliminando…' : 'Eliminar'}
@@ -117,9 +117,9 @@ export function TareaDetailPage({ id, item: itemView, history, groupMembers }: T
             type="button"
             onClick={handleSave}
             className={cn(
-              'px-4 py-1.5 rounded-lg font-bold text-xs flex items-center gap-1.5 transition-colors',
+              'px-4 py-1.5 rounded-md font-medium text-xs flex items-center gap-1.5 transition-colors',
               saved
-                ? 'bg-surface-container-high text-primary'
+                ? 'bg-[rgba(255,255,255,0.05)] text-primary'
                 : 'bg-primary text-on-primary hover:bg-primary-fixed'
             )}
           >
@@ -136,22 +136,22 @@ export function TareaDetailPage({ id, item: itemView, history, groupMembers }: T
         {/* Left: description + tags + history */}
         <div className="lg:col-span-2 flex flex-col gap-4 min-h-0 overflow-y-auto hide-scrollbar">
           {/* Description */}
-          <section className="bg-surface-container-low rounded-xl p-4 shrink-0">
-            <h2 className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant mb-3">
+          <section className="bg-[rgba(255,255,255,0.02)] rounded-lg border border-[rgba(255,255,255,0.05)] p-4 shrink-0">
+            <h2 className="text-[10px] font-medium uppercase tracking-widest text-on-surface-variant/50 mb-3">
               Descripción
             </h2>
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Añade una descripción detallada..."
-              className="w-full bg-surface-container-lowest border border-outline-variant/20 focus:ring-1 focus:ring-primary rounded-lg text-sm text-tertiary p-3 min-h-[100px] leading-relaxed resize-none outline-none"
+              className="w-full bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.08)] focus:border-primary/40 rounded-md text-sm text-on-surface-variant p-3 min-h-[100px] leading-relaxed resize-none outline-none"
             />
 
             {mockItem.status === 'blocked' && mockItem.blockedReason && (
-              <div className="mt-3 p-3 rounded-lg bg-error-container/10 border border-error/20 flex gap-3">
+              <div className="mt-3 p-3 rounded-md bg-error/5 border border-error/20 flex gap-3">
                 <span className="material-symbols-outlined text-error text-sm shrink-0">warning</span>
                 <div>
-                  <p className="text-error text-xs font-bold">Motivo de bloqueo</p>
+                  <p className="text-error text-xs font-medium">Motivo de bloqueo</p>
                   <p className="text-on-surface-variant text-xs mt-0.5">{mockItem.blockedReason}</p>
                 </div>
               </div>
@@ -169,7 +169,7 @@ export function TareaDetailPage({ id, item: itemView, history, groupMembers }: T
                 {tags.map((tag) => (
                   <span
                     key={tag}
-                    className="group flex items-center gap-1 px-2 py-0.5 rounded-full bg-surface-container-high text-on-surface-variant text-[10px] font-medium border border-outline-variant/15"
+                    className="group flex items-center gap-1 px-2 py-0.5 rounded-full bg-[rgba(255,255,255,0.05)] text-on-surface-variant text-[10px] font-medium border border-[rgba(255,255,255,0.08)]"
                   >
                     {tag}
                     <button
@@ -195,13 +195,13 @@ export function TareaDetailPage({ id, item: itemView, history, groupMembers }: T
                     }}
                     onBlur={commitTag}
                     placeholder="Etiqueta..."
-                    className="px-2 py-0.5 rounded-full bg-surface-container-highest border border-primary/40 text-[10px] text-on-surface outline-none w-24"
+                    className="px-2 py-0.5 rounded-full bg-[rgba(255,255,255,0.05)] border border-primary/40 text-[10px] text-on-surface outline-none w-24"
                   />
                 ) : (
                   <button
                     type="button"
                     onClick={startAddingTag}
-                    className="w-6 h-6 rounded-full border border-dashed border-outline-variant/40 text-on-surface-variant flex items-center justify-center hover:border-primary/50 hover:text-primary transition-colors"
+                    className="w-6 h-6 rounded-full border border-dashed border-[rgba(255,255,255,0.08)] text-on-surface-variant flex items-center justify-center hover:border-primary/50 hover:text-primary transition-colors"
                     aria-label="Añadir etiqueta"
                   >
                     <span className="material-symbols-outlined text-sm">add</span>

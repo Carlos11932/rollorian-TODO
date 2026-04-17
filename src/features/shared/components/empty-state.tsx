@@ -13,7 +13,7 @@ export function EmptyState({ icon, title, description, action, className }: Empt
   return (
     <div
       className={cn(
-        'flex flex-col items-center justify-center gap-4 px-6 py-12 text-center rounded-xl border border-outline-variant/10 bg-surface-container-low',
+        'flex flex-col items-center justify-center gap-4 px-6 py-12 text-center rounded-lg border border-[rgba(255,255,255,0.05)] bg-[rgba(255,255,255,0.02)]',
         className
       )}
     >
@@ -23,7 +23,7 @@ export function EmptyState({ icon, title, description, action, className }: Empt
         </span>
       )}
       <div className="flex flex-col gap-1">
-        <h3 className="text-lg font-bold text-on-surface">{title}</h3>
+        <h3 className="text-base font-semibold text-on-surface">{title}</h3>
         {description && <p className="text-sm text-on-surface-variant max-w-xs">{description}</p>}
       </div>
       {action && <div>{action}</div>}

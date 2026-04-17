@@ -8,27 +8,27 @@ interface RequiresAttentionCardProps {
 
 export function RequiresAttentionCard({ items }: RequiresAttentionCardProps) {
   return (
-    <div className="flex flex-col bg-surface-container-low rounded-xl overflow-hidden border-l-4 border-error shrink-0">
+    <div className="flex flex-col bg-[rgba(255,255,255,0.02)] rounded-lg border border-[rgba(255,255,255,0.05)] overflow-hidden border-l-4 border-l-error shrink-0">
       {/* Header */}
-      <div className="flex items-center gap-2.5 px-4 py-3 border-b border-error/20 bg-error/5">
+      <div className="flex items-center gap-2.5 px-4 py-3 border-b border-[rgba(255,255,255,0.05)] bg-error/5">
         <span className="material-symbols-outlined text-base text-error">priority_high</span>
-        <span className="text-sm font-bold text-error">Requieren Atención</span>
-        <span className="ml-auto text-sm font-black text-error bg-error/15 px-2 py-0.5 rounded-md min-w-[28px] text-center">
+        <span className="text-sm font-semibold text-error">Requieren Atención</span>
+        <span className="ml-auto text-sm font-semibold text-error bg-error/[0.12] px-2 py-0.5 rounded-full min-w-[28px] text-center">
           {items.length}
         </span>
       </div>
 
       {/* Items */}
-      <div className="divide-y divide-outline-variant/10">
+      <div className="divide-y divide-[rgba(255,255,255,0.05)]">
         {items.map((item) => (
           <Link
             key={item.id}
             href={'/tareas/' + item.id}
-            className="flex items-start gap-3 px-4 py-3 hover:bg-surface-container-highest/40 transition-colors cursor-pointer"
+            className="flex items-start gap-3 px-4 py-3 hover:bg-[rgba(255,255,255,0.03)] transition-colors cursor-pointer"
           >
             <span
               className={cn(
-                'text-xs font-black uppercase tracking-wide shrink-0 mt-0.5 w-10 text-center',
+                'text-xs font-semibold uppercase tracking-wide shrink-0 mt-0.5 w-10 text-center',
                 item.overdueByDays ? 'text-error' : 'text-secondary'
               )}
             >

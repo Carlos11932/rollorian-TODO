@@ -63,12 +63,12 @@ export function TodaySection({ items }: TodaySectionProps) {
   }
 
   return (
-    <div className="flex flex-col h-full min-h-0 bg-surface-container-low rounded-xl overflow-hidden">
+    <div className="flex flex-col h-full min-h-0 bg-[rgba(255,255,255,0.02)] rounded-lg border border-[rgba(255,255,255,0.05)] overflow-hidden">
       {/* Section header */}
-      <div className="flex items-center gap-3 px-4 py-3 border-b border-outline-variant/10 shrink-0">
+      <div className="flex items-center gap-3 px-4 py-3 border-b border-[rgba(255,255,255,0.05)] shrink-0">
         <span className="material-symbols-outlined text-base text-primary shrink-0">today</span>
-        <span className="text-sm font-bold text-on-surface shrink-0">Hoy</span>
-        <span className="text-xs font-semibold text-on-surface-variant/60 shrink-0">
+        <span className="text-sm font-semibold text-on-surface shrink-0">Hoy</span>
+        <span className="text-xs font-medium text-on-surface-variant/50 shrink-0">
           {visible.length}{visible.length !== items.length ? `/${items.length}` : ''}
         </span>
 
@@ -82,7 +82,7 @@ export function TodaySection({ items }: TodaySectionProps) {
             value={filter}
             onChange={(e) => setFilter(e.target.value)}
             placeholder="Filtrar..."
-            className="w-full bg-transparent border border-outline-variant/20 rounded-lg pl-7 pr-3 py-1 text-xs text-on-surface placeholder:text-on-surface-variant/40 focus:outline-none focus:border-primary/40 transition-colors"
+            className="w-full bg-transparent border border-[rgba(255,255,255,0.08)] rounded-md pl-7 pr-3 py-1 text-xs text-on-surface placeholder:text-on-surface-variant/30 focus:outline-none focus:border-primary/40 transition-colors"
           />
         </div>
       </div>
@@ -100,7 +100,7 @@ export function TodaySection({ items }: TodaySectionProps) {
             }
           />
         ) : (
-          <div className="divide-y divide-outline-variant/10">
+          <div className="divide-y divide-[rgba(255,255,255,0.05)]">
             {visible.map((item) => {
               const isDone = checked.has(item.id);
               const barColor = PRIORITY_BAR[item.priority] ?? 'bg-primary';
@@ -109,7 +109,7 @@ export function TodaySection({ items }: TodaySectionProps) {
                 <Link
                   key={item.id}
                   href={`/tareas/${item.id}`}
-                  className="flex items-center gap-3 px-4 py-3 hover:bg-surface-container-highest/50 transition-colors group"
+                  className="flex items-center gap-3 px-4 py-3 hover:bg-[rgba(255,255,255,0.03)] transition-colors group"
                 >
                   {/* Checkbox — stopPropagation so it doesn't navigate */}
                   <button
@@ -132,7 +132,7 @@ export function TodaySection({ items }: TodaySectionProps) {
                   <div className={cn('w-1 h-7 rounded-full shrink-0', barColor)} />
 
                   {/* Type badge */}
-                  <span className={cn('text-[11px] font-bold uppercase tracking-wide shrink-0 w-8', typeConf.color)}>
+                  <span className={cn('text-[11px] font-medium uppercase tracking-wide shrink-0 w-8', typeConf.color)}>
                     {typeConf.label}
                   </span>
 
@@ -155,7 +155,7 @@ export function TodaySection({ items }: TodaySectionProps) {
                   {(() => {
                     const badge = STATUS_BADGE[item.status] ?? STATUS_BADGE.pending!;
                     return (
-                      <span className={cn('px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wide shrink-0 hidden sm:block', badge.className)}>
+                      <span className={cn('px-2 py-0.5 rounded-full text-[10px] font-medium uppercase tracking-wide shrink-0 hidden sm:block', badge.className)}>
                         {badge.label}
                       </span>
                     );
