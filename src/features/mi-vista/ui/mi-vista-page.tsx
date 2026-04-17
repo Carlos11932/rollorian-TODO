@@ -22,7 +22,7 @@ export async function MiVistaPage() {
     <div className="flex flex-col h-[calc(100vh-4rem)] px-5 pt-4 pb-4 gap-4 overflow-hidden">
       {/* Header + stats bar */}
       <div className="flex flex-col gap-2 shrink-0">
-        <h2 className="text-xs font-bold uppercase tracking-widest text-on-surface-variant">
+        <h2 className="text-xs font-medium uppercase tracking-widest text-on-surface-variant/60">
           {dateLabel}
         </h2>
 
