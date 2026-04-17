@@ -1,5 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+vi.mock("server-only", () => ({}));
+
 import { createGroupSpaceAccessContext, createPersonalSpaceAccessContext } from "@/domain/access";
 import { GROUP_ITEM_AUDIT_CHANGE_KIND } from "@/domain/history";
 import { createGroupMembership } from "@/domain/identity";
@@ -44,12 +46,6 @@ const mocks = vi.hoisted(() => ({
   },
   readItemByIdHandler: { execute: vi.fn() },
   resolveMockActor: vi.fn(),
-  runtimeStore: {
-    findById: vi.fn(),
-    listHistoryEntries: vi.fn(),
-    listProjectedItems: vi.fn(),
-    reset: vi.fn(),
-  },
   updateItemHandler: { execute: vi.fn() },
 }));
 
@@ -65,14 +61,14 @@ vi.mock("@/lib/item-command-factory", () => ({
   prismaItemViewRepository: mocks.prismaItemViewRepository,
   prismaMembershipResolver: mocks.prismaMembershipResolver,
   readItemByIdHandler: mocks.readItemByIdHandler,
-  runtimeStore: mocks.runtimeStore,
   updateItemHandler: mocks.updateItemHandler,
 }));
 
-vi.mock("@/lib/mock/actor", () => ({
+vi.mock("@/dev-data/actor", () => ({
   resolveMockActor: mocks.resolveMockActor,
 }));
 
+import * as apiRuntime from "@/lib/api-runtime";
 import { getItemHistory, getMyView, listItems, updateItem } from "@/lib/api-runtime";
 
 const actorUserId = createUserId("user-1");
@@ -226,7 +222,6 @@ describe("api-runtime", () => {
     expect(body.data.items.map((item) => item.id)).toEqual(["personal-visible", "group-visible"]);
     expect(mocks.prismaMembershipResolver.listVisibleGroupIdsForActor).toHaveBeenCalledWith(actorUserId);
     expect(mocks.prismaItemViewRepository.listProjectedItems).toHaveBeenCalledOnce();
-    expect(mocks.runtimeStore.listProjectedItems).not.toHaveBeenCalled();
   });
 
   it("passes persisted visible groups into My View queries", async () => {
@@ -285,7 +280,6 @@ describe("api-runtime", () => {
     expect(response.status).toBe(200);
     expect(body.data.entries).toHaveLength(1);
     expect(mocks.prismaGroupItemHistoryRepository.listByItemId).toHaveBeenCalledWith(createItemId("item-history-1"));
-    expect(mocks.runtimeStore.listHistoryEntries).not.toHaveBeenCalled();
   });
 
   it("resolves update item type from the Prisma-backed read path", async () => {
@@ -315,6 +309,9 @@ describe("api-runtime", () => {
         itemType: ITEM_TYPE.EVENT,
       }),
     );
-    expect(mocks.runtimeStore.findById).not.toHaveBeenCalled();
+  });
+
+  it("does not expose resetRuntimeStore from the production runtime module", () => {
+    expect("resetRuntimeStore" in apiRuntime).toBe(false);
   });
 });

@@ -16,6 +16,11 @@ const PRISMA_DATASOURCE_ENV_KEYS = [
   "POSTGRES_URL",
 ] as const;
 
+const REQUIRED_POSTGRES_SEARCH_PARAMS = {
+  channel_binding: "disable",
+  sslaccept: "accept_invalid_certs",
+} as const;
+
 function hasPrismaDatasourceUrl(): boolean {
   return PRISMA_DATASOURCE_ENV_KEYS.some((key) => {
     const value = process.env[key];
@@ -35,7 +40,7 @@ function createMissingDatasourceProxy(): PrismaClient {
 }
 
 function resolveDatasourceUrl(): string | undefined {
-  return PRISMA_DATASOURCE_ENV_KEYS.reduce<string | undefined>((resolved, key) => {
+  const datasourceUrl = PRISMA_DATASOURCE_ENV_KEYS.reduce<string | undefined>((resolved, key) => {
     if (resolved !== undefined) {
       return resolved;
     }
@@ -43,6 +48,18 @@ function resolveDatasourceUrl(): string | undefined {
     const value = process.env[key];
     return typeof value === "string" && value.length > 0 ? value : undefined;
   }, undefined);
+
+  if (datasourceUrl === undefined) {
+    return undefined;
+  }
+
+  const normalizedUrl = new URL(datasourceUrl);
+
+  for (const [key, value] of Object.entries(REQUIRED_POSTGRES_SEARCH_PARAMS)) {
+    normalizedUrl.searchParams.set(key, value);
+  }
+
+  return normalizedUrl.toString();
 }
 
 function createPrismaClient(): PrismaClient {

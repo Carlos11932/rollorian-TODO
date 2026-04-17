@@ -70,7 +70,7 @@ interface SeedItemRecord {
   id: string;
   spaceId: string;
   spaceType: "personal" | "group";
-  ownerId: string;
+  ownerId: string | null;
   groupId: string | null;
   itemType: "task" | "event";
   status: ItemStatus;
@@ -225,7 +225,7 @@ const SEED_ITEMS = [
     id: SEED_ITEM_IDS.ALPHA_ASSIGNED_TASK,
     itemType: "task",
     notes: "Assigned sample item with history, labels, and persisted membership linkage.",
-    ownerId: MOCK_BOOTSTRAP_USER_IDS.DEFAULT,
+    ownerId: null,
     postponeCount: 0,
     postponedUntil: null,
     priority: "urgent",
@@ -248,7 +248,7 @@ const SEED_ITEMS = [
     id: SEED_ITEM_IDS.ALPHA_UNASSIGNED_TASK,
     itemType: "task",
     notes: "Unassigned group task to preserve visibility scenarios for all members.",
-    ownerId: MOCK_BOOTSTRAP_USER_IDS.TEAMMATE,
+    ownerId: null,
     postponeCount: 0,
     postponedUntil: null,
     priority: "medium",
@@ -271,7 +271,7 @@ const SEED_ITEMS = [
     id: SEED_ITEM_IDS.BETA_ASSIGNED_TASK,
     itemType: "task",
     notes: "Second-group sample item to prove cross-group reachability from memberships.",
-    ownerId: MOCK_BOOTSTRAP_USER_IDS.GROUP_B_ONLY,
+    ownerId: null,
     postponeCount: 0,
     postponedUntil: null,
     priority: "high",

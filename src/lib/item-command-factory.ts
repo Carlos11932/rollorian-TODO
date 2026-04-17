@@ -2,7 +2,6 @@
  * Command + Query handler factory — single DI injection point.
  *
  * Production runtime composes Prisma-backed repositories here.
- * The legacy in-memory runtime store stays exported only for test/fallback compatibility.
  */
 import type { PrismaClient } from "@prisma/client";
 
@@ -30,7 +29,6 @@ import {
   PrismaMembershipResolver,
 } from "@/interfaces/persistence/prisma";
 import { prisma } from "@/lib/prisma";
-import { runtimeStore } from "@/lib/runtime-store";
 import { seedDevItems } from "@/dev-data/seed";
 
 const IS_DEV = process.env.NODE_ENV !== "production";
@@ -151,6 +149,3 @@ export async function removeItem(id: string): Promise<void> {
 export async function getHistoryEntries(id: string): Promise<readonly GroupItemAuditEntry[]> {
   return productionItemRuntime.getHistoryEntries(id);
 }
-
-// Legacy export kept for test/fallback compatibility only.
-export { runtimeStore };

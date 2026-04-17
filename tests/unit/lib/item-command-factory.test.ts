@@ -2,7 +2,6 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const {
   mockPrismaClient,
-  runtimeStoreMock,
   seedDevItemsMock,
 } = vi.hoisted(() => ({
   mockPrismaClient: {
@@ -37,13 +36,6 @@ const {
       findUnique: vi.fn(),
     },
   },
-  runtimeStoreMock: {
-    findById: vi.fn(),
-    listProjectedItems: vi.fn(),
-    remove: vi.fn(),
-    reset: vi.fn(),
-    save: vi.fn(),
-  },
   seedDevItemsMock: vi.fn(),
 }));
 
@@ -51,14 +43,11 @@ vi.mock("@/lib/prisma", () => ({
   prisma: mockPrismaClient,
 }));
 
-vi.mock("@/lib/runtime-store", () => ({
-  runtimeStore: runtimeStoreMock,
-}));
-
-vi.mock("@/lib/mock/seed", () => ({
+vi.mock("@/dev-data/seed", () => ({
   seedDevItems: seedDevItemsMock,
 }));
 
+import * as itemCommandFactory from "@/lib/item-command-factory";
 import {
   createItemHandler,
   createProductionItemRuntime,
@@ -104,7 +93,6 @@ describe("item-command-factory", () => {
     await findItemById("item-123");
 
     expect(mockPrismaClient.item.findUnique).toHaveBeenCalledOnce();
-    expect(runtimeStoreMock.findById).not.toHaveBeenCalled();
   });
 
   it("uses Prisma-backed deletes instead of the legacy runtime store", async () => {
@@ -115,7 +103,10 @@ describe("item-command-factory", () => {
     expect(mockPrismaClient.item.deleteMany).toHaveBeenCalledWith({
       where: { id: "item-456" },
     });
-    expect(runtimeStoreMock.remove).not.toHaveBeenCalled();
+  });
+
+  it("does not expose the in-memory runtime store from production wiring", () => {
+    expect("runtimeStore" in itemCommandFactory).toBe(false);
   });
 
   it("seeds through the production create handler only once", async () => {
