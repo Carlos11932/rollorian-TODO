@@ -1,11 +1,17 @@
 import { NextResponse } from "next/server";
+import { UnauthorizedError } from "@/lib/auth/require-auth";
 import {
   createItem,
   listItems,
   parseCreateItemRequest,
   parseListItemsRequest,
 } from "@/lib/api-runtime";
-import { badRequest, fromZodError, getListItemsQueryFromSearchParams } from "@/app/api/_shared/route-contracts";
+import {
+  badRequest,
+  fromZodError,
+  getListItemsQueryFromSearchParams,
+  unauthorized,
+} from "@/app/api/_shared/route-contracts";
 
 export async function GET(request: Request) {
   const parsed = parseListItemsRequest({
@@ -16,8 +22,16 @@ export async function GET(request: Request) {
     return fromZodError(parsed.error);
   }
 
-  const response = await listItems(request, parsed.data);
-  return NextResponse.json(response.body, { status: response.status });
+  try {
+    const response = await listItems(request, parsed.data);
+    return NextResponse.json(response.body, { status: response.status });
+  } catch (error) {
+    if (error instanceof UnauthorizedError) {
+      return unauthorized();
+    }
+
+    throw error;
+  }
 }
 
 export async function POST(request: Request) {
@@ -35,6 +49,14 @@ export async function POST(request: Request) {
     return fromZodError(parsed.error);
   }
 
-  const response = await createItem(request, parsed.data);
-  return NextResponse.json(response.body, { status: response.status });
+  try {
+    const response = await createItem(request, parsed.data);
+    return NextResponse.json(response.body, { status: response.status });
+  } catch (error) {
+    if (error instanceof UnauthorizedError) {
+      return unauthorized();
+    }
+
+    throw error;
+  }
 }

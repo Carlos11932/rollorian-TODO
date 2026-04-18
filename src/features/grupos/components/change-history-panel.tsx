@@ -105,7 +105,7 @@ export function ChangeHistoryPanel({ entries, taskTitle }: ChangeHistoryPanelPro
                 </p>
                 {entry.comment && (
                   <div className="mt-2 text-[11px] text-on-surface-variant bg-[rgba(255,255,255,0.02)] p-2 rounded-md italic border border-[rgba(255,255,255,0.05)]">
-                    "{entry.comment}"
+                    &ldquo;{entry.comment}&rdquo;
                   </div>
                 )}
               </div>

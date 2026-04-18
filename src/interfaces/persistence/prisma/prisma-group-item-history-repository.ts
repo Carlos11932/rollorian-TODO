@@ -1,4 +1,4 @@
-import { ItemStatus, ItemTemporalKind, Prisma, PrismaClient } from "@prisma/client";
+import type { ItemStatus, ItemTemporalKind, Prisma, PrismaClient } from "@prisma/client";
 import { randomUUID } from "node:crypto";
 
 import type { AppendGroupItemAuditEntryRepository } from "@/application/history";

@@ -1,5 +1,9 @@
-import type { ViewActorContext, ViewResult } from "./shared";
-import { isEligibleForMyView, type ItemViewQueryRepository } from "./shared";
+import {
+  isEligibleForMyView,
+  type ItemViewQueryRepository,
+  type ViewActorContext,
+  type ViewResult,
+} from "./shared";
 
 export type GetMyViewQuery = ViewActorContext;
 export type MyViewResult = ViewResult;

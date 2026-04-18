@@ -4,9 +4,7 @@ import { getItemByIdAction } from '@/features/shared/actions/item-actions';
 import { getHistoryEntries } from '@/lib/item-command-factory';
 import { auditEntryToHistoryDto } from '@/interfaces/ui/audit-entry-mapper';
 import { prisma } from '@/lib/prisma';
-import { auth } from '@/lib/auth';
 import type { HistoryEntryDto, GroupMemberDto } from '@/interfaces/ui/history-entry-dto';
-import type { ItemView } from '@/interfaces/views/item-view';
 import { SPACE_TYPE } from '@/domain/shared';
 
 const IS_DEV = process.env.NODE_ENV !== 'production';

@@ -14,7 +14,7 @@ This repository currently provides:
 
 Domain primitives now include identity, membership, actor metadata, and personal/group space authorization policies.
 
-Full auth infrastructure, item commands, projections, and API routes are intentionally deferred to later OpenSpec batches.
+The repository now includes session-backed human APIs, an agent platform with issued credentials, and an MCP server that talks to the Agent API over HTTP.
 
 ## Getting started
 
@@ -28,6 +28,49 @@ Open [http://localhost:3000](http://localhost:3000).
 ## Environment
 
 Copy `.env.example` to `.env.local` before adding Prisma-backed runtime work.
+
+## Build and validation
+
+```bash
+npm run lint:strict
+npm run typecheck
+npm run test:run
+npm run build
+```
+
+Apply schema changes separately when needed:
+
+```bash
+npm run prisma:migrate
+```
+
+## Agent Platform
+
+Management API protected by the signed-in session:
+
+- `GET /api/agent-clients`
+- `POST /api/agent-clients`
+- `POST /api/agent-clients/[agentClientId]/credentials`
+- `POST /api/agent-clients/[agentClientId]/credentials/[credentialId]/revoke`
+- `POST /api/agent-clients/[agentClientId]/revoke`
+
+Agent API protected by bearer token:
+
+- `GET /api/agent/v1/items`
+- `POST /api/agent/v1/items`
+- `GET /api/agent/v1/items/[id]`
+- `PATCH /api/agent/v1/items/[id]`
+- `GET /api/agent/v1/items/[id]/history`
+- `GET /api/agent/v1/views/my`
+- `GET /api/agent/v1/views/attention`
+- `GET /api/agent/v1/views/calendar`
+- `GET /api/agent/v1/views/undated`
+- `GET /api/agent/v1/views/groups/[groupId]`
+
+Related docs:
+
+- [docs/agent-platform.md](/C:/Users/Carlo/Desktop/proyectos/rollorian-todo-agent-platform-v1/docs/agent-platform.md)
+- [contracts/agent/README.md](/C:/Users/Carlo/Desktop/proyectos/rollorian-todo-agent-platform-v1/contracts/agent/README.md)
 
 ## Important structure
 

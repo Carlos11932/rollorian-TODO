@@ -1,13 +1,6 @@
 import { cn } from '@/lib/cn';
 
-const VARIANTS = {
-  text: 'text',
-  card: 'card',
-  circle: 'circle',
-  task: 'task',
-} as const;
-
-type SkeletonVariant = (typeof VARIANTS)[keyof typeof VARIANTS];
+type SkeletonVariant = 'text' | 'card' | 'circle' | 'task';
 
 interface SkeletonProps {
   variant?: SkeletonVariant;

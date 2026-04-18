@@ -60,6 +60,23 @@ enum GroupAuditChangeKind {
   title
 }
 
+enum AgentClientKind {
+  PRIVATE_COMPANION
+  MCP_CLIENT
+  CUSTOM
+}
+
+enum AgentClientStatus {
+  ACTIVE
+  REVOKED
+}
+
+enum AgentAuditOutcome {
+  SUCCESS
+  FAILURE
+  REJECTED
+}
+
 model User {
   id            String            @id @default(cuid())
   name          String?
@@ -74,6 +91,8 @@ model User {
   assigneeLinks ItemAssignee[]    @relation("ItemAssigneeUser")
   personalLabels Label[]          @relation("PersonalLabelOwner")
   auditEntries  GroupAuditEntry[] @relation("GroupAuditActor")
+  agentClients  AgentClient[]
+  agentAuditEvents AgentAuditEvent[]
   accounts      Account[]
   sessions      Session[]
 
@@ -305,4 +324,64 @@ model GroupAuditChange {
   @@id([entryId, position])
   @@index([kind], map: "group_audit_changes_kind_idx")
   @@map("group_audit_changes")
+}
+
+model AgentClient {
+  id          String            @id @default(cuid())
+  userId      String
+  name        String
+  kind        AgentClientKind   @default(CUSTOM)
+  status      AgentClientStatus @default(ACTIVE)
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+  lastUsedAt  DateTime?
+  user        User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  credentials AgentCredential[]
+  auditEvents AgentAuditEvent[]
+
+  @@index([userId])
+  @@index([userId, status])
+  @@index([createdAt])
+}
+
+model AgentCredential {
+  id            String      @id @default(cuid())
+  agentClientId String
+  tokenPrefix   String
+  tokenHash     String      @unique
+  scopes        String[]
+  createdAt     DateTime    @default(now())
+  expiresAt     DateTime?
+  revokedAt     DateTime?
+  lastUsedAt    DateTime?
+  agentClient   AgentClient @relation(fields: [agentClientId], references: [id], onDelete: Cascade)
+  auditEvents   AgentAuditEvent[]
+
+  @@index([agentClientId])
+  @@index([revokedAt])
+  @@index([createdAt])
+}
+
+model AgentAuditEvent {
+  id             String           @id @default(cuid())
+  userId         String
+  agentClientId  String
+  credentialId   String?
+  action         String
+  resourceType   String?
+  resourceId     String?
+  outcome        AgentAuditOutcome
+  idempotencyKey String?
+  metadata       Json?
+  createdAt      DateTime         @default(now())
+  user           User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  agentClient    AgentClient      @relation(fields: [agentClientId], references: [id], onDelete: Cascade)
+  credential     AgentCredential? @relation(fields: [credentialId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([agentClientId])
+  @@index([credentialId])
+  @@index([createdAt])
+  @@index([idempotencyKey])
+  @@unique([agentClientId, action, idempotencyKey])
 }

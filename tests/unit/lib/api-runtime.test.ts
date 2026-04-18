@@ -64,7 +64,7 @@ vi.mock("@/lib/item-command-factory", () => ({
   updateItemHandler: mocks.updateItemHandler,
 }));
 
-vi.mock("@/dev-data/actor", () => ({
+vi.mock("@/lib/mock/actor", () => ({
   resolveMockActor: mocks.resolveMockActor,
 }));
 

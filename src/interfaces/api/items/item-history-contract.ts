@@ -1,5 +1,7 @@
-import type { GroupItemAuditEntry } from "@/domain/history";
-import { GROUP_ITEM_AUDIT_CHANGE_KIND } from "@/domain/history";
+import {
+  GROUP_ITEM_AUDIT_CHANGE_KIND,
+  type GroupItemAuditEntry,
+} from "@/domain/history";
 import type { ActorMetadata } from "@/domain/identity";
 import { z } from "zod";
 import { groupIdSchema, itemIdSchema, prioritySchema, userIdSchema, versionTokenSchema } from "./item-dto";
