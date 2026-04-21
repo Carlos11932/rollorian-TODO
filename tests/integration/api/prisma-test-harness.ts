@@ -49,6 +49,14 @@ function resolveConfiguredDatasourceUrl(): string {
   return appendRequiredNeonParams(candidateUrl);
 }
 
+export function hasConfiguredDatasourceUrl(): boolean {
+  const directUrl = process.env["DATABASE_URL_UNPOOLED"] ?? process.env["DIRECT_URL"];
+  const fallbackUrl = process.env["DATABASE_URL"];
+  const candidateUrl = directUrl ?? fallbackUrl;
+
+  return candidateUrl !== undefined && candidateUrl.length > 0;
+}
+
 export interface DockerPrismaHarness {
   readonly databaseUrl: string;
   readonly prisma: PrismaClient;

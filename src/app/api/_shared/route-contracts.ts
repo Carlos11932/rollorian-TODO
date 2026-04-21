@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { z } from "zod";
+import type { ZodError } from "zod";
 
 function readBooleanParam(value: string | null): boolean | undefined {
   if (value === null) {
@@ -25,7 +25,11 @@ export function badRequest(error: unknown) {
   return NextResponse.json({ error }, { status: 400 });
 }
 
-export function fromZodError(error: z.ZodError) {
+export function unauthorized() {
+  return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+}
+
+export function fromZodError(error: ZodError) {
   return badRequest(error.flatten());
 }
 

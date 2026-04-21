@@ -3,8 +3,7 @@
 import { useState } from 'react';
 import { GroupTaskList } from '../components/group-task-list';
 import { ChangeHistoryPanel } from '../components/change-history-panel';
-import { MOCK_HISTORY, MOCK_USERS } from '@/dev-data/data';
-import { MOCK_GROUPS } from '@/dev-data/data';
+import { MOCK_GROUPS, MOCK_HISTORY, MOCK_USERS } from '@/dev-data/data';
 import type { ItemCardDto } from '@/interfaces/ui/item-card-dto';
 
 const ACTIVE_GROUP = MOCK_GROUPS[0]!;

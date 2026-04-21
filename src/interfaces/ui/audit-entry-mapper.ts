@@ -1,5 +1,4 @@
-import type { GroupItemAuditEntry } from '@/domain/history';
-import { GROUP_ITEM_AUDIT_CHANGE_KIND } from '@/domain/history';
+import { GROUP_ITEM_AUDIT_CHANGE_KIND, type GroupItemAuditEntry } from '@/domain/history';
 import type { HistoryEntryDto } from './history-entry-dto';
 
 function initials(name: string | undefined): string {

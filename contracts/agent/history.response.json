@@ -1,0 +1,23 @@
+{
+  "data": {
+    "itemId": "api-item-456",
+    "entries": [
+      {
+        "versionToken": 3,
+        "changedAt": "2026-04-18T10:15:00.000Z",
+        "actor": {
+          "actorId": "user-2",
+          "displayName": "Archive Partner",
+          "email": "partner@rollorian.dev"
+        },
+        "changes": [
+          {
+            "kind": "status",
+            "before": "pending",
+            "after": "blocked"
+          }
+        ]
+      }
+    ]
+  }
+}

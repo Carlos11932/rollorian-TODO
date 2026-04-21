@@ -1,4 +1,4 @@
-import { Prisma, PrismaClient } from "@prisma/client";
+import type { Prisma, PrismaClient } from "@prisma/client";
 import { randomUUID } from "node:crypto";
 
 import type { ItemCommandRepository, ItemRecord } from "@/application/commands";

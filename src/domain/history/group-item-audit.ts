@@ -1,14 +1,12 @@
 import type { ActorMetadata } from "@/domain/identity";
 import {
   EVENT_STATUS,
-  TASK_STATUS,
-  type Item,
-  type ItemLabel,
-} from "@/domain/item";
-import {
   EVENT_TEMPORAL_KIND,
+  TASK_STATUS,
   TASK_TEMPORAL_KIND,
   type EventTemporal,
+  type Item,
+  type ItemLabel,
   type TaskTemporal,
 } from "@/domain/item";
 import type {

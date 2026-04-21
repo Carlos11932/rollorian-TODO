@@ -82,8 +82,9 @@ import {
   updateItemHandler,
 } from "@/lib/item-command-factory";
 import {
-  resolveMockActor,
-} from "@/dev-data/actor";
+  resolveSessionRuntimeContext,
+  type ApiRuntimeContextResolver,
+} from "@/lib/api-runtime-context";
 import {
   createScopeMismatchError,
   type CommandFailure,
@@ -105,12 +106,6 @@ function getCommandErrorStatus(error: ItemCommandError): number {
     case "validation_failed":
       return 422;
   }
-}
-
-async function resolveRuntimeActor(request: Request) {
-  const selectedActor = resolveMockActor(request);
-
-  return (await prismaMembershipResolver.findActorByUserId(selectedActor.userId)) ?? selectedActor;
 }
 
 async function createCommandSpace(scope: ItemScopeRequest) {
@@ -149,14 +144,6 @@ function isCommandFailure(value: CommandFailure | ItemCommandSpace): value is Co
   return "ok" in value && value.ok === false;
 }
 
-async function resolveVisibleGroupIds(request: Request) {
-  const actor = await resolveRuntimeActor(request);
-
-  return {
-    actor,
-    visibleGroupIds: await prismaMembershipResolver.listVisibleGroupIdsForActor(actor.userId),
-  };
-}
 
 function toEventLifecycle(
   lifecycle:
@@ -338,8 +325,12 @@ function isVisibleToActor(record: ItemViewRecord, actorUserId: string, visibleGr
   );
 }
 
-export async function createItem(request: Request, input: CreateItemRequest) {
-  const actor = await resolveRuntimeActor(request);
+export async function createItem(
+  request: Request,
+  input: CreateItemRequest,
+  resolveContext: ApiRuntimeContextResolver = resolveSessionRuntimeContext,
+) {
+  const { actor } = await resolveContext(request);
   const body = input.body;
   const space = await createCommandSpace(body);
 
@@ -387,8 +378,12 @@ export async function createItem(request: Request, input: CreateItemRequest) {
   };
 }
 
-export async function getItem(request: Request, input: GetItemByIdRequest) {
-  const actor = await resolveRuntimeActor(request);
+export async function getItem(
+  request: Request,
+  input: GetItemByIdRequest,
+  resolveContext: ApiRuntimeContextResolver = resolveSessionRuntimeContext,
+) {
+  const { actor } = await resolveContext(request);
   const space = await createCommandSpace(input.query);
 
   if (isCommandFailure(space)) {
@@ -410,8 +405,12 @@ export async function getItem(request: Request, input: GetItemByIdRequest) {
   };
 }
 
-export async function updateItem(request: Request, input: UpdateItemRequest) {
-  const actor = await resolveRuntimeActor(request);
+export async function updateItem(
+  request: Request,
+  input: UpdateItemRequest,
+  resolveContext: ApiRuntimeContextResolver = resolveSessionRuntimeContext,
+) {
+  const { actor } = await resolveContext(request);
   const body = input.body;
   const current = await findItemById(input.params.itemId);
   const resolvedItemType = body.itemType ?? current?.itemType ?? ITEM_TYPE.TASK;
@@ -471,8 +470,12 @@ export async function updateItem(request: Request, input: UpdateItemRequest) {
   };
 }
 
-export async function listItems(request: Request, input: ListItemsRequest) {
-  const { actor, visibleGroupIds } = await resolveVisibleGroupIds(request);
+export async function listItems(
+  request: Request,
+  input: ListItemsRequest,
+  resolveContext: ApiRuntimeContextResolver = resolveSessionRuntimeContext,
+) {
+  const { actor, visibleGroupIds } = await resolveContext(request);
   const visibleItems = (await prismaItemViewRepository.listProjectedItems())
     .filter((record) => isVisibleToActor(record, actor.userId, visibleGroupIds))
     .map((record) => record.item);
@@ -483,8 +486,12 @@ export async function listItems(request: Request, input: ListItemsRequest) {
   };
 }
 
-export async function getMyView(request: Request, input: GetMyViewRequest) {
-  const { actor, visibleGroupIds } = await resolveVisibleGroupIds(request);
+export async function getMyView(
+  request: Request,
+  input: GetMyViewRequest,
+  resolveContext: ApiRuntimeContextResolver = resolveSessionRuntimeContext,
+) {
+  const { actor, visibleGroupIds } = await resolveContext(request);
   const result = await getMyViewHandler.execute({
     actorUserId: actor.userId,
     visibleGroupIds,
@@ -497,8 +504,12 @@ export async function getMyView(request: Request, input: GetMyViewRequest) {
   };
 }
 
-export async function getGroupView(request: Request, input: GetGroupViewRequest) {
-  const { actor, visibleGroupIds } = await resolveVisibleGroupIds(request);
+export async function getGroupView(
+  request: Request,
+  input: GetGroupViewRequest,
+  resolveContext: ApiRuntimeContextResolver = resolveSessionRuntimeContext,
+) {
+  const { actor, visibleGroupIds } = await resolveContext(request);
   const result = await getGroupViewHandler.execute({
     actorUserId: actor.userId,
     groupId: createGroupId(input.params.groupId),
@@ -512,8 +523,12 @@ export async function getGroupView(request: Request, input: GetGroupViewRequest)
   };
 }
 
-export async function getCalendarView(request: Request, input: GetCalendarViewRequest) {
-  const { actor, visibleGroupIds } = await resolveVisibleGroupIds(request);
+export async function getCalendarView(
+  request: Request,
+  input: GetCalendarViewRequest,
+  resolveContext: ApiRuntimeContextResolver = resolveSessionRuntimeContext,
+) {
+  const { actor, visibleGroupIds } = await resolveContext(request);
   const result = await getCalendarViewHandler.execute({
     actorUserId: actor.userId,
     range: {
@@ -534,8 +549,12 @@ export async function getCalendarView(request: Request, input: GetCalendarViewRe
   };
 }
 
-export async function getUndatedView(request: Request, input: GetUndatedViewRequest) {
-  const { actor, visibleGroupIds } = await resolveVisibleGroupIds(request);
+export async function getUndatedView(
+  request: Request,
+  input: GetUndatedViewRequest,
+  resolveContext: ApiRuntimeContextResolver = resolveSessionRuntimeContext,
+) {
+  const { actor, visibleGroupIds } = await resolveContext(request);
   const result = await getUndatedViewHandler.execute({
     actorUserId: actor.userId,
     spaceFilter: input.query.spaceFilter,
@@ -549,8 +568,12 @@ export async function getUndatedView(request: Request, input: GetUndatedViewRequ
   };
 }
 
-export async function getAttentionView(request: Request, input: GetAttentionViewRequest) {
-  const { actor, visibleGroupIds } = await resolveVisibleGroupIds(request);
+export async function getAttentionView(
+  request: Request,
+  input: GetAttentionViewRequest,
+  resolveContext: ApiRuntimeContextResolver = resolveSessionRuntimeContext,
+) {
+  const { actor, visibleGroupIds } = await resolveContext(request);
   const result = await getAttentionViewHandler.execute({
     actorUserId: actor.userId,
     spaceFilter: input.query.spaceFilter,
@@ -564,8 +587,12 @@ export async function getAttentionView(request: Request, input: GetAttentionView
   };
 }
 
-export async function getItemHistory(request: Request, input: GetItemHistoryRequest) {
-  const actor = await resolveRuntimeActor(request);
+export async function getItemHistory(
+  request: Request,
+  input: GetItemHistoryRequest,
+  resolveContext: ApiRuntimeContextResolver = resolveSessionRuntimeContext,
+) {
+  const { actor } = await resolveContext(request);
   const space = await createCommandSpace(input.query);
 
   if (isCommandFailure(space)) {

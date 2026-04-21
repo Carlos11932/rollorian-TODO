@@ -1,6 +1,8 @@
-import type {
-  GroupSpaceAccessContext,
-  PersonalSpaceAccessContext,
+import {
+  isGroupSpaceAccessContext,
+  isPersonalSpaceAccessContext,
+  type GroupSpaceAccessContext,
+  type PersonalSpaceAccessContext,
 } from "@/domain/access";
 import type { AuthorizationActor } from "@/domain/identity";
 import {
@@ -18,10 +20,6 @@ import {
   type TaskLifecycle,
   type TaskTemporal,
 } from "@/domain/item";
-import {
-  isGroupSpaceAccessContext,
-  isPersonalSpaceAccessContext,
-} from "@/domain/access";
 import {
   ITEM_TYPE,
   SPACE_TYPE,

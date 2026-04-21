@@ -22,6 +22,7 @@ import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vites
 
 import {
   createDockerPrismaHarness,
+  hasConfiguredDatasourceUrl,
   type DockerPrismaHarness,
 } from "./prisma-test-harness";
 
@@ -105,7 +106,9 @@ async function disconnectRuntimePrisma(): Promise<void> {
   await runtimePrismaModule.prisma.$disconnect();
 }
 
-describe("App Router runtime API (Prisma-backed)", () => {
+const describeIfDatabaseConfigured = hasConfiguredDatasourceUrl() ? describe : describe.skip;
+
+describeIfDatabaseConfigured("App Router runtime API (Prisma-backed)", () => {
   let prismaHarness: DockerPrismaHarness;
   let prisma: PrismaClient;
 

@@ -1,7 +1,12 @@
 'use client';
 
-import { createContext, useCallback, useContext, useState } from 'react';
-import type { ReactNode } from 'react';
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useState,
+  type ReactNode,
+} from 'react';
 
 interface QuickCaptureContextValue {
   isOpen: boolean;

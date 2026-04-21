@@ -7,13 +7,6 @@ import {
 } from "@/domain/item";
 import { SPACE_TYPE, type ItemId, type Priority, type UserId } from "@/domain/shared";
 import type { AuthorizationActor } from "@/domain/identity";
-import type {
-  EventCreateFields,
-  ItemCommandRepository,
-  ItemCommandSpace,
-  ItemOutput,
-  TaskCreateFields,
-} from "./shared";
 import {
   commandSuccess,
   createAccessDeniedError,
@@ -21,6 +14,12 @@ import {
   createValidationError,
   toItemOutput,
   validateCommandSpace,
+  type CommandResult,
+  type EventCreateFields,
+  type ItemCommandRepository,
+  type ItemCommandSpace,
+  type ItemOutput,
+  type TaskCreateFields,
 } from "./shared";
 
 export interface CreateItemCommandBase {
@@ -39,7 +38,7 @@ export type CreateItemCommand =
   | (CreateItemCommandBase & TaskCreateFields)
   | (CreateItemCommandBase & EventCreateFields);
 
-export type CreateItemCommandResult = import("./shared").CommandResult<ItemOutput>;
+export type CreateItemCommandResult = CommandResult<ItemOutput>;
 
 export class CreateItemCommandHandler {
   public constructor(private readonly itemRepository: ItemCommandRepository) {}

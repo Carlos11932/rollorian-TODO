@@ -2,18 +2,14 @@
  * Serializable view types for ItemOutput — safe to cross the server/client boundary.
  * Dates are ISO strings. Used by API routes and Server Actions.
  */
-import type { ItemOutput, TaskItemOutput, EventItemOutput } from '@/application/commands/shared';
+import type { EventItemOutput, ItemOutput, TaskItemOutput } from '@/application/commands/shared';
 import type {
-  GroupId,
-  ItemId,
-  Priority,
-  SpaceId,
-  UserId,
-  VersionToken,
-} from '@/domain/shared';
-import type { TaskLifecycle, EventLifecycle } from '@/domain/item';
-import type { TaskTemporal, EventTemporal } from '@/domain/item';
-import { ITEM_TYPE, SPACE_TYPE } from '@/domain/shared';
+  EventLifecycle,
+  EventTemporal,
+  TaskLifecycle,
+  TaskTemporal,
+} from '@/domain/item';
+import { ITEM_TYPE, SPACE_TYPE, type Priority } from '@/domain/shared';
 
 export interface ItemViewBase {
   id: string;

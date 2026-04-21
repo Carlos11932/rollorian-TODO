@@ -1,12 +1,12 @@
 import type { Item } from "@/domain/item";
-import { SPACE_TYPE, type GroupId, type UserId } from "@/domain/shared";
+import type { GroupId, UserId } from "@/domain/shared";
 
 export interface ProjectableItemRecord {
   assigneeIds: readonly UserId[];
   groupId: GroupId | null;
   item: Item;
   ownerId: UserId | null;
-  spaceType: typeof SPACE_TYPE.PERSONAL | typeof SPACE_TYPE.GROUP;
+  spaceType: "personal" | "group";
 }
 
 export const QUERY_VISIBILITY_SCOPE = {

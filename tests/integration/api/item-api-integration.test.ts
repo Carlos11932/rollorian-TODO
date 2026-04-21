@@ -23,6 +23,7 @@ import { z } from "zod";
 
 import {
   createDockerPrismaHarness,
+  hasConfiguredDatasourceUrl,
   type DockerPrismaHarness,
 } from "./prisma-test-harness";
 
@@ -152,7 +153,9 @@ async function disconnectRuntimePrisma(): Promise<void> {
   await runtimePrismaModule.prisma.$disconnect();
 }
 
-describe("item API integration (Prisma-backed)", () => {
+const describeIfDatabaseConfigured = hasConfiguredDatasourceUrl() ? describe : describe.skip;
+
+describeIfDatabaseConfigured("item API integration (Prisma-backed)", () => {
   let prismaHarness: DockerPrismaHarness;
   let prisma: PrismaClient;
 

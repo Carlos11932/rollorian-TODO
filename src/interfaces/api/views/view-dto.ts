@@ -1,19 +1,14 @@
-import type {
-  AttentionProjection,
-  AssigneeSummaryProjection,
-  DatedSpanProjection,
-  ItemQueryProjection,
-  VisibilityProjection,
-} from "@/application/queries/projectors";
 import {
   ATTENTION_REASON,
   MY_VIEW_MEMBERSHIP,
   QUERY_VISIBILITY_SCOPE,
+  type AttentionProjection,
+  type AssigneeSummaryProjection,
+  type DatedSpanProjection,
+  type ItemQueryProjection,
+  type VisibilityProjection,
 } from "@/application/queries/projectors";
-import {
-  type ItemViewRecord,
-  VIEW_SPACE_FILTER,
-} from "@/application/queries/views";
+import { VIEW_SPACE_FILTER, type ItemViewRecord } from "@/application/queries/views";
 import { z } from "zod";
 import { groupIdSchema, itemDtoSchema, toItemDto, toTemporalBoundsDto, userIdSchema } from "../items";
 

@@ -1,10 +1,9 @@
 'use client';
 
-import { useEffect, useRef, useState, useTransition } from 'react';
+import { useEffect, useEffectEvent, useRef, useState, useTransition } from 'react';
 import { cn } from '@/lib/cn';
 import { useQuickCapture } from './quick-capture-context';
-import { createItemAction } from '../actions/item-actions';
-import type { SpaceTarget } from '../actions/item-actions';
+import { createItemAction, type SpaceTarget } from '../actions/item-actions';
 import type { ItemType } from '@/domain/shared/item-type';
 import type { Priority } from '@/domain/shared/priority';
 import type { GroupDto } from '@/interfaces/ui/history-entry-dto';
@@ -44,38 +43,49 @@ export function QuickCaptureDialog({ groups = [] }: QuickCaptureDialogProps) {
   const dialogRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
+  function resetForm() {
+    setTitle('');
+    setItemType('task');
+    setPriority('medium');
+    setDate('');
+    setSpaceTarget('personal');
+  }
+
+  function closeDialog() {
+    resetForm();
+    close();
+  }
+
+  const handleEffectClose = useEffectEvent(() => {
+    closeDialog();
+  });
+
   useEffect(() => {
     if (isOpen) {
       setTimeout(() => inputRef.current?.focus(), 50);
-    } else {
-      setTitle('');
-      setItemType('task');
-      setPriority('medium');
-      setDate('');
-      setSpaceTarget('personal');
     }
   }, [isOpen]);
 
   useEffect(() => {
     if (!isOpen) return;
     function onKey(e: KeyboardEvent) {
-      if (e.key === 'Escape') close();
+      if (e.key === 'Escape') handleEffectClose();
     }
     document.addEventListener('keydown', onKey);
     return () => document.removeEventListener('keydown', onKey);
-  }, [isOpen, close]);
+  }, [isOpen]);
 
   useEffect(() => {
     if (!isOpen) return;
     function onClick(e: MouseEvent) {
-      if (dialogRef.current && !dialogRef.current.contains(e.target as Node)) close();
+      if (dialogRef.current && !dialogRef.current.contains(e.target as Node)) handleEffectClose();
     }
     const timer = setTimeout(() => document.addEventListener('mousedown', onClick), 0);
     return () => {
       clearTimeout(timer);
       document.removeEventListener('mousedown', onClick);
     };
-  }, [isOpen, close]);
+  }, [isOpen]);
 
   function handleSubmit() {
     if (!title.trim() || isPending) return;
@@ -87,7 +97,7 @@ export function QuickCaptureDialog({ groups = [] }: QuickCaptureDialogProps) {
         date: date || undefined,
         spaceTarget,
       });
-      close();
+      closeDialog();
     });
   }
 
@@ -110,7 +120,7 @@ export function QuickCaptureDialog({ groups = [] }: QuickCaptureDialogProps) {
           </div>
           <button
             type="button"
-            onClick={close}
+            onClick={closeDialog}
             className="text-on-surface-variant hover:text-on-surface transition-colors"
             aria-label="Cerrar"
           >
@@ -229,7 +239,7 @@ export function QuickCaptureDialog({ groups = [] }: QuickCaptureDialogProps) {
           <div className="flex items-center gap-3">
             <button
               type="button"
-              onClick={close}
+              onClick={closeDialog}
               className="text-sm text-on-surface-variant hover:text-on-surface transition-colors"
             >
               Cancelar

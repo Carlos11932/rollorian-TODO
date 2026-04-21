@@ -1,0 +1,42 @@
+{
+  "data": {
+    "filters": {},
+    "items": [
+      {
+        "item": {
+          "id": "api-item-123",
+          "itemType": "task",
+          "spaceType": "personal",
+          "spaceId": "space-personal-user-1",
+          "ownerId": "user-1",
+          "groupId": null,
+          "title": "Prepare weekly planning",
+          "notes": null,
+          "priority": "high",
+          "status": "pending",
+          "postponeCount": 0,
+          "versionToken": 2,
+          "assigneeIds": [],
+          "labels": [],
+          "temporal": {
+            "kind": "undated"
+          },
+          "lifecycle": {
+            "status": "pending"
+          },
+          "createdAt": "2026-04-18T09:00:00.000Z",
+          "updatedAt": "2026-04-18T10:00:00.000Z"
+        },
+        "projection": {
+          "attention": {
+            "isOpen": true,
+            "reasons": [
+              "high_priority"
+            ]
+          }
+        }
+      }
+    ],
+    "totalCount": 1
+  }
+}

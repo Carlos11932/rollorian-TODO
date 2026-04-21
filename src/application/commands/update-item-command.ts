@@ -6,13 +6,19 @@ import {
 import {
   createEventItem,
   createTaskItem,
+  type Item,
   updateEventItem,
   updateTaskItem,
   validateItemAssignment,
   validateItemLabels,
-  type Item,
 } from "@/domain/item";
-import { ITEM_TYPE, SPACE_TYPE, incrementVersionToken } from "@/domain/shared";
+import {
+  ITEM_TYPE,
+  SPACE_TYPE,
+  incrementVersionToken,
+  type UserId,
+  type VersionToken,
+} from "@/domain/shared";
 import {
   commandSuccess,
   createAccessDeniedError,
@@ -35,7 +41,7 @@ import {
 } from "./shared";
 
 export interface UpdateItemCommandBase extends ItemMutationInputBase {
-  expectedVersionToken?: import("@/domain/shared").VersionToken;
+  expectedVersionToken?: VersionToken;
 }
 
 export type UpdateItemCommand = UpdateItemCommandBase &
@@ -119,7 +125,7 @@ function buildNextItem(item: Item, command: UpdateItemCommand): Item {
 function getNextAssigneeIds(
   command: UpdateItemCommand,
   record: ItemRecord,
-): readonly import("@/domain/shared").UserId[] {
+): readonly UserId[] {
   return command.assigneeIds ?? record.assigneeIds;
 }
 

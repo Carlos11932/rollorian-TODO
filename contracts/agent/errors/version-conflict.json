@@ -1,0 +1,8 @@
+{
+  "error": {
+    "code": "version_conflict",
+    "message": "Version token conflict",
+    "expectedVersionToken": 2,
+    "actualVersionToken": 3
+  }
+}

@@ -37,6 +37,7 @@ import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vites
 
 import {
   createDockerPrismaHarness,
+  hasConfiguredDatasourceUrl,
   type DockerPrismaHarness,
 } from "../api/prisma-test-harness";
 
@@ -73,7 +74,9 @@ function createGroupTaskRecord(input: {
   };
 }
 
-describe("Prisma persistence repositories (integration)", () => {
+const describeIfDatabaseConfigured = hasConfiguredDatasourceUrl() ? describe : describe.skip;
+
+describeIfDatabaseConfigured("Prisma persistence repositories (integration)", () => {
   let prismaHarness: DockerPrismaHarness;
   let prisma: PrismaClient;
 
