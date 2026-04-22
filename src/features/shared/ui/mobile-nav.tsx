@@ -8,6 +8,7 @@ const NAV_ITEMS = [
   { href: '/', icon: 'dashboard', label: 'Mi Vista' },
   { href: '/grupos', icon: 'group', label: 'Grupos' },
   { href: '/calendario', icon: 'calendar_today', label: 'Calendario' },
+  { href: '/settings', icon: 'settings', label: 'Ajustes' },
 ];
 
 export function MobileNav() {

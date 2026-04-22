@@ -8,9 +8,9 @@
 
 ## Phase 2: Settings Surface
 
-- [ ] 2.1 Create `src/app/settings/page.tsx` and the `src/features/settings/` components needed to list connections, reveal the latest token once, and trigger create/rotate/revoke actions.
-- [ ] 2.2 Modify `src/features/shared/ui/side-nav-bar.tsx` and `src/features/shared/ui/mobile-nav.tsx` to expose the Settings route without regressing current navigation.
-- [ ] 2.3 Add component tests for the settings panel covering token one-time visibility, busy states, and audit refresh.
+- [x] 2.1 Create `src/app/settings/page.tsx` and the `src/features/settings/` components needed to list connections, reveal the latest token once, and trigger create/rotate/revoke actions.
+- [x] 2.2 Modify `src/features/shared/ui/side-nav-bar.tsx` and `src/features/shared/ui/mobile-nav.tsx` to expose the Settings route without regressing current navigation.
+- [x] 2.3 Add component tests for the settings panel covering token one-time visibility, busy states, and audit refresh.
 
 ## Phase 3: Provider Onboarding
 
