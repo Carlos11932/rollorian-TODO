@@ -35,7 +35,7 @@ export default async function SettingsPage() {
   }
 
   const headersList = await headers();
-  resolveBaseUrl({
+  const baseUrl = resolveBaseUrl({
     headerHost: headersList.get("x-forwarded-host") ?? headersList.get("host"),
     headerProtocol: headersList.get("x-forwarded-proto"),
   });
@@ -57,7 +57,7 @@ export default async function SettingsPage() {
         </p>
       </header>
 
-      <AgentSettingsPanel initialClients={clients} initialRecentEvents={recentEvents} />
+      <AgentSettingsPanel initialClients={clients} initialRecentEvents={recentEvents} baseUrl={baseUrl} />
     </div>
   );
 }

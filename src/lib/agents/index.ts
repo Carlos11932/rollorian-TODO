@@ -39,6 +39,13 @@ export {
   revokeAgentCredentialForUser,
   revokeAgentClientForUser,
 } from "./management";
+export {
+  AGENT_ONBOARDING_PROVIDERS,
+  buildAgentOnboardingSnippets,
+  type AgentOnboardingProvider,
+  type AgentOnboardingSnippet,
+  type BuildAgentOnboardingOptions,
+} from "./onboarding";
 export { createAgentRuntimeContextResolver } from "./service";
 export { handleAgentRoute } from "./http";
 export type {

@@ -14,9 +14,9 @@
 
 ## Phase 3: Provider Onboarding
 
-- [ ] 3.1 Create `src/lib/agents/onboarding.ts` with Codex, Claude Code, Cursor, and generic MCP snippet builders for the TODO MCP package.
-- [ ] 3.2 Create `src/features/settings/components/agent-onboarding-panel.tsx` and wire it into the settings UI with placeholder and live-token states.
-- [ ] 3.3 Add unit tests for snippet generation and panel rendering, including fallback behavior when no token is available.
+- [x] 3.1 Create `src/lib/agents/onboarding.ts` with Codex, Claude Code, Cursor, and generic MCP snippet builders for the TODO MCP package.
+- [x] 3.2 Create `src/features/settings/components/agent-onboarding-panel.tsx` and wire it into the settings UI with placeholder and live-token states.
+- [x] 3.3 Add unit tests for snippet generation and panel rendering, including fallback behavior when no token is available.
 
 ## Phase 4: Verification
 

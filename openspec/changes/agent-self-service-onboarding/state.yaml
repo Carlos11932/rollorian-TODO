@@ -12,3 +12,4 @@ notes:
   - TODO implementation starts after Books merge on 2026-04-22.
   - Phase 1 foundation parity is complete: mutation responses now include refreshed recentEvents and route/unit tests cover create/issue/revoke behavior.
   - Phase 2 settings surface is complete: TODO now has a protected /settings page, navigation entries, one-time token reveal, and UI tests for create/rotate flows.
+  - Phase 3 onboarding is complete: the Settings page now renders provider-specific Codex/Claude/Cursor/generic snippets from a shared helper with placeholder/live-token coverage.

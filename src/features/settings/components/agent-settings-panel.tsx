@@ -17,10 +17,12 @@ import {
 } from '@/lib/api/agents';
 import { EmptyState } from '@/features/shared/components/empty-state';
 import { cn } from '@/lib/cn';
+import { AgentOnboardingPanel } from './agent-onboarding-panel';
 
 interface AgentSettingsPanelProps {
   initialClients: AgentClientSummary[];
   initialRecentEvents: AgentAuditEventSummary[];
+  baseUrl: string;
 }
 
 const DEFAULT_SCOPES: AgentScope[] = ['items:read', 'items:write', 'views:read', 'history:read'];
@@ -73,6 +75,7 @@ function secondaryButtonClasses(disabled?: boolean) {
 export function AgentSettingsPanel({
   initialClients,
   initialRecentEvents,
+  baseUrl,
 }: AgentSettingsPanelProps) {
   const [clients, setClients] = useState(initialClients);
   const [recentEvents, setRecentEvents] = useState(initialRecentEvents);
@@ -291,7 +294,7 @@ export function AgentSettingsPanel({
             </p>
             <h2 className="text-xl font-semibold text-on-surface">Visible una sola vez</h2>
             <p className="text-sm text-on-surface-variant">
-              Guarda este token en tu gestor de secretos. La siguiente fase añadirá el onboarding guiado para MCP.
+              Guarda este token en tu gestor de secretos y usa el bloque de onboarding para conectarlo desde tu cliente MCP.
             </p>
           </div>
 
@@ -316,6 +319,15 @@ export function AgentSettingsPanel({
                 className="min-h-[220px]"
               />
             )}
+          </div>
+
+          <div className="mt-5">
+            <AgentOnboardingPanel
+              baseUrl={baseUrl}
+              token={latestToken?.token ?? null}
+              repoRootPlaceholder="/absolute/path/to/rollorian-todo"
+              serverName="rollorian-todo"
+            />
           </div>
         </section>
       </div>

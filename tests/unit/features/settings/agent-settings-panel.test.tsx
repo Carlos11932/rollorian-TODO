@@ -59,6 +59,7 @@ describe('AgentSettingsPanel', () => {
 
     render(
       <AgentSettingsPanel
+        baseUrl="https://rollorian-todo.vercel.app"
         initialClients={[]}
         initialRecentEvents={[]}
       />,
@@ -88,6 +89,7 @@ describe('AgentSettingsPanel', () => {
 
     render(
       <AgentSettingsPanel
+        baseUrl="https://rollorian-todo.vercel.app"
         initialClients={[makeClient()]}
         initialRecentEvents={[]}
       />,
