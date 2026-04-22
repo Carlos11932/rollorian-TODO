@@ -38,7 +38,9 @@ export async function POST(request: NextRequest): Promise<Response> {
     }
 
     const result = await createAgentClientForUser(userId, parsed.data);
-    return Response.json(result, { status: 201 });
+    const recentEvents = await listRecentAgentAuditEventsForUser(userId);
+
+    return Response.json({ ...result, recentEvents }, { status: 201 });
   } catch (error) {
     if (error instanceof UnauthorizedError) {
       return Response.json({ error: "Unauthorized" }, { status: 401 });

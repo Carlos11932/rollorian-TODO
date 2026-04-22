@@ -37,6 +37,7 @@ import { AgentInputError } from "@/lib/agents/errors";
 import {
   createAgentClientForUser,
   issueAgentCredentialForUser,
+  revokeAgentCredentialForUser,
   revokeAgentClientForUser,
 } from "@/lib/agents/management";
 
@@ -128,8 +129,46 @@ describe("agent management", () => {
     })).rejects.toThrowError(new AgentInputError("Invalid scopes: nope:scope"));
   });
 
+  it("issues a credential and returns the refreshed client summary plus the plain token", async () => {
+    const result = await issueAgentCredentialForUser("user-1", "agent-1", {
+      scopes: ["items:read"],
+      expiresInDays: 7,
+    });
+
+    expect(prismaMock.agentCredential.create).toHaveBeenCalledWith({
+      data: expect.objectContaining({
+        agentClientId: "agent-1",
+        tokenHash: "hashed-token",
+        tokenPrefix: "rta_test",
+        scopes: ["items:read"],
+      }),
+    });
+    expect(result).toEqual({
+      client: expect.objectContaining({
+        id: "agent-1",
+        credentials: expect.any(Array),
+        recentEvents: expect.any(Array),
+      }),
+      plainToken: "plain-token",
+    });
+  });
+
+  it("revokes a credential and returns the refreshed client summary", async () => {
+    const result = await revokeAgentCredentialForUser("user-1", "agent-1", "credential-1");
+
+    expect(prismaMock.agentCredential.update).toHaveBeenCalledWith({
+      where: { id: "credential-1" },
+      data: { revokedAt: expect.any(Date) },
+    });
+    expect(result).toEqual(expect.objectContaining({
+      id: "agent-1",
+      credentials: expect.any(Array),
+      recentEvents: expect.any(Array),
+    }));
+  });
+
   it("revokes a client and all active credentials in one transaction", async () => {
-    await revokeAgentClientForUser("user-1", "agent-1");
+    const result = await revokeAgentClientForUser("user-1", "agent-1");
 
     expect(prismaMock.$transaction).toHaveBeenCalledTimes(1);
     expect(prismaMock.agentClient.update).toHaveBeenCalledWith({
@@ -140,5 +179,10 @@ describe("agent management", () => {
       where: { agentClientId: "agent-1", revokedAt: null },
       data: { revokedAt: expect.any(Date) },
     });
+    expect(result).toEqual(expect.objectContaining({
+      id: "agent-1",
+      credentials: expect.any(Array),
+      recentEvents: expect.any(Array),
+    }));
   });
 });

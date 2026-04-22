@@ -2,9 +2,9 @@
 
 ## Phase 1: Foundation
 
-- [ ] 1.1 Modify `src/lib/agents/types.ts`, `src/lib/agents/index.ts`, and `src/lib/agents/management.ts` so TODO matches the Books mutation payload contract with refreshed `recentEvents`.
-- [ ] 1.2 Update `src/app/api/agent-clients/route.ts` plus credential/revoke routes to return the canonical management payloads and preserve current auth/error behavior.
-- [ ] 1.3 Add or extend unit tests in `tests/unit/api/agent-clients/route.test.ts` and `tests/unit/lib/agents-management.test.ts` for create/issue/revoke parity.
+- [x] 1.1 Modify `src/lib/agents/types.ts`, `src/lib/agents/index.ts`, and `src/lib/agents/management.ts` so TODO matches the Books mutation payload contract with refreshed `recentEvents`.
+- [x] 1.2 Update `src/app/api/agent-clients/route.ts` plus credential/revoke routes to return the canonical management payloads and preserve current auth/error behavior.
+- [x] 1.3 Add or extend unit tests in `tests/unit/api/agent-clients/route.test.ts` and `tests/unit/lib/agents-management.test.ts` for create/issue/revoke parity.
 
 ## Phase 2: Settings Surface
 

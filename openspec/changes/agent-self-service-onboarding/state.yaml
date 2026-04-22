@@ -5,8 +5,9 @@ phase_status:
   spec: completed
   design: completed
   tasks: completed
-  apply: pending
+  apply: in_progress
   verify: pending
 notes:
   - Books PR #46 is the canonical behavior reference.
   - TODO implementation starts after Books merge on 2026-04-22.
+  - Phase 1 foundation parity is complete: mutation responses now include refreshed recentEvents and route/unit tests cover create/issue/revoke behavior.

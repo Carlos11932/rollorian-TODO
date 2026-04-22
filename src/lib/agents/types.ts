@@ -39,5 +39,6 @@ export type AgentConnectionsResponse = {
 
 export type AgentClientMutationResponse = {
   client: AgentClientSummary;
+  recentEvents: AgentAuditEventSummary[];
   plainToken?: string;
 };
