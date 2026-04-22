@@ -1,0 +1,12 @@
+change: agent-self-service-onboarding
+updated_at: 2026-04-22
+phase_status:
+  proposal: completed
+  spec: completed
+  design: completed
+  tasks: completed
+  apply: pending
+  verify: pending
+notes:
+  - Books PR #46 is the canonical behavior reference.
+  - TODO implementation starts after Books merge on 2026-04-22.
