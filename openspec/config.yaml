@@ -59,8 +59,10 @@ rules:
   apply:
     - Follow existing code patterns and conventions
     - Load relevant coding skills for the project stack
+    - Client components and browser-facing helpers MUST import only client-safe leaf modules and MUST NOT import mixed barrels that re-export server-only modules
   verify:
     - Run tests if test infrastructure exists
     - Compare implementation against every spec scenario
+    - For client-surface TypeScript changes, run `npm run typecheck` and `npm run lint:strict` before PR and verify client files do not import server-only or mixed server barrels
   archive:
     - Warn before merging destructive deltas (large removals)

@@ -12,12 +12,15 @@ Implement TODO's self-service MCP management by reusing the behavior already mer
 | Sharing strategy | No shared package in v1 | Shared onboarding/management package | Contract parity is enough for now; shared code would slow delivery and couple both repos too early. |
 | Scope model | Keep TODO's raw agent scopes (`items:*`, `views:*`, `history:*`) | Introduce presets first | Presets are product UX, not a prerequisite for parity; backend scope semantics already exist. |
 | UI composition | Server `src/app/settings/page.tsx` + feature components + pure onboarding helper | Inline everything in one page | Keeps data loading server-side, snippet generation testable, and UI wiring consistent with existing feature folders. |
+| Client import boundary | Client components and browser-facing helpers import only `src/lib/agents` leaf modules (`constants`, `contracts`, `types`, `onboarding`) | Reuse the top-level `src/lib/agents/index.ts` barrel everywhere | The barrel also re-exports server-only Prisma/management modules; importing it from client code breaks the Next.js browser bundle. |
 
 ## Data Flow
 
 `Settings page` → `listAgentClientsForUser + listRecentAgentAuditEventsForUser` → `AgentSettingsPanel`
 
 `AgentSettingsPanel` → `/api/agent-clients*` mutations → `client + recentEvents + plainToken?` → local state refresh → `AgentOnboardingPanel`
+
+Client-side settings code (`AgentSettingsPanel`, `AgentOnboardingPanel`, and `src/lib/api/agents.ts`) must stop at client-safe leaf modules. Server data loaders and route handlers may continue importing the mixed `src/lib/agents/index.ts` barrel because they execute on the server.
 
 ## File Changes
 
@@ -28,6 +31,7 @@ Implement TODO's self-service MCP management by reusing the behavior already mer
 | `src/features/settings/components/agent-onboarding-panel.tsx` | Create | Provider switcher and copyable MCP snippets. |
 | `src/features/settings/ui/settings-page.tsx` | Create | Optional composition layer if TODO keeps page markup in features. |
 | `src/lib/agents/onboarding.ts` | Create | Pure provider snippet builder for Codex, Claude Code, Cursor, and generic MCP. |
+| `src/lib/api/agents.ts` | Modify | Keep browser-facing API helpers on client-safe imports only. |
 | `src/lib/agents/types.ts` | Modify | Add refreshed mutation payload shape parity with Books. |
 | `src/lib/agents/index.ts` | Modify | Re-export onboarding and updated types. |
 | `src/lib/agents/management.ts` | Modify | Return refreshed client summaries and user recent events after mutations. |

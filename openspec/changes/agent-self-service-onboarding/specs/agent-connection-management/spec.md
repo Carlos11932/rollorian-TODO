@@ -48,6 +48,22 @@ The system MUST generate provider-specific onboarding instructions for Codex, Cl
 - THEN the system MUST render the corresponding command or config snippet
 - AND the snippet MUST target the TODO MCP package and current base URL
 
+### Requirement: Client-Safe Agent Imports
+
+Client-side Settings surfaces and browser-facing helpers MUST consume agent metadata from client-safe modules only, without importing mixed server barrels that re-export Prisma or other server-only dependencies.
+
+#### Scenario: Settings client code consumes agent metadata
+- GIVEN a client component or browser-facing helper needs agent constants, contracts, types, or onboarding snippets
+- WHEN it imports those dependencies
+- THEN it MUST import from client-safe leaf modules such as `constants`, `contracts`, `types`, or `onboarding`
+- AND it MUST NOT import the mixed `@/lib/agents` barrel
+
+#### Scenario: Browser bundle excludes server-only agent dependencies
+- GIVEN the Settings onboarding flow is bundled for the browser
+- WHEN the import graph is resolved
+- THEN Prisma, `server-only`, and Node-only agent management dependencies MUST remain outside the client bundle
+- AND Settings onboarding MUST stay compatible with the Next.js client build pipeline
+
 ### Requirement: Synchronized Mutation Responses
 
 Management mutations MUST return enough refreshed state for the Settings UI to stay synchronized without a second round-trip.
