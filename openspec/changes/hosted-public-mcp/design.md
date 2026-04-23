@@ -27,6 +27,55 @@ Auth path:
 
 `user token from Settings` → `MCP client config` → `hosted MCP service env/request` → `Authorization: Bearer <token>` → `Agent API`
 
+## Phase 1 Hosting Contract (resolved)
+
+### Canonical external routes
+
+The hosted rollout standardizes on one public host with stable per-app paths:
+
+- `https://<mcp-host>/books/mcp`
+- `https://<mcp-host>/todo/mcp`
+- `https://<mcp-host>/books/health`
+- `https://<mcp-host>/todo/health`
+
+This keeps onboarding snippets stable even if the internal service topology changes.
+
+### Reverse proxy responsibilities
+
+The reverse proxy is responsible for:
+
+- TLS termination for the shared public host
+- path-based routing to the correct app-specific MCP service
+- preserving proxy context headers needed for observability (`x-forwarded-for`, `x-forwarded-proto`, request id or equivalent)
+- enforcing public method boundaries:
+  - `POST` on `/<app>/mcp`
+  - `GET` on `/<app>/health`
+
+### App service responsibilities
+
+Each MCP service remains isolated and owns:
+
+- its own MCP tool catalog
+- its own upstream Agent API base URL
+- its own request/auth error mapping
+- its own health response
+
+No service may read the other app's env vars or proxy requests to the other app's Agent API.
+
+### Authentication contract
+
+Hosted MCP does **not** mint new credentials. The MCP client continues to provide the same user-issued bearer token created in app Settings. The hosted service forwards that token unchanged to the upstream Agent API and maps upstream auth failures to transport-safe MCP errors.
+
+### Operational baseline
+
+Phase 1 locks the minimum hosted baseline:
+
+- HTTPS only on the public host
+- structured request/error logs with app, path, request correlation, status, and latency
+- explicit redaction of `Authorization` and any bearer token values from logs
+- rate limiting or equivalent abuse protection at the public edge
+- app-specific health endpoints suitable for uptime checks and deploy verification
+
 ## File Changes
 
 | File / Area | Action | Description |
@@ -50,6 +99,24 @@ Operational side-contract:
 
 - `GET /books/health`
 - `GET /todo/health`
+
+Minimal health payload contract:
+
+```json
+{
+  "status": "ok",
+  "service": "rollorian-books-mcp"
+}
+```
+
+or
+
+```json
+{
+  "status": "ok",
+  "service": "rollorian-todo-mcp"
+}
+```
 
 Settings onboarding contract extension:
 
@@ -81,3 +148,4 @@ Each app's onboarding builder will emit both:
 
 - [ ] Final public domain name for the shared host.
 - [ ] Exact infra repository or platform that will own the reverse proxy and process supervision.
+- [ ] Exact hosted client snippets to prefer per provider once we validate the current remote-MCP docs against the chosen public URLs.

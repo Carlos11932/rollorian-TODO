@@ -10,6 +10,13 @@ Define the hosted/public MCP transport for Books and TODO after the private self
 
 The system MUST expose a public HTTPS Streamable HTTP MCP endpoint for Books and another for TODO, so users can connect by URL without running a local MCP process.
 
+#### Scenario: Shared host exposes canonical MCP paths
+- GIVEN the hosted MCP deployment is configured behind a shared public host
+- WHEN a compatible MCP client is pointed to the canonical remote URL
+- THEN Books MUST be reachable at `https://<mcp-host>/books/mcp`
+- AND TODO MUST be reachable at `https://<mcp-host>/todo/mcp`
+- AND those URLs MUST remain stable across provider onboarding snippets
+
 #### Scenario: User connects to Books remotely
 - GIVEN a user has a valid Books agent token
 - WHEN they register the hosted Books MCP URL in a compatible MCP client
@@ -48,6 +55,13 @@ Books and TODO MUST be reachable from the same public host while remaining isola
 - THEN the reverse proxy MUST route it to the correct per-app service
 - AND env vars, upstream base URLs, and tool catalogs MUST remain isolated per app
 
+#### Scenario: Public health checks stay app-specific
+- GIVEN uptime or deploy checks target the shared host
+- WHEN health probes run
+- THEN Books MUST expose a health endpoint at `https://<mcp-host>/books/health`
+- AND TODO MUST expose a health endpoint at `https://<mcp-host>/todo/health`
+- AND each response MUST identify only that app service as healthy or unhealthy
+
 ### Requirement: Hosted Onboarding In Settings
 
 Books and TODO Settings MUST offer hosted/remote MCP onboarding alongside the existing local stdio setup.
@@ -68,6 +82,12 @@ The hosted MCP deployment MUST include operational safeguards suitable for publi
 - WHEN operators inspect service health
 - THEN each service MUST expose a health signal suitable for uptime checks
 - AND request/error logging MUST be sufficient to debug auth or transport failures
+
+#### Scenario: Structured logs avoid secret leakage
+- GIVEN a hosted MCP request or failure is logged
+- WHEN the log record is emitted
+- THEN it MUST include app identity, path, request correlation, status, and latency
+- AND it MUST NOT log bearer tokens or raw authorization headers
 
 #### Scenario: Public service limits abuse
 - GIVEN the MCP endpoints are reachable from the public internet

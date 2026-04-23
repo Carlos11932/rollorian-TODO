@@ -2,9 +2,9 @@
 
 ## Phase 1: Hosting Contract
 
-- [ ] 1.1 Define the public host/path contract for Books and TODO (`/books/mcp`, `/todo/mcp`) plus matching health endpoints.
-- [ ] 1.2 Specify the operational baseline for TLS termination, logs, and rate limiting on the shared host.
-- [ ] 1.3 Document how existing user-issued tokens are forwarded unchanged to each app's Agent API.
+- [x] 1.1 Define the public host/path contract for Books and TODO (`/books/mcp`, `/todo/mcp`) plus matching health endpoints.
+- [x] 1.2 Specify the operational baseline for TLS termination, logs, and rate limiting on the shared host.
+- [x] 1.3 Document how existing user-issued tokens are forwarded unchanged to each app's Agent API.
 
 ## Phase 2: MCP Service Hardening
 

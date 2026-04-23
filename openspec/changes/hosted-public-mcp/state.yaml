@@ -5,10 +5,12 @@ phase_status:
   spec: completed
   design: completed
   tasks: completed
-  apply: pending
+  apply: in_progress
   verify: pending
 notes:
   - This change starts after archiving `agent-self-service-onboarding`.
   - Books and TODO already expose local HTTP mode in their MCP packages; the new work is about public hosting, hardening, and hosted onboarding.
   - Hosted rollout is scoped to Books and TODO only in v1.
   - The chosen topology is one public host with path-based routing to isolated per-app MCP services.
+  - Phase 1 hosting contract is now resolved in OpenSpec: canonical external paths are `/books/mcp`, `/todo/mcp`, `/books/health`, and `/todo/health`.
+  - Hosted auth will reuse existing user-issued bearer tokens and forward them unchanged to each app's Agent API.
