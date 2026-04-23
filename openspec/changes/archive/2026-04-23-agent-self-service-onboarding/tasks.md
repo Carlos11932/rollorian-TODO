@@ -21,6 +21,6 @@
 ## Phase 4: Verification
 
 - [x] 4.1 Run `npm run lint:strict`, `npm run typecheck`, `npm run test:run`, and `npm run test:coverage` after implementation changes land.
-- [ ] 4.2 Run `npm run test:e2e` if the local TODO environment supports the authenticated Settings flow; otherwise document the exact blocker in the PR.
+- [x] 4.2 Run `npm run test:e2e` if the local TODO environment supports the authenticated Settings flow; otherwise document the exact blocker in the verification artifacts.
 - [ ] 4.3 Execute the manual checklist: create connection, copy provider snippet, rotate/revoke, and confirm unrelated TODO views still work.
 - [x] 4.4 Document the client/server import boundary in OpenSpec so Settings client code cannot rely on the mixed `@/lib/agents` barrel again.

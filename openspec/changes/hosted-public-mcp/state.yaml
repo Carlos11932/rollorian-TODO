@@ -1,0 +1,14 @@
+change: hosted-public-mcp
+updated_at: 2026-04-23
+phase_status:
+  proposal: completed
+  spec: completed
+  design: completed
+  tasks: completed
+  apply: pending
+  verify: pending
+notes:
+  - This change starts after archiving `agent-self-service-onboarding`.
+  - Books and TODO already expose local HTTP mode in their MCP packages; the new work is about public hosting, hardening, and hosted onboarding.
+  - Hosted rollout is scoped to Books and TODO only in v1.
+  - The chosen topology is one public host with path-based routing to isolated per-app MCP services.
