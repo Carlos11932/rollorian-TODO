@@ -5,10 +5,9 @@ import {
   AGENT_CLIENT_KINDS,
   AGENT_SCOPE_LABELS,
   AGENT_SCOPES,
-  type AgentAuditEventSummary,
-  type AgentClientSummary,
   type AgentScope,
-} from '@/lib/agents';
+} from '@/lib/agents/constants';
+import type { AgentAuditEventSummary, AgentClientSummary } from '@/lib/agents/types';
 import {
   createAgentConnection,
   issueAgentCredential,

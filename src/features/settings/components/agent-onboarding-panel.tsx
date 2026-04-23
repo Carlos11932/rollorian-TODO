@@ -1,7 +1,11 @@
 'use client';
 
 import { useState } from 'react';
-import { AGENT_ONBOARDING_PROVIDERS, buildAgentOnboardingSnippets, type AgentOnboardingProvider } from '@/lib/agents';
+import {
+  AGENT_ONBOARDING_PROVIDERS,
+  buildAgentOnboardingSnippets,
+  type AgentOnboardingProvider,
+} from '@/lib/agents/onboarding';
 import { cn } from '@/lib/cn';
 
 interface AgentOnboardingPanelProps {

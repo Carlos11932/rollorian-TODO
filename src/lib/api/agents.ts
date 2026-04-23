@@ -1,9 +1,11 @@
 import type {
   AgentClientMutationResponse,
   AgentConnectionsResponse,
+} from "@/lib/agents/types";
+import type {
   CreateAgentClientInput,
   IssueAgentCredentialInput,
-} from "@/lib/agents";
+} from "@/lib/agents/contracts";
 import { apiFetch } from "./client";
 
 export async function fetchAgentConnections(): Promise<AgentConnectionsResponse> {
