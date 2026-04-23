@@ -6,10 +6,12 @@ phase_status:
   design: completed
   tasks: completed
   apply: in_progress
-  verify: pending
+  verify: in_progress
 notes:
   - Books PR #46 is the canonical behavior reference.
   - TODO implementation starts after Books merge on 2026-04-22.
   - Phase 1 foundation parity is complete: mutation responses now include refreshed recentEvents and route/unit tests cover create/issue/revoke behavior.
   - Phase 2 settings surface is complete: TODO now has a protected /settings page, navigation entries, one-time token reveal, and UI tests for create/rotate flows.
   - Phase 3 onboarding is complete: the Settings page now renders provider-specific Codex/Claude/Cursor/generic snippets from a shared helper with placeholder/live-token coverage.
+  - Verification so far is green for `npm run lint:strict`, `npm run typecheck`, `npm run test:run`, and `npm run test:coverage`.
+  - `npm run test:e2e` is currently blocked by the repo baseline: there is no dedicated Playwright config for a browser UI flow, so the script falls through to test-file import/runtime errors instead of a Settings journey.
