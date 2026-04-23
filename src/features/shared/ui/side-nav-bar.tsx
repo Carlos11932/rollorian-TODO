@@ -15,6 +15,7 @@ const NAV_ITEMS: NavItem[] = [
   { href: '/', icon: 'dashboard', label: 'Mi Vista' },
   { href: '/grupos', icon: 'group', label: 'Grupos' },
   { href: '/calendario', icon: 'calendar_today', label: 'Calendario' },
+  { href: '/settings', icon: 'settings', label: 'Ajustes' },
 ];
 
 interface SideNavBarUser {

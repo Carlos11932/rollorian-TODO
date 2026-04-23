@@ -13,7 +13,7 @@ vi.mock("@/lib/auth/require-auth", () => ({
 }));
 
 vi.mock("@/lib/agents", async () => {
-  const actual = await vi.importActual<typeof import("@/lib/agents")>("@/lib/agents");
+  const actual = await vi.importActual("@/lib/agents");
   return {
     ...actual,
     listAgentClientsForUser: mocks.listAgentClientsForUserMock,
@@ -60,10 +60,16 @@ describe("agent client routes", () => {
     }) as never);
 
     expect(response.status).toBe(201);
+    await expect(response.json()).resolves.toEqual({
+      client: { id: "agent-1" },
+      plainToken: "plain-token",
+      recentEvents: [{ id: "event-1" }],
+    });
     expect(mocks.createAgentClientForUserMock).toHaveBeenCalledWith("user-1", {
       name: "Donna",
       kind: "PRIVATE_COMPANION",
       scopes: ["items:read"],
     });
+    expect(mocks.listRecentAgentAuditEventsForUserMock).toHaveBeenCalledWith("user-1");
   });
 });
