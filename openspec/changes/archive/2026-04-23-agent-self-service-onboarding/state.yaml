@@ -1,12 +1,12 @@
 change: agent-self-service-onboarding
-updated_at: 2026-04-22
+updated_at: 2026-04-23
 phase_status:
   proposal: completed
   spec: completed
   design: completed
   tasks: completed
-  apply: in_progress
-  verify: in_progress
+  apply: completed
+  verify: completed
 notes:
   - Books PR #46 is the canonical behavior reference.
   - TODO implementation starts after Books merge on 2026-04-22.
@@ -15,3 +15,4 @@ notes:
   - Phase 3 onboarding is complete: the Settings page now renders provider-specific Codex/Claude/Cursor/generic snippets from a shared helper with placeholder/live-token coverage.
   - Verification so far is green for `npm run lint:strict`, `npm run typecheck`, `npm run test:run`, and `npm run test:coverage`.
   - `npm run test:e2e` is currently blocked by the repo baseline: there is no dedicated Playwright config for a browser UI flow, so the script falls through to test-file import/runtime errors instead of a Settings journey.
+  - The live manual checklist remains pending explicit user validation after merge, so verification closed with warnings rather than a fully clean pass.
